@@ -29,6 +29,7 @@ namespace Apachai
 		public void DoPost (IManosContext ctx, string twittertext)
 		{
 			IHttpRequest req = ctx.Request;
+
 			if (string.IsNullOrEmpty (twittertext) || req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
 				ctx.Response.Redirect ("/Post?error=1");
 				return;
@@ -51,7 +52,6 @@ namespace Apachai
 		{
 			Console.WriteLine ("ShowPicture: " + id);
 			if (!File.Exists ("Content/img/" + id)) {
-				Console.WriteLine ("Doesn't exist");
 				ctx.Response.StatusCode = 404;
 				return;
 			}
@@ -90,26 +90,26 @@ namespace Apachai
 			var dict = new Dictionary<object, object> ();
 
 			if (image.Properties != null) {
-				CheckAndAdd (dict, "Width: ", image.Properties.PhotoWidth.ToString ());
-				CheckAndAdd (dict, "Height: ", image.Properties.PhotoHeight.ToString ());
-				CheckAndAdd (dict, "Type: ", image.Properties.Description.ToString ());
+				CheckAndAdd (dict, "Width: ", image.Properties.PhotoWidth);
+				CheckAndAdd (dict, "Height: ", image.Properties.PhotoHeight);
+				CheckAndAdd (dict, "Type: ", image.Properties.Description);
 			}
 			
 			if (image.ImageTag != null) {
-				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment.ToString ());
-				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating.ToString ());
-				CheckAndAdd (dict, "Date: ", image.ImageTag.DateTime.ToString ());
-				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating.ToString ());
-				CheckAndAdd (dict, "DateTime: ", image.ImageTag.DateTime.ToString ());
-				CheckAndAdd (dict, "Orientation: ", image.ImageTag.Orientation.ToString ());
-				CheckAndAdd (dict, "Software: ", image.ImageTag.Software.ToString ());
-				CheckAndAdd (dict, "ExposureTime: ", image.ImageTag.ExposureTime.ToString ());
-				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber.ToString ());
-				CheckAndAdd (dict, "ISOSpeedRatings: ", image.ImageTag.ISOSpeedRatings.ToString ());
-				CheckAndAdd (dict, "FocalLength: ", image.ImageTag.FocalLength.ToString ());
-				CheckAndAdd (dict, "FocalLength35mm: ", image.ImageTag.FocalLengthIn35mmFilm.ToString ());
-				CheckAndAdd (dict, "Make: ", image.ImageTag.Make.ToString ());
-				CheckAndAdd (dict, "Model: ", image.ImageTag.Model.ToString ());
+				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment);
+				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
+				CheckAndAdd (dict, "Date: ", image.ImageTag.DateTime);
+				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
+				CheckAndAdd (dict, "DateTime: ", image.ImageTag.DateTime);
+				CheckAndAdd (dict, "Orientation: ", image.ImageTag.Orientation);
+				CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
+				CheckAndAdd (dict, "ExposureTime: ", image.ImageTag.ExposureTime);
+				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber);
+				CheckAndAdd (dict, "ISOSpeedRatings: ", image.ImageTag.ISOSpeedRatings);
+				CheckAndAdd (dict, "FocalLength: ", image.ImageTag.FocalLength);
+				CheckAndAdd (dict, "FocalLength35mm: ", image.ImageTag.FocalLengthIn35mmFilm);
+				CheckAndAdd (dict, "Make: ", image.ImageTag.Make);
+				CheckAndAdd (dict, "Model: ", image.ImageTag.Model);
 			}
 
 			Console.WriteLine ("Got the following in the dict:");
@@ -134,10 +134,20 @@ namespace Apachai
 			return string.IsNullOrEmpty (mime) || (!mime.Equals ("image/jpg", StringComparison.Ordinal) && !mime.Equals ("image/png", StringComparison.Ordinal));
 		}
 
-		static void CheckAndAdd (Dictionary<object, object> dict, string key, string value)
+		static void CheckAndAdd<TValue> (Dictionary<object, object> dict, string key, TValue value)
 		{
-			if (!string.IsNullOrEmpty (key))
-				dict[key] = value;
+			if (value == null || string.IsNullOrEmpty (key))
+				return;
+
+			string sValue = value.ToString ();
+
+			if (!string.IsNullOrEmpty (sValue) && !IsWhiteSpaces (sValue))
+				dict[key] = sValue;
+		}
+
+		static bool IsWhiteSpaces (string str)
+		{
+			return str.All (char.IsWhiteSpace);
 		}
 	}
 }
