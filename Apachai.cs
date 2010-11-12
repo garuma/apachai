@@ -25,6 +25,9 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using System.Text;
 
 using Manos;
 using Manos.Http;
@@ -59,15 +62,13 @@ namespace Apachai
 				return;
 			}
 
-			MemoryStream buffer = new MemoryStream ();
-			req.Files.Values.First ().Contents.CopyTo (buffer);
-			
-			byte[] hash = md5sum.ComputeHash (buffer);
-			string filename = Convert.ToBase64String (hash);
-			buffer.Seek (0, SeekOrigin.Begin);
-			using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
-				buffer.CopyTo (fs);
-			
+			var filename = HandleUploadedFile (req.Files.Values.First ().Contents);
+
+			// TODO: find that back with ctx
+			var domain = "http://localhost:8080";
+			var shorturl = GetShortenedUrl (domain + "/i/" + filename);
+			// TODO: setup a continuation that post the link + twittertext to Twitter with OAuth
+
 			ctx.Response.Redirect ("/i/" + filename);
 		}
 
@@ -172,6 +173,28 @@ namespace Apachai
 		static bool IsWhiteSpaces (string str)
 		{
 			return str.All (char.IsWhiteSpace);
+		}
+
+		static string HandleUploadedFile (Stream file)
+		{
+			MemoryStream buffer = new MemoryStream ();
+			file.CopyTo (buffer);
+
+			byte[] hash = md5sum.ComputeHash (buffer);
+			string filename = Convert.ToBase64String (hash);
+			buffer.Seek (0, SeekOrigin.Begin);
+			using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
+				buffer.CopyTo (fs);
+
+			return filename;
+		}
+
+		static Task<string> GetShortenedUrl (string initial_url)
+		{
+			WebClient wc = new WebClient ();
+			wc.Encoding = Encoding.UTF8;
+
+			return Task<string>.Factory.StartNew (() => wc.DownloadString ("http://goo.gl/api/shorten?url=" + initial_url));
 		}
 	}
 }
