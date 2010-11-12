@@ -63,7 +63,7 @@
 		  <ul>
 			<li>
 			  <label for="file">Image file (.png, .jpg, .gif): </label>
-			  <input type="file" id="imagefile" name="imagefile" accept="image/png,image/jpeg,image/gif" required>
+			  <input type="file" id="imagefile" name="imagefile" accept="image/png,image/jpeg,image/gif" onchange="onFileChange(this.value)" required>
 			  <p id="invalid" class="hidden">You haven't entered a valid image file or twitter text is empty</p>
 			</li>
 			
@@ -71,7 +71,7 @@
 			  <textarea id="twittertext" name="twittertext" placeholder="Insert your twitter message here, it may contain the string {{img}} that will be replaced by your picture URL (if not it's appended to the message)" required></textarea>
 			</li>
 			<li>
-			  <input type="submit" value="Send" />
+			  <input type="submit" name="submit" id="submit" value="Send" />
 			</li>
 		  </ul>
 		</form>

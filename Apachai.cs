@@ -30,6 +30,9 @@ namespace Apachai
 		{
 			IHttpRequest req = ctx.Request;
 
+			if (req.Files.Count == 0)
+				Console.WriteLine ("No file received");
+
 			if (string.IsNullOrEmpty (twittertext) || req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
 				ctx.Response.Redirect ("/Post?error=1");
 				return;
