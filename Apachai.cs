@@ -37,6 +37,7 @@ namespace Apachai
 	public class Apachai : ManosApp 
 	{
 		static MD5 md5sum = MD5.Create ();
+		static Redis redis = new Redis ();
 
 		public Apachai ()
 		{
@@ -94,8 +95,8 @@ namespace Apachai
 			}
 
 			string json = null;
-			if ((json = Cache[id] as string) != null) {
-				ctx.Response.WriteLine (json);
+			if (redis.ContainsKey (id)) {
+				ctx.Response.WriteLine (redis[id]);
 				return;
 			}
 
@@ -112,7 +113,7 @@ namespace Apachai
 
 			var image = file as TagLib.Image.File;
 			
-			var dict = new Dictionary<object, object> ();
+			var dict = new JsonStringDictionary ();
 
 			if (image.Properties != null) {
 				CheckAndAdd (dict, "Width: ", image.Properties.PhotoWidth);
@@ -137,17 +138,14 @@ namespace Apachai
 				CheckAndAdd (dict, "Model: ", image.ImageTag.Model);
 			}
 
-			Console.WriteLine ("Got the following in the dict:");
-			foreach (var kvp in dict)
-				Console.WriteLine ("{0}, {1}", kvp.Key.ToString (), kvp.Value.ToString ());
-
-			json = JSON.JsonEncode (dict);
+			json = dict.Json;
 			if (json == null) {
 				ctx.Response.StatusCode = 500;
 				return;
 			}
 
-			Cache[id] = json;
+			redis[id] = json;
+
 			Console.WriteLine ("Returning: " + json);
 
 			ctx.Response.WriteLine (json);
@@ -159,7 +157,7 @@ namespace Apachai
 			return string.IsNullOrEmpty (mime) || (!mime.Equals ("image/jpg", StringComparison.Ordinal) && !mime.Equals ("image/png", StringComparison.Ordinal));
 		}
 
-		static void CheckAndAdd<TValue> (Dictionary<object, object> dict, string key, TValue value)
+		static void CheckAndAdd<TValue> (JsonStringDictionary dict, string key, TValue value)
 		{
 			if (value == null || string.IsNullOrEmpty (key))
 				return;
