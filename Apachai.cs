@@ -23,7 +23,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -36,8 +35,9 @@ namespace Apachai
 {
 	public class Apachai : ManosApp 
 	{
-		static MD5 md5sum = MD5.Create ();
-		static Redis redis = new Redis ();
+		readonly static BackingStore store = new BackingStore ();
+		readonly static OAuthConfig oauthConfig	=
+			new OAuthConfig ("MK4e0OGcH1Ni7fxpfiwjcg", "XJSiiavfjtqN1VOa4AIIOlnerRPCcJJnDDBLNoLIU", "http://localhost:8080/AuthCallback");
 
 		public Apachai ()
 		{
@@ -47,7 +47,68 @@ namespace Apachai
 		[Route ("/", "/Home", "/Index", "/Post")]
 		public void Index (IManosContext ctx)
 		{
+			if (string.IsNullOrEmpty (ctx.Request.Cookies.Get ("apachai:userId")))
+				ctx.Response.Redirect ("/Login");
 			ctx.Response.SendFile ("post.html");
+		}
+
+		[Route ("/Login")]
+		public void Login (IManosContext ctx)
+		{
+			ctx.Response.SendFile ("sign.html");
+		}
+
+		[Route ("/DoLogin")]
+		public void DoLogin (IManosContext ctx)
+		{
+			OAuth oauth = new OAuth (oauthConfig);
+			ctx.Response.InhibitFinishing = true;
+
+			oauth.AcquireRequestToken ().ContinueWith (req => {
+					Console.WriteLine ("Got back from request token call: " + req.Result);
+					var url = oauth.GetAuthUrl (req.Result);
+					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
+					Console.WriteLine ("Redirect URL is: " + url);
+
+					ctx.Response.InhibitFinishing = false;
+					ctx.Response.Redirect (url);
+					ctx.Response.Finish ();
+				});
+		}
+
+		[Route ("/AuthCallback")]
+		public void AuthCallback (IManosContext ctx)
+		{
+			string token = ctx.Request.Data["oauth_token"];
+			string tokenVerifier = ctx.Request.Data["oauth_verifier"];
+
+			Console.WriteLine ("Args: {0} and {1}", token, tokenVerifier);
+
+			OAuth oauth = new OAuth (oauthConfig);
+
+			oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
+				.ContinueWith (resultTask => {
+						var result = resultTask.Result;
+						var userInfos = result.Item2;
+						var tokens = result.Item1;
+						
+						Console.WriteLine ("Got back from access token call: {0} and {1}", userInfos.ToString (), tokens.ToString ());
+						
+						if (!store.DoWeKnowUser (userInfos.UserId))
+							store.SetUserInfos (userInfos.UserId, userInfos.UserName, userInfos.UserAvatarUrl);
+						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
+						
+						ctx.Response.InhibitFinishing = false;
+						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
+						ctx.Response.Redirect ("/Post");
+						ctx.Response.Finish ();
+				});
+		}
+
+		[Route ("/favicon.ico")]
+		public void Favicon (IManosContext ctx)
+		{
+			ctx.Response.SendFile ("Content/img/favicon.ico");
 		}
 
 		[Route ("/DoPost")]
@@ -67,7 +128,7 @@ namespace Apachai
 
 			// TODO: find that back with ctx
 			var domain = "http://localhost:8080";
-			var shorturl = GetShortenedUrl (domain + "/i/" + filename);
+			//var shorturl = GetShortenedUrl (domain + "/i/" + filename);
 			// TODO: setup a continuation that post the link + twittertext to Twitter with OAuth
 
 			ctx.Response.Redirect ("/i/" + filename);
@@ -89,64 +150,26 @@ namespace Apachai
 		public void FetchInformations (IManosContext ctx, string id)
 		{
 			Console.WriteLine ("Fetching infos for: " + id);
-			if (!File.Exists ("Content/img/" + id)) {
+			
+			var json = store.GetOrSetPictureInfos (id, () => {
+					TagLibMetadata metadata = new TagLibMetadata (id);
+					if (!metadata.IsValid) {
+						Console.WriteLine (id + " is invalid file");
+						return string.Empty;
+					}
+					
+					JsonStringDictionary dict = new JsonStringDictionary ();
+					metadata.FillUp (dict);
+					
+					return dict.Json;
+				});
+
+			Console.WriteLine ("Returning: " + json);
+
+			if (string.IsNullOrEmpty (json)) {
 				ctx.Response.StatusCode = 404;
 				return;
 			}
-
-			string json = null;
-			if (redis.ContainsKey (id)) {
-				ctx.Response.WriteLine (redis[id]);
-				return;
-			}
-
-			TagLib.File file = null;
-
-			try {
-				file = TagLib.File.Create("Content/img/" + id, "image/jpeg", TagLib.ReadStyle.Average);
-			} catch (Exception e) {
-				Console.WriteLine (e.ToString ());
-				ctx.Response.StatusCode = 500;
-				return;
-			}
-			Console.WriteLine ("File created");
-
-			var image = file as TagLib.Image.File;
-			
-			var dict = new JsonStringDictionary ();
-
-			if (image.Properties != null) {
-				CheckAndAdd (dict, "Width: ", image.Properties.PhotoWidth);
-				CheckAndAdd (dict, "Height: ", image.Properties.PhotoHeight);
-				CheckAndAdd (dict, "Type: ", image.Properties.Description);
-			}
-			
-			if (image.ImageTag != null) {
-				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment);
-				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
-				CheckAndAdd (dict, "Date: ", image.ImageTag.DateTime);
-				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
-				CheckAndAdd (dict, "DateTime: ", image.ImageTag.DateTime);
-				CheckAndAdd (dict, "Orientation: ", image.ImageTag.Orientation);
-				CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
-				CheckAndAdd (dict, "ExposureTime: ", image.ImageTag.ExposureTime);
-				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber);
-				CheckAndAdd (dict, "ISOSpeedRatings: ", image.ImageTag.ISOSpeedRatings);
-				CheckAndAdd (dict, "FocalLength: ", image.ImageTag.FocalLength);
-				CheckAndAdd (dict, "FocalLength35mm: ", image.ImageTag.FocalLengthIn35mmFilm);
-				CheckAndAdd (dict, "Make: ", image.ImageTag.Make);
-				CheckAndAdd (dict, "Model: ", image.ImageTag.Model);
-			}
-
-			json = dict.Json;
-			if (json == null) {
-				ctx.Response.StatusCode = 500;
-				return;
-			}
-
-			redis[id] = json;
-
-			Console.WriteLine ("Returning: " + json);
 
 			ctx.Response.WriteLine (json);
 			ctx.Response.Finish ();
@@ -154,37 +177,20 @@ namespace Apachai
 		
 		static bool CheckImageType (string mime)
 		{
+			return false;
 			return string.IsNullOrEmpty (mime) || (!mime.Equals ("image/jpg", StringComparison.Ordinal) && !mime.Equals ("image/png", StringComparison.Ordinal));
-		}
-
-		static void CheckAndAdd<TValue> (JsonStringDictionary dict, string key, TValue value)
-		{
-			if (value == null || string.IsNullOrEmpty (key))
-				return;
-
-			string sValue = value.ToString ();
-
-			if (!string.IsNullOrEmpty (sValue) && !IsWhiteSpaces (sValue))
-				dict[key] = sValue;
-		}
-
-		static bool IsWhiteSpaces (string str)
-		{
-			return str.All (char.IsWhiteSpace);
 		}
 
 		static string HandleUploadedFile (Stream file)
 		{
-			MemoryStream buffer = new MemoryStream ();
-			file.CopyTo (buffer);
+			using (MemoryStream buffer = new MemoryStream ((int)file.Length)) {
+				file.CopyTo (buffer);
+				string filename = Hasher.Hash (buffer);
+				using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
+					buffer.CopyTo (fs);
 
-			byte[] hash = md5sum.ComputeHash (buffer);
-			string filename = Convert.ToBase64String (hash);
-			buffer.Seek (0, SeekOrigin.Begin);
-			using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
-				buffer.CopyTo (fs);
-
-			return filename;
+				return filename;
+			}
 		}
 
 		static Task<string> GetShortenedUrl (string initial_url)

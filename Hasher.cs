@@ -21,45 +21,29 @@
 //
 
 using System;
+using System.IO;
 using System.Text;
+using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace Apachai
 {
-	public class JsonStringDictionary
+	public class Hasher
 	{
-		StringBuilder sb = new StringBuilder ();
-		bool finished;
+		static MD5 md5 = MD5.Create ();
+		static StringBuilder sb = new StringBuilder ();
 
-		public JsonStringDictionary ()
+		public static string Hash (Stream input)
 		{
-			sb.Append ('{');
-		}
+			input.Seek (0, SeekOrigin.Begin);
+			byte[] hash = md5.ComputeHash (input);
+			input.Seek (0, SeekOrigin.Begin);
 
-		public string Json {
-			get {
-				if (!finished) {
-					sb[sb.Length - 1] = '}';
-					finished = true;
-				}
-				
-				return sb.ToString ();
-			}
-		}
+			sb.Clear ();
+			foreach (var b in hash)
+				sb.Append (b.ToString ("x"));
 
-		public string this[string key] {
-			set {
-				if (finished)
-					return;
-
-				sb.Append ('"');
-				sb.Append (key);
-				sb.Append ('"');
-				sb.Append (':');
-				sb.Append ('"');
-				sb.Append (value);
-				sb.Append ('"');
-				sb.Append (',');
-			}
+			return sb.ToString ();
 		}
 	}
 }
