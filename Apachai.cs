@@ -31,8 +31,16 @@ using System.Text;
 using Manos;
 using Manos.Http;
 
-namespace Apachai 
+namespace Apachai
 {
+	public static class ResponseExtensions
+	{
+		public static void End (this IHttpResponse response)
+		{
+			response.Finish ();
+		}
+	}
+
 	public class Apachai : ManosApp 
 	{
 		readonly static BackingStore store = new BackingStore ();
@@ -47,22 +55,25 @@ namespace Apachai
 		[Route ("/", "/Home", "/Index", "/Post")]
 		public void Index (IManosContext ctx)
 		{
-			if (string.IsNullOrEmpty (ctx.Request.Cookies.Get ("apachai:userId")))
+			if (string.IsNullOrEmpty (ctx.Request.Cookies.Get ("apachai:userId"))) {
 				ctx.Response.Redirect ("/Login");
+				ctx.Response.End ();
+			}
 			ctx.Response.SendFile ("post.html");
+			ctx.Response.End ();
 		}
 
 		[Route ("/Login")]
 		public void Login (IManosContext ctx)
 		{
 			ctx.Response.SendFile ("sign.html");
+			ctx.Response.End ();
 		}
 
 		[Route ("/DoLogin")]
 		public void DoLogin (IManosContext ctx)
 		{
 			OAuth oauth = new OAuth (oauthConfig);
-			ctx.Response.InhibitFinishing = true;
 
 			oauth.AcquireRequestToken ().ContinueWith (req => {
 					Console.WriteLine ("Got back from request token call: " + req.Result);
@@ -70,9 +81,8 @@ namespace Apachai
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
 					Console.WriteLine ("Redirect URL is: " + url);
 
-					ctx.Response.InhibitFinishing = false;
 					ctx.Response.Redirect (url);
-					ctx.Response.Finish ();
+					ctx.Response.End ();					
 				});
 		}
 
@@ -98,17 +108,17 @@ namespace Apachai
 							store.SetUserInfos (userInfos.UserId, userInfos.UserName, userInfos.UserAvatarUrl);
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 						
-						ctx.Response.InhibitFinishing = false;
 						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
 						ctx.Response.Redirect ("/Post");
-						ctx.Response.Finish ();
-				});
+						ctx.Response.End ();
+					});
 		}
 
 		[Route ("/favicon.ico")]
 		public void Favicon (IManosContext ctx)
 		{
 			ctx.Response.SendFile ("Content/img/favicon.ico");
+			ctx.Response.End ();
 		}
 
 		[Route ("/DoPost")]
@@ -121,6 +131,7 @@ namespace Apachai
 
 			if (string.IsNullOrEmpty (twittertext) || req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
 				ctx.Response.Redirect ("/Post?error=1");
+				ctx.Response.End ();
 				return;
 			}
 
@@ -132,6 +143,7 @@ namespace Apachai
 			// TODO: setup a continuation that post the link + twittertext to Twitter with OAuth
 
 			ctx.Response.Redirect ("/i/" + filename);
+			ctx.Response.End ();
 		}
 
 		[Route ("/i/{id}")]
@@ -140,10 +152,12 @@ namespace Apachai
 			Console.WriteLine ("ShowPicture: " + id);
 			if (!File.Exists ("Content/img/" + id)) {
 				ctx.Response.StatusCode = 404;
+				ctx.Response.End ();
 				return;
 			}
 
 			ctx.Response.SendFile ("home.html");
+			ctx.Response.End ();
 		}
 
 		[Route ("/infos/{id}")]
@@ -168,11 +182,12 @@ namespace Apachai
 
 			if (string.IsNullOrEmpty (json)) {
 				ctx.Response.StatusCode = 404;
+				ctx.Response.End ();
 				return;
 			}
 
 			ctx.Response.WriteLine (json);
-			ctx.Response.Finish ();
+			ctx.Response.End ();
 		}
 		
 		static bool CheckImageType (string mime)

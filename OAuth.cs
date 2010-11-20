@@ -145,7 +145,7 @@ namespace Apachai
 			string oauth_signature = MakeOAuthSignature (compositeSigningKey, signature);
 			data["oauth_signature"] = PercentEncode (oauth_signature);
 
-			return Task<OAuthToken>.Factory.StartNew (() => {
+			var t = Task<OAuthToken>.Factory.StartNew (() => {
 					var wc = new WebClient ();
 					wc.Headers[HttpRequestHeader.Authorization] = HeadersToOAuth (data);
 
@@ -161,6 +161,8 @@ namespace Apachai
 
 					return null;
 				});
+			t.Wait ();
+			return t;
 		}
 
 		public string GetAuthUrl (OAuthToken token)
@@ -186,7 +188,7 @@ namespace Apachai
 			string oauth_signature = MakeOAuthSignature (compositeSigningKey, signature);
 			data["oauth_signature"] = PercentEncode (oauth_signature);
 						
-			return Task<Tuple<OAuthToken, UserInfos>>.Factory.StartNew (() => {
+			var t = Task<Tuple<OAuthToken, UserInfos>>.Factory.StartNew (() => {
 					var wc = new WebClient ();
 					wc.Headers[HttpRequestHeader.Authorization] = HeadersToOAuth (data);
 
@@ -205,6 +207,8 @@ namespace Apachai
 
 					return null;
 				});
+			t.Wait ();
+			return t;
 		}
 
 		static string HeadersToOAuth (NameValueCollection headers)
