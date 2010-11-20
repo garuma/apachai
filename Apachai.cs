@@ -75,7 +75,7 @@ namespace Apachai
 		{
 			OAuth oauth = new OAuth (oauthConfig);
 
-			oauth.AcquireRequestToken ().ContinueWith (req => {
+			var cont = oauth.AcquireRequestToken ().ContinueWith (req => {
 					Console.WriteLine ("Got back from request token call: " + req.Result);
 					var url = oauth.GetAuthUrl (req.Result);
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
@@ -84,6 +84,7 @@ namespace Apachai
 					ctx.Response.Redirect (url);
 					ctx.Response.End ();					
 				});
+			cont.Wait ();
 		}
 
 		[Route ("/AuthCallback")]
@@ -96,7 +97,7 @@ namespace Apachai
 
 			OAuth oauth = new OAuth (oauthConfig);
 
-			oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
+			var cont = oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
 				.ContinueWith (resultTask => {
 						var result = resultTask.Result;
 						var userInfos = result.Item2;
@@ -112,6 +113,8 @@ namespace Apachai
 						ctx.Response.Redirect ("/Post");
 						ctx.Response.End ();
 					});
+
+			cont.Wait ();
 		}
 
 		[Route ("/favicon.ico")]
