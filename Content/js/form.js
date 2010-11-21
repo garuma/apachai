@@ -7,7 +7,6 @@ if ($.inArray ("error=1", hashes) != -1) {
 	$("#invalid").removeClass("hidden");
 }
 
-
 function onFileChange (value) {
 	if (!value.match (".*\.(jpg|jpeg|gif|png)")) {
 		$("#invalid").removeClass ("hidden");
@@ -18,23 +17,18 @@ function onFileChange (value) {
 	}
 }
 
+function onTwitterChange (value) {
+	var left = 100 - value.length;
+	var elem = $("#numCharacters");
+	elem.text (left);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	if (left < 0) {
+		elem.addClass ("numWrong");
+		elem.removeClass ("numRight");
+		$("#submit").attr ("disabled", "disabled");
+	} else {
+		elem.addClass ("numRight");
+		elem.removeClass ("numWrong");
+		$("#submit").removeAttr ("disabled");
+	}
+}

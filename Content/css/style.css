@@ -380,6 +380,19 @@ footer {
 	visibility: visible;
 }
 
+#numCharacters {
+	text-align: center;
+	font-size: x-large;
+}
+
+.numRight {
+	color: #666;
+}
+
+.numWrong {
+	color: red;
+}
+
 /* 
  * print styles
  * inlined to avoid required HTTP connection www.phpied.com/delay-loading-your-print-css/ 

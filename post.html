@@ -68,7 +68,8 @@
 			</li>
 			
 			<li>
-			  <textarea id="twittertext" name="twittertext" placeholder="Insert your twitter message here, it may contain the string {{img}} that will be replaced by your picture URL (if not it's appended to the message)" required></textarea>
+			  <textarea id="twittertext" name="twittertext" placeholder="Insert your twitter message here, it may contain the string {{img}} that will be replaced by your picture URL (if not it's appended to the message)" onKeyUp="onTwitterChange(this.value)" required></textarea><br />
+			  <div id="numCharacters" class=".numRight">100</div>
 			</li>
 			<li>
 			  <input type="submit" name="submit" id="submit" value="Send" />

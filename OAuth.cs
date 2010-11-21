@@ -1,6 +1,8 @@
 //
 // Copyright (c) 2010 Jérémie "garuma" Laval
 //
+// Based on TweetStation code (c) Miguel de Icaza
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -93,28 +95,22 @@ namespace Apachai
 			private set;
 		}
 
-		public string UserAvatarUrl {
-			get;
-			private set;
-		}
-
-		public UserInfos (string id, string name, string avatarUrl)
+		public UserInfos (string id, string name)
 		{
 			UserId = long.Parse (id);
 			UserName = name;
-			UserAvatarUrl = avatarUrl;
 		}
 
 		public override string ToString ()
 		{
-			return string.Format ("User infos: ({0}, {1}, {2})", UserId.ToString (), UserName, UserAvatarUrl);
+			return string.Format ("User infos: ({0}, {1})", UserId.ToString (), UserName);
 		}
 	}
 
 	public class OAuth
 	{
 		const string RequestUrl = "https://api.twitter.com/oauth/request_token";
-		const string AuthenticateUrl = "https://api.twitter.com/oauth/authorize?oauth_token={0}";
+		const string AuthenticateUrl = "https://api.twitter.com/oauth/authenticate?oauth_token={0}";
 		const string AccessUrl = "https://api.twitter.com/oauth/access_token";
 
 		static Random random = new Random ();
@@ -149,7 +145,8 @@ namespace Apachai
 			wc.Headers [HttpRequestHeader.Authorization] = HeadersToOAuth (headers);
 
 			var t = Task<OAuthToken>.Factory.StartNew (() => {
-					var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (RequestUrl), ""));
+					System.Net.ServicePointManager.Expect100Continue = false;
+					var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (RequestUrl), string.Empty));
 
 					OAuthToken token = new OAuthToken (result["oauth_token"], result["oauth_token_secret"]);
 					return token;
@@ -166,7 +163,7 @@ namespace Apachai
 				{ "oauth_signature_method", "HMAC-SHA1" },
 				{ "oauth_timestamp", MakeTimestamp () },
 				{ "oauth_version", "1.0" }};
-			var content = "";
+			var content = string.Empty;
 			headers.Add ("oauth_token", requestToken.Token);
 			headers.Add ("oauth_verifier", tokenVerifier);
 
@@ -181,12 +178,12 @@ namespace Apachai
 
 			var t = Task<Tuple<OAuthToken, UserInfos>>.Factory.StartNew (() => {
 					try {
+						System.Net.ServicePointManager.Expect100Continue = false;
 						var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (AccessUrl), content));
 
 						OAuthToken token = new OAuthToken (result["oauth_token"], result["oauth_token_secret"]);
 						UserInfos infos = new UserInfos (result["user_id"],
-						                                 result["screen_name"],
-						                                 string.Empty);
+						                                 result["screen_name"]);
 
 						return Tuple.Create (token, infos);
 					} catch (WebException e) {
@@ -200,6 +197,40 @@ namespace Apachai
 				});
 			t.Wait ();
 			return t;
+		}
+
+		public string GetAuthorization (OAuthToken tokens, string method, Uri uri, string data)
+		{
+			var headers = new Dictionary<string, string>() {
+				{ "oauth_consumer_key", config.ConsumerKey },
+				{ "oauth_nonce", MakeNonce () },
+				{ "oauth_signature_method", "HMAC-SHA1" },
+				{ "oauth_timestamp", MakeTimestamp () },
+				{ "oauth_token", tokens.Token },
+				{ "oauth_version", "1.0" }};
+			var signatureHeaders = new Dictionary<string,string> (headers);
+
+			// Add the data and URL query string to the copy of the headers for computing the signature
+			if (data != null && !string.IsNullOrEmpty (data)){
+				var parsed = HttpUtility.ParseQueryString (data);
+				foreach (string k in parsed.Keys){
+					signatureHeaders.Add (k, OAuth.PercentEncode (parsed [k]));
+				}
+			}
+
+			var nvc = HttpUtility.ParseQueryString (uri.Query);
+			foreach (string key in nvc){
+				if (key != null)
+					signatureHeaders.Add (key, OAuth.PercentEncode (nvc [key]));
+			}
+
+			string signature = MakeSignature (method, uri.GetLeftPart (UriPartial.Path), signatureHeaders);
+			string compositeSigningKey = MakeSigningKey (config.ConsumerSecret, tokens.TokenSecret);
+			string oauth_signature = MakeOAuthSignature (compositeSigningKey, signature);
+
+			headers.Add ("oauth_signature", OAuth.PercentEncode (oauth_signature));
+
+			return HeadersToOAuth (headers);
 		}
 
 		public string GetAuthUrl (OAuthToken token)
@@ -237,7 +268,7 @@ namespace Apachai
 		
 		static string MakeSigningKey (string consumerSecret, string oauthTokenSecret)
 		{
-			return OAuth.PercentEncode (consumerSecret) + "&" + (oauthTokenSecret != null ? OAuth.PercentEncode (oauthTokenSecret) : "");
+			return OAuth.PercentEncode (consumerSecret) + "&" + (oauthTokenSecret != null ? OAuth.PercentEncode (oauthTokenSecret) : string.Empty);
 		}
 		
 		static string MakeOAuthSignature (string compositeSigningKey, string signatureBase)
@@ -252,7 +283,7 @@ namespace Apachai
 			return "OAuth " + String.Join (",", (from x in headers.Keys select String.Format ("{0}=\"{1}\"", x, headers [x])).ToArray ());
 		}
 
-		static string PercentEncode (string s)
+		public static string PercentEncode (string s)
 		{
 			var sb = new StringBuilder ();
 			

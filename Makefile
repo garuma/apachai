@@ -6,7 +6,10 @@ FILES = Apachai.cs \
 	StaticContentModule.cs \
 	OAuth.cs \
 	BackingStore.cs \
-	TagLibMetadata.cs
+	TagLibMetadata.cs \
+	Json.cs \
+	Twitter.cs \
+	UrlShortener.cs
 
 all: apachai.dll
 

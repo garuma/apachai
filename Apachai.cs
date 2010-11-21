@@ -46,6 +46,7 @@ namespace Apachai
 		readonly static BackingStore store = new BackingStore ();
 		readonly static OAuthConfig oauthConfig	=
 			new OAuthConfig ("MK4e0OGcH1Ni7fxpfiwjcg", "XJSiiavfjtqN1VOa4AIIOlnerRPCcJJnDDBLNoLIU", "http://localhost:8080/AuthCallback");
+		readonly static OAuth oauth = new OAuth (oauthConfig);
 
 		public Apachai ()
 		{
@@ -55,7 +56,8 @@ namespace Apachai
 		[Route ("/", "/Home", "/Index", "/Post")]
 		public void Index (IManosContext ctx)
 		{
-			if (string.IsNullOrEmpty (ctx.Request.Cookies.Get ("apachai:userId"))) {
+			string id = ctx.Request.Cookies.Get ("apachai:userId");
+			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id))) {
 				ctx.Response.Redirect ("/Login");
 				ctx.Response.End ();
 			}
@@ -73,8 +75,6 @@ namespace Apachai
 		[Route ("/DoLogin")]
 		public void DoLogin (IManosContext ctx)
 		{
-			OAuth oauth = new OAuth (oauthConfig);
-
 			var cont = oauth.AcquireRequestToken ().ContinueWith (req => {
 					Console.WriteLine ("Got back from request token call: " + req.Result);
 					var url = oauth.GetAuthUrl (req.Result);
@@ -95,8 +95,6 @@ namespace Apachai
 
 			Console.WriteLine ("Args: {0} and {1}", token, tokenVerifier);
 
-			OAuth oauth = new OAuth (oauthConfig);
-
 			var cont = oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
 				.ContinueWith (resultTask => {
 						var result = resultTask.Result;
@@ -105,8 +103,19 @@ namespace Apachai
 						
 						Console.WriteLine ("Got back from access token call: {0} and {1}", userInfos.ToString (), tokens.ToString ());
 						
-						if (!store.DoWeKnowUser (userInfos.UserId))
-							store.SetUserInfos (userInfos.UserId, userInfos.UserName, userInfos.UserAvatarUrl);
+						if (!store.DoWeKnowUser (userInfos.UserId)) {
+							store.SetUserInfos (userInfos.UserId, userInfos.UserName);
+
+							var twitter = new Twitter (oauth);
+							twitter.Tokens = tokens;
+
+							var retDict = JSON.JsonDecode (twitter.GetUserInformations ()) as Dictionary<object, object>;
+
+							if (retDict != null)
+								store.SetExtraUserInfos (userInfos.UserId,
+								                         (string)retDict["profile_image_url"],
+								                         (string)retDict["name"]);
+						}
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 						
 						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
@@ -125,9 +134,10 @@ namespace Apachai
 		}
 
 		[Route ("/DoPost")]
-		public void DoPost (IManosContext ctx, string twittertext)
+		public void DoPost (IManosContext ctx)
 		{
 			IHttpRequest req = ctx.Request;
+			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r', ' ');
 
 			if (req.Files.Count == 0)
 				Console.WriteLine ("No file received");
@@ -139,14 +149,23 @@ namespace Apachai
 			}
 
 			var filename = HandleUploadedFile (req.Files.Values.First ().Contents);
+			var uid = long.Parse (ctx.Request.Cookies.Get ("apachai:userId"));
 
 			// TODO: find that back with ctx
-			var domain = "http://localhost:8080";
-			//var shorturl = GetShortenedUrl (domain + "/i/" + filename);
-			// TODO: setup a continuation that post the link + twittertext to Twitter with OAuth
+			var finalUrl = "http://localhost:8080/i/" + filename;
+			var twitter = new Twitter (oauth);
+			twitter.Tokens = store.GetUserAccessTokens (uid);
+			Console.WriteLine ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
-			ctx.Response.Redirect ("/i/" + filename);
-			ctx.Response.End ();
+			var t = twitter.SendApachaiTweet (twittertext, finalUrl)
+				.ContinueWith ((ret) => {
+						Console.WriteLine ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
+						store.RegisterImageWithTweet (uid, filename, twittertext, ret.Result);
+
+						ctx.Response.Redirect ("/i/" + filename);
+						ctx.Response.End ();
+					});
+			t.Wait ();
 		}
 
 		[Route ("/i/{id}")]
@@ -163,6 +182,7 @@ namespace Apachai
 			ctx.Response.End ();
 		}
 
+		// TODO: also wrap that up in a Task, image processing can be long running
 		[Route ("/infos/{id}")]
 		public void FetchInformations (IManosContext ctx, string id)
 		{
@@ -192,6 +212,32 @@ namespace Apachai
 			ctx.Response.WriteLine (json);
 			ctx.Response.End ();
 		}
+
+		[Route ("/tweet/{id}")]
+		public void FetchTweetInformations (IManosContext ctx, string id)
+		{
+			Console.WriteLine ("Fetching tweet infos for: " + id);
+
+			string avatar, tweet;
+			store.GetTwitterInfosFromImage (id, out avatar, out tweet);
+
+			JsonStringDictionary dict = new JsonStringDictionary ();
+			dict["avatar"] = avatar;
+			dict["tweet"] = System.Web.HttpUtility.HtmlEncode (tweet);
+
+			var json = dict.Json;
+
+			Console.WriteLine ("Returning: " + json);
+
+			if (string.IsNullOrEmpty (json)) {
+				ctx.Response.StatusCode = 404;
+				ctx.Response.End ();
+				return;
+			}
+
+			ctx.Response.WriteLine (json);
+			ctx.Response.End ();
+		}
 		
 		static bool CheckImageType (string mime)
 		{
@@ -209,14 +255,6 @@ namespace Apachai
 
 				return filename;
 			}
-		}
-
-		static Task<string> GetShortenedUrl (string initial_url)
-		{
-			WebClient wc = new WebClient ();
-			wc.Encoding = Encoding.UTF8;
-
-			return Task<string>.Factory.StartNew (() => wc.DownloadString ("http://goo.gl/api/shorten?url=" + initial_url));
 		}
 	}
 }

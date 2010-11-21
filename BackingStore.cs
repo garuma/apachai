@@ -34,16 +34,19 @@ namespace Apachai
 		const string picPrefix = "apachai:pictures:";
 		const string picInfos = picPrefix + "infos:";
 		const string picTweet = picPrefix + "tweet:";
+		const string picUser = picPrefix + "user:";
+		const string picShortUrl = picPrefix + "shortUrl:";
 
-		/* Possible keys with that prefix (the twitterPrefix is stored in some cookies) :
+		/* Possible keys with that prefix (the twitterId is stored in some cookies) :
 		     userPrefix + "infos:realname:" + {twitterId} -> the user real name
 		     userPrefix + "infos:avatarUrl:" + {twitterId} -> the URL to the avatar pic
 		     userPrefix + "infos:accessToken:" + {twitterId} -> get the OAuth access token
 		     userPrefix + "pictures:" + {twitterId} -> list of photos id for the user
 		*/
 		const string userPrefix = "apachai:users:";
-		const string userRealName = userPrefix + "infos:realname:";
+		const string userScreenName = userPrefix + "infos:screenName:";
 		const string userAvatarUrl = userPrefix + "infos:avatarUrl:";
+		const string userRealName = userPrefix + "infos:realName:";
 		const string userAccessToken = userPrefix + "infos:accessToken:";
 		const string userAccessTokenSecret = userPrefix + "infos:accessTokenSecret:";
 		const string userPictures = userPrefix + "pictures:";
@@ -68,12 +71,57 @@ namespace Apachai
 			return redis.IsMemberOfSet (idList, Encoding.UTF8.GetBytes (id.ToString ()));
 		}
 
-		public void SetUserInfos (long uid, string realName, string avatarUrl)
+		public void RegisterImageWithTweet (long uid, string picture, string tweet, string shortUrl)
 		{
+			if (!DoWeKnowUser (uid))
+				throw new ArgumentException ("User is unknown is the database");
+
+			string id = uid.ToString ();
+			redis.RightPush (userPictures + id, picture);
+			redis[picTweet + picture] = tweet;
+			redis[picUser + picture] = id;
+			redis[picShortUrl + picture] = shortUrl;
+		}
+
+		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText)
+		{
+			avatarUrl = tweetText = string.Empty;
+			if (!redis.ContainsKey (picUser + pictureId))
+				return;
+
+			avatarUrl = redis[userAvatarUrl + redis[picUser + pictureId]];
+			tweetText = redis[picTweet + pictureId];
+		}
+
+		public void SetUserInfos (long uid, string screenName)
+		{
+			string id = uid.ToString ();
+			redis[userScreenName + id] = screenName;
+			redis.AddToSet (idList, Encoding.UTF8.GetBytes (id));
+		}
+
+		public void SetExtraUserInfos (long uid, string avatarUrl, string realName)
+		{
+			if (!DoWeKnowUser (uid))
+				throw new ArgumentException ("User is unknown is the database");
+
 			string id = uid.ToString ();
 			redis[userRealName + id] = realName;
 			redis[userAvatarUrl + id] = avatarUrl;
-			redis.AddToSet (idList, Encoding.UTF8.GetBytes (id)); 
+		}
+
+		public bool GetExtraUserInfos (long uid, out string avatarUrl, out string realName)
+		{
+			avatarUrl = realName = string.Empty;
+
+			if (!DoWeKnowUser (uid))
+				return false;
+
+			string id = uid.ToString ();
+			avatarUrl = redis[userAvatarUrl + id];
+			realName = redis[userRealName + id];
+
+			return true;
 		}
 
 		public void SetUserAccessTokens (long uid, string accessToken, string accessTokenSecret)
@@ -81,6 +129,16 @@ namespace Apachai
 			string id = uid.ToString ();
 			redis[userAccessToken + id] = accessToken;
 			redis[userAccessTokenSecret + id] = accessTokenSecret;
+		}
+
+		public OAuthToken GetUserAccessTokens (long uid)
+		{
+			if (!DoWeKnowUser (uid))
+				throw new ArgumentException ("User is unknown is the database");
+
+			string id = uid.ToString ();
+
+			return new OAuthToken (redis[userAccessToken + id], redis[userAccessTokenSecret + id]);
 		}
 
 		public void SaveTempTokenSecret (string token, string tokenSecret)
