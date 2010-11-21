@@ -139,7 +139,7 @@ namespace Apachai
 			IHttpRequest req = ctx.Request;
 
 			var uid = long.Parse (req.Cookies.Get ("apachai:userId"));
-			if (!DoWeKnowUser (uid)) {
+			if (!store.DoWeKnowUser (uid)) {
 				ctx.Response.Redirect ("/Login");
 				ctx.Response.End ();
 			}
