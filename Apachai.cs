@@ -137,6 +137,13 @@ namespace Apachai
 		public void DoPost (IManosContext ctx)
 		{
 			IHttpRequest req = ctx.Request;
+
+			var uid = long.Parse (req.Cookies.Get ("apachai:userId"));
+			if (!DoWeKnowUser (uid)) {
+				ctx.Response.Redirect ("/Login");
+				ctx.Response.End ();
+			}
+
 			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r', ' ');
 
 			if (req.Files.Count == 0)
@@ -149,7 +156,6 @@ namespace Apachai
 			}
 
 			var filename = HandleUploadedFile (req.Files.Values.First ().Contents);
-			var uid = long.Parse (ctx.Request.Cookies.Get ("apachai:userId"));
 
 			// TODO: find that back with ctx
 			var finalUrl = "http://localhost:8080/i/" + filename;
