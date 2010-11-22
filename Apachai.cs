@@ -51,6 +51,7 @@ namespace Apachai
 		public Apachai ()
 		{
 			Route ("/Content/", new StaticContentModule ());
+			AddPipe (new Manos.Util.AccessLogger ("access.log"));
 		}
 
 		[Route ("/", "/Home", "/Index", "/Post")]

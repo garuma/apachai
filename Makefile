@@ -9,7 +9,8 @@ FILES = Apachai.cs \
 	TagLibMetadata.cs \
 	Json.cs \
 	Twitter.cs \
-	UrlShortener.cs
+	UrlShortener.cs \
+	AccessLogger.cs
 
 all: apachai.dll
 
