@@ -230,12 +230,22 @@ header {
 	margin-top: .5em;
 }
 
+h1 a, h1 a:focus, h1 a:link, h1 a:visited, h1 a:active, h1 a:hover {
+	outline: none;
+	text-decoration: none;
+	color: inherit;
+}
+
 header h1 {
 	font-size: 350%;
 	font-family: "ChunkFiveRegular", sans-serif;
 	color: #f57900;
 	text-shadow: 1.5px 1.5px 1px #2e3436;
 }
+
+a, a:active, a:visited { color:#607890; }
+a:hover { color:#036; }
+
 
 header h2 {
 	margin-top: 1ex;
