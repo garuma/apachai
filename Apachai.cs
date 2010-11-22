@@ -149,7 +149,7 @@ namespace Apachai
 			if (req.Files.Count == 0)
 				Console.WriteLine ("No file received");
 
-			if (string.IsNullOrEmpty (twittertext) || req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
+			if (req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
 				ctx.Response.Redirect ("/Post?error=1");
 				ctx.Response.End ();
 
@@ -167,7 +167,10 @@ namespace Apachai
 			twitter.SendApachaiTweet (twittertext, finalUrl)
 				.ContinueWith ((ret) => {
 						Console.WriteLine ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
-						store.RegisterImageWithTweet (uid, filename, twittertext, ret.Result);
+						store.RegisterImageWithTweet (uid,
+						                              filename,
+						                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
+						                              ret.Result);
 
 						ctx.Response.Redirect ("/i/" + filename);
 						ctx.Response.End ();

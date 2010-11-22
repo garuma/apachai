@@ -55,6 +55,11 @@ namespace Apachai
 			return UrlShortener.GetShortenedUrl (pictureUrl)
 				.ContinueWith ((ret) => {
 						Console.WriteLine ("Got url back: " + ret.Result);
+
+						// If no tweet, no need for the API call
+						if (string.IsNullOrEmpty (tweet))
+							return ret.Result;
+
 						string status = OAuth.PercentEncode (tweet + " " + ret.Result);
 
 						WebClient wc = new WebClient ();
