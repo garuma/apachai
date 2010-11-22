@@ -202,7 +202,8 @@ namespace Apachai
 						return string.Empty;
 
 					JsonStringDictionary dict = new JsonStringDictionary ();
-					dict["URL"] = store.GetShortUrlForImg (id);
+					var shortUrl = store.GetShortUrlForImg (id);
+					dict[string.Empty] = string.Format ("<a href=\"{0}\">{0}</a>");
 
 					TagLibMetadata metadata = new TagLibMetadata (id);
 					if (!metadata.IsValid) {
