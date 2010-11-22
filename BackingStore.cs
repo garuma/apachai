@@ -69,6 +69,12 @@ namespace Apachai
 			return redis[key] = dataCreator ();
 		}
 
+		public string GetShortUrlForImg (string image)
+		{
+			var redis = redisManager.GetClient ();
+			return redis[picShortUrl + image];
+		}
+
 		public bool DoWeKnowUser (long id)
 		{
 			var redis = redisManager.GetClient ();

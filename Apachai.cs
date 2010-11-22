@@ -202,6 +202,7 @@ namespace Apachai
 					}
 					
 					JsonStringDictionary dict = new JsonStringDictionary ();
+					dict["URL"] = store.GetShortUrlForImg (id);
 					metadata.FillUp (dict);
 					
 					return dict.Json;
