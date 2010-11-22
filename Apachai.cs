@@ -35,10 +35,20 @@ namespace Apachai
 {
 	public class Apachai : ManosApp 
 	{
+		readonly static ConfigManager c = new ConfigManager ("config.json");
 		readonly static BackingStore store = new BackingStore ();
-		readonly static OAuthConfig oauthConfig	=
-			new OAuthConfig ("MK4e0OGcH1Ni7fxpfiwjcg", "XJSiiavfjtqN1VOa4AIIOlnerRPCcJJnDDBLNoLIU", "http://localhost:8080/AuthCallback");
-		readonly static OAuth oauth = new OAuth (oauthConfig);
+		readonly static OAuthConfig oauthConfig;
+		readonly static OAuth oauth;
+		readonly static string baseServerUrl;
+
+		static Apachai ()
+		{
+			oauthConfig = new OAuthConfig (c.GetOrThrow<string> ("twitterKey"),
+			                               c.GetOrThrow<string> ("twitterSecret"),
+			                               c.GetOrThrow<string> ("twitterCallback"));
+			oauth = new OAuth (oauthConfig);
+			baseServerUrl = c.GetOrThrow<string> ("serverBaseUrl");
+		}
 
 		public Apachai ()
 		{
@@ -149,7 +159,7 @@ namespace Apachai
 			var filename = HandleUploadedFile (req.Files.Values.First ().Contents);
 
 			// TODO: find that back with ctx
-			var finalUrl = "http://localhost:8080/i/" + filename;
+			var finalUrl = baseServerUrl + "/i/" + filename;
 			var twitter = new Twitter (oauth);
 			twitter.Tokens = store.GetUserAccessTokens (uid);
 			Console.WriteLine ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);

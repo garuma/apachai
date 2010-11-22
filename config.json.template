@@ -1,0 +1,16 @@
+// This is a default configuration 
+{
+	// The base server url that is contained to form the final URL sent with tweet
+	// i.e. serverBaseUrl + "/i/someHash"
+	"serverBaseUrl" : "",
+
+	// The twitterKey and twitterSecret can be obtained via Twitter dev channel
+	// input them as string
+	"twitterKey" : "",
+	"twitterSecret" : "",
+
+	// This is the url Twitter is redirecting the user to when authorization is given
+	// for example : "http://apa.neteril.org/AuthCallback"
+	"twitterCallback" : ""
+}
+	

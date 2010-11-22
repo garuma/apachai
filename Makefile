@@ -10,7 +10,8 @@ FILES = Apachai.cs \
 	Json.cs \
 	Twitter.cs \
 	UrlShortener.cs \
-	AccessLogger.cs
+	AccessLogger.cs \
+	ConfigManager.cs
 
 all: apachai.dll
 
