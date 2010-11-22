@@ -198,16 +198,20 @@ namespace Apachai
 			Console.WriteLine ("Fetching infos for: " + id);
 			
 			var json = store.GetOrSetPictureInfos (id, () => {
+					if (!File.Exists ("Content/img/" + id))
+						return string.Empty;
+
+					JsonStringDictionary dict = new JsonStringDictionary ();
+					dict["URL"] = store.GetShortUrlForImg (id);
+
 					TagLibMetadata metadata = new TagLibMetadata (id);
 					if (!metadata.IsValid) {
 						Console.WriteLine (id + " is invalid file");
-						return string.Empty;
+						return dict.Json;
 					}
-					
-					JsonStringDictionary dict = new JsonStringDictionary ();
-					dict["URL"] = store.GetShortUrlForImg (id);
+
 					metadata.FillUp (dict);
-					
+
 					return dict.Json;
 				});
 
