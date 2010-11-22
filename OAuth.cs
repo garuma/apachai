@@ -144,15 +144,13 @@ namespace Apachai
 			headers.Add ("oauth_signature", OAuth.PercentEncode (oauth_signature));
 			wc.Headers [HttpRequestHeader.Authorization] = HeadersToOAuth (headers);
 
-			var t = Task<OAuthToken>.Factory.StartNew (() => {
+			return Task<OAuthToken>.Factory.StartNew (() => {
 					System.Net.ServicePointManager.Expect100Continue = false;
 					var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (RequestUrl), string.Empty));
 
 					OAuthToken token = new OAuthToken (result["oauth_token"], result["oauth_token_secret"]);
 					return token;
 				});
-			t.Wait ();
-			return t;
 		}
 
 		public Task<Tuple<OAuthToken, UserInfos>> AcquireAccessToken (OAuthToken requestToken, string tokenVerifier)
@@ -176,7 +174,7 @@ namespace Apachai
 
 			wc.Headers [HttpRequestHeader.Authorization] = HeadersToOAuth (headers);
 
-			var t = Task<Tuple<OAuthToken, UserInfos>>.Factory.StartNew (() => {
+			return Task<Tuple<OAuthToken, UserInfos>>.Factory.StartNew (() => {
 					try {
 						System.Net.ServicePointManager.Expect100Continue = false;
 						var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (AccessUrl), content));
@@ -195,8 +193,6 @@ namespace Apachai
 						// fallthrough for errors
 					}
 				});
-			t.Wait ();
-			return t;
 		}
 
 		public string GetAuthorization (OAuthToken tokens, string method, Uri uri, string data)

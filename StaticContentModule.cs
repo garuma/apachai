@@ -44,7 +44,6 @@ namespace Apachai {
 		public StaticContentModule ()
 		{
 			Get (".*", Content);
-
 		}
 
 		public static void Content (IManosContext ctx)
@@ -54,10 +53,11 @@ namespace Apachai {
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
 
-			if (File.Exists (path)) {
+			if (File.Exists (path))
 				ctx.Response.SendFile (path);
-			} else
+			else
 				ctx.Response.StatusCode = 404;
+			ctx.Response.End ();
 		}
 	}
 }

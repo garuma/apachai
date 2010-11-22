@@ -33,14 +33,6 @@ using Manos.Http;
 
 namespace Apachai
 {
-	public static class ResponseExtensions
-	{
-		public static void End (this IHttpResponse response)
-		{
-			response.Finish ();
-		}
-	}
-
 	public class Apachai : ManosApp 
 	{
 		readonly static BackingStore store = new BackingStore ();
@@ -76,7 +68,7 @@ namespace Apachai
 		[Route ("/DoLogin")]
 		public void DoLogin (IManosContext ctx)
 		{
-			var cont = oauth.AcquireRequestToken ().ContinueWith (req => {
+			oauth.AcquireRequestToken ().ContinueWith (req => {
 					Console.WriteLine ("Got back from request token call: " + req.Result);
 					var url = oauth.GetAuthUrl (req.Result);
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
@@ -85,7 +77,6 @@ namespace Apachai
 					ctx.Response.Redirect (url);
 					ctx.Response.End ();					
 				});
-			cont.Wait ();
 		}
 
 		[Route ("/AuthCallback")]
@@ -96,7 +87,7 @@ namespace Apachai
 
 			Console.WriteLine ("Args: {0} and {1}", token, tokenVerifier);
 
-			var cont = oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
+			oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
 				.ContinueWith (resultTask => {
 						var result = resultTask.Result;
 						var userInfos = result.Item2;
@@ -123,8 +114,6 @@ namespace Apachai
 						ctx.Response.Redirect ("/Post");
 						ctx.Response.End ();
 					});
-
-			cont.Wait ();
 		}
 
 		[Route ("/favicon.ico")]
@@ -134,7 +123,7 @@ namespace Apachai
 			ctx.Response.End ();
 		}
 
-		[Route ("/DoPost")]
+		[Post ("/DoPost")]
 		public void DoPost (IManosContext ctx)
 		{
 			IHttpRequest req = ctx.Request;
@@ -153,6 +142,7 @@ namespace Apachai
 			if (string.IsNullOrEmpty (twittertext) || req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
 				ctx.Response.Redirect ("/Post?error=1");
 				ctx.Response.End ();
+
 				return;
 			}
 
@@ -164,7 +154,7 @@ namespace Apachai
 			twitter.Tokens = store.GetUserAccessTokens (uid);
 			Console.WriteLine ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
-			var t = twitter.SendApachaiTweet (twittertext, finalUrl)
+			twitter.SendApachaiTweet (twittertext, finalUrl)
 				.ContinueWith ((ret) => {
 						Console.WriteLine ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
 						store.RegisterImageWithTweet (uid, filename, twittertext, ret.Result);
@@ -172,7 +162,6 @@ namespace Apachai
 						ctx.Response.Redirect ("/i/" + filename);
 						ctx.Response.End ();
 					});
-			t.Wait ();
 		}
 
 		[Route ("/i/{id}")]
