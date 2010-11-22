@@ -23,11 +23,13 @@
 using System;
 using System.Text;
 
+using ServiceStack.Redis;
+
 namespace Apachai
 {
 	public class BackingStore
 	{
-		static Redis redis = new Redis ();
+		static IRedisClientsManager redisManager = new BasicRedisClientManager ();
 
 		/* Possible keys with that prefix
 		 */
@@ -59,6 +61,7 @@ namespace Apachai
 
 		public string GetOrSetPictureInfos (string filename, Func<string> dataCreator)
 		{
+			var redis = redisManager.GetClient ();
 			string key = picInfos + filename;
 			if (redis.ContainsKey (key))
 				return redis[key];
@@ -68,16 +71,19 @@ namespace Apachai
 
 		public bool DoWeKnowUser (long id)
 		{
-			return redis.IsMemberOfSet (idList, Encoding.UTF8.GetBytes (id.ToString ()));
+			var redis = redisManager.GetClient ();
+			return redis.SetContainsItem (idList, id.ToString ());
 		}
 
 		public void RegisterImageWithTweet (long uid, string picture, string tweet, string shortUrl)
 		{
+			var redis = redisManager.GetClient ();
+
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
 
 			string id = uid.ToString ();
-			redis.RightPush (userPictures + id, picture);
+			redis.AddItemToList (userPictures + id, picture);
 			redis[picTweet + picture] = tweet;
 			redis[picUser + picture] = id;
 			redis[picShortUrl + picture] = shortUrl;
@@ -85,6 +91,8 @@ namespace Apachai
 
 		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText)
 		{
+			var redis = redisManager.GetClient ();
+
 			avatarUrl = tweetText = string.Empty;
 			if (!redis.ContainsKey (picUser + pictureId))
 				return;
@@ -95,13 +103,17 @@ namespace Apachai
 
 		public void SetUserInfos (long uid, string screenName)
 		{
+			var redis = redisManager.GetClient ();
+
 			string id = uid.ToString ();
 			redis[userScreenName + id] = screenName;
-			redis.AddToSet (idList, Encoding.UTF8.GetBytes (id));
+			redis.AddItemToSet (idList, id);
 		}
 
 		public void SetExtraUserInfos (long uid, string avatarUrl, string realName)
 		{
+			var redis = redisManager.GetClient ();
+
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
 
@@ -112,6 +124,8 @@ namespace Apachai
 
 		public bool GetExtraUserInfos (long uid, out string avatarUrl, out string realName)
 		{
+			var redis = redisManager.GetClient ();
+
 			avatarUrl = realName = string.Empty;
 
 			if (!DoWeKnowUser (uid))
@@ -126,6 +140,8 @@ namespace Apachai
 
 		public void SetUserAccessTokens (long uid, string accessToken, string accessTokenSecret)
 		{
+			var redis = redisManager.GetClient ();
+
 			string id = uid.ToString ();
 			redis[userAccessToken + id] = accessToken;
 			redis[userAccessTokenSecret + id] = accessTokenSecret;
@@ -133,6 +149,8 @@ namespace Apachai
 
 		public OAuthToken GetUserAccessTokens (long uid)
 		{
+			var redis = redisManager.GetClient ();
+
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
 
@@ -143,11 +161,15 @@ namespace Apachai
 
 		public void SaveTempTokenSecret (string token, string tokenSecret)
 		{
+			var redis = redisManager.GetClient ();
+
 			redis["apachai:tokenSecrets:" + token] = tokenSecret;
 		}
 
 		public string GetTempTokenSecret (string token)
 		{
+			var redis = redisManager.GetClient ();
+
 			var result = redis["apachai:tokenSecrets:" + token];
 			redis.Remove ("apachai:tokenSecrets:" + token);
 
