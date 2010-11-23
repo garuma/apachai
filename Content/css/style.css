@@ -324,6 +324,10 @@ footer {
 	text-indent: 1em;
 }
 
+#picinfos td > a {
+	line-height: 2em;
+}
+
 #picinfos .title {
 	font-weight: bold;
 	text-indent: 0;
