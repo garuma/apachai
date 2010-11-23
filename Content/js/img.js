@@ -4,8 +4,9 @@
 
 var img = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
 if (img != "i") {
-	$("#mainImage").attr("src", "/Content/img/" + img);
-	/*$.ajaxSetup({ scriptCharset: "utf-8" , contentType: "application/json; charset=utf-8"});*/
+	var src = "/Content/img/" + img;
+	$("#mainImage").attr("src", src);
+	$("meta[property=\"og:image\"]").attr ("content", src);
 	
 	$.get("/infos/" + img, callback = function (data, textStatus, xhr) {
 		if (data.length == 0) {
