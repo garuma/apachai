@@ -57,7 +57,7 @@ namespace Apachai {
 				if (path.IndexOf ("/img/") != -1)
 					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "image/jpeg");
 				else
-					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType 
+					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType (path));
 				ctx.Response.SendFile (path);
 			else
 				ctx.Response.StatusCode = 404;
