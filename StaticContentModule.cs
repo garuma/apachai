@@ -53,13 +53,13 @@ namespace Apachai {
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
 
-			if (File.Exists (path))
+			if (File.Exists (path)) {
 				if (path.IndexOf ("/img/") != -1)
 					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "image/jpeg");
 				else
 					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType (path));
 				ctx.Response.SendFile (path);
-			else
+			} else
 				ctx.Response.StatusCode = 404;
 			ctx.Response.End ();
 		}
