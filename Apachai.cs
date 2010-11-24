@@ -262,14 +262,11 @@ namespace Apachai
 
 		static string HandleUploadedFile (Stream file)
 		{
-			using (MemoryStream buffer = new MemoryStream ((int)file.Length)) {
-				file.CopyTo (buffer);
-				string filename = Hasher.Hash (buffer);
-				using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
-					buffer.CopyTo (fs);
+			string filename = Hasher.Hash (file);
+			using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
+				file.CopyTo (fs);
 
-				return filename;
-			}
+			return filename;
 		}
 	}
 }
