@@ -184,6 +184,20 @@ namespace Apachai
 					});
 		}
 
+		[Route ("/s/{id}")]
+		public void ShowShortUrlPicture (IManosContext ctx, string id)
+		{
+			string permaId;
+
+			if (string.IsNullOrEmpty (id) || !store.FindPermaFromShort (id, out permaId)) {
+				ctx.Response.StatusCode = 404;
+				ctx.Response.End ();
+			}
+
+			ctx.Response.Redirect ("/i/" + permaId);
+			ctx.Response.End ();
+		}
+
 		[Route ("/i/{id}")]
 		public void ShowPicture (IManosContext ctx, string id)
 		{

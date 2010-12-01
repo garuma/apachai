@@ -31,7 +31,8 @@ namespace Apachai
 	public class Hasher
 	{
 		static MD5 md5 = MD5.Create ();
-		static StringBuilder sb = new StringBuilder ();
+
+		static readonly int[] baseMap = new int[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 
 		public static string Hash (Stream input)
 		{
@@ -39,9 +40,26 @@ namespace Apachai
 			byte[] hash = md5.ComputeHash (input);
 			input.Seek (0, SeekOrigin.Begin);
 
-			sb.Clear ();
-			foreach (var b in hash)
+			StringBuilder sb = new StringBuilder (hash.Length * 2);
+
+			foreach (byte b in hash)
 				sb.Append (b.ToString ("x"));
+
+			return sb.ToString ();
+		}
+
+		public static string ComputeShortValue (long value)
+		{
+			int baseSize = baseMap.Length;
+			long dividend = value;
+			StringBuilder sb = new StringBuilder ();
+
+			while (dividend > baseSize) {
+				sb.Append (baseMap[dividend % baseSize]);
+				dividend /= baseSize;
+			}
+
+			sb.Append (baseMap[dividend]);
 
 			return sb.ToString ();
 		}

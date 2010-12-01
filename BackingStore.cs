@@ -59,6 +59,13 @@ namespace Apachai
 		 */
 		const string idList = "apachai:ids";
 
+		/* This contain a counter that is incremented at each picture uploaded and allow to point to
+		 * it in a shorter but possibly volatile way
+		 */
+		const string picShortId = picPrefix + "shortIdCounter";
+		// This is the prefix by which we map a short id to its permalink counter part
+		const string picShortIdMap = picPrefix + "shortIdMap:";
+
 		public string GetOrSetPictureInfos (string filename, Func<string> dataCreator)
 		{
 			var redis = redisManager.GetClient ();
@@ -180,6 +187,26 @@ namespace Apachai
 			redis.Remove ("apachai:tokenSecrets:" + token);
 
 			return result;
+		}
+
+		public string GetNextShortId ()
+		{
+			var redis = redisManager.GetClient ();
+
+			return redis.IncrementValue (picShortId).ToString ();
+		}
+
+		public bool FindPermaFromShort (string shortId, out string permaId)
+		{
+			permaId = string.Empty;
+
+			var redis = redisManager.GetClient ();
+
+			if (!redis.ContainsKey (picShortIdMap + shortId))
+				return false;
+
+			permaId = redis[picShortIdMap + shortId];
+			return true;
 		}
 	}
 }
