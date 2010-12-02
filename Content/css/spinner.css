@@ -1,0 +1,24 @@
+#spinner {
+	margin: auto;
+	width: 90px;
+	height: 90px;
+	overflow: hidden;
+	-webkit-animation-name: 'spinnerRotate';
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+}
+
+#spinner img {
+	width: 90px;
+	height: 90px;
+}
+
+@-webkit-keyframes 'spinnerRotate' {
+	from {
+		-webkit-transform:rotate(0deg);
+	}
+	to {
+		-webkit-transform:rotate(360deg);
+	}
+}

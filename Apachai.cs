@@ -133,6 +133,13 @@ namespace Apachai
 			ctx.Response.End ();
 		}
 
+		[Route ("/Test")]
+		public void Test (IManosContext ctx)
+		{
+			ctx.Response.SendFile ("authenticating.html");
+			ctx.Response.End ();
+		}
+
 		[Post ("/DoPost")]
 		public void DoPost (IManosContext ctx)
 		{
