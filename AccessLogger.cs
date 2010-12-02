@@ -28,7 +28,6 @@ using System.IO;
 using System.Text;
 
 using Manos;
-using Manos.Server;
 using Manos.Http;
 
 namespace Manos.Util {
