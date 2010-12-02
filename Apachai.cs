@@ -86,7 +86,7 @@ namespace Apachai
 
 					ctx.Response.Redirect (url);
 					ctx.Response.End ();					
-				});
+				}, TaskContinuationOptions.ExecuteSynchronously);
 		}
 
 		[Route ("/AuthCallback")]
@@ -123,7 +123,7 @@ namespace Apachai
 						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
 						ctx.Response.Redirect ("/Post");
 						ctx.Response.End ();
-					});
+					}, TaskContinuationOptions.ExecuteSynchronously);
 		}
 
 		[Route ("/favicon.ico")]
