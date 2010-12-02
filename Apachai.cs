@@ -76,6 +76,13 @@ namespace Apachai
 		}
 
 		[Route ("/DoLogin")]
+		public void Test (IManosContext ctx)
+		{
+			ctx.Response.SendFile ("authenticating.html");
+			ctx.Response.End ();
+		}
+
+		[Route ("/RequestTokens")]
 		public void DoLogin (IManosContext ctx)
 		{
 			oauth.AcquireRequestToken ().ContinueWith (req => {
@@ -84,8 +91,8 @@ namespace Apachai
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
 					Console.WriteLine ("Redirect URL is: " + url);
 
-					ctx.Response.Redirect (url);
-					ctx.Response.End ();					
+					ctx.Response.WriteLine (url);
+					ctx.Response.End ();
 				}, TaskContinuationOptions.ExecuteSynchronously);
 		}
 
@@ -130,13 +137,6 @@ namespace Apachai
 		public void Favicon (IManosContext ctx)
 		{
 			ctx.Response.SendFile ("Content/img/favicon.ico");
-			ctx.Response.End ();
-		}
-
-		[Route ("/Test")]
-		public void Test (IManosContext ctx)
-		{
-			ctx.Response.SendFile ("authenticating.html");
 			ctx.Response.End ();
 		}
 

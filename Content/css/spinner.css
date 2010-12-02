@@ -7,6 +7,10 @@
 	-webkit-animation-duration: 2s;
 	-webkit-animation-iteration-count: infinite;
 	-webkit-animation-timing-function: linear;
+	animation-name: 'spinnerRotate';
+	animation-duration: 2s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
 }
 
 #spinner img {
@@ -22,3 +26,13 @@
 		-webkit-transform:rotate(360deg);
 	}
 }
+
+@keyframes 'spinnerRotate' {
+	from {
+		transform:rotate(0deg);
+	}
+	to {
+		transform:rotate(360deg);
+	}
+}
+
