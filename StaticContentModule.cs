@@ -40,6 +40,7 @@ using Manos;
 namespace Apachai {
 
 	public class StaticContentModule : ManosModule {
+		const string futureFarFarAway = "Thu, 15 Apr 2015 20:00:00 GMT";
 
 		public StaticContentModule ()
 		{
@@ -54,10 +55,20 @@ namespace Apachai {
 				path = path.Substring (1);
 
 			if (File.Exists (path)) {
-				if (path.IndexOf ("/img/") != -1)
+				// Set correctly content type of the image we are sending
+				if (path.IndexOf ("/img/") != -1) {
 					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "image/jpeg");
-				else
+					ctx.Response.Headers.SetNormalizedHeader ("Expires", futureFarFarAway);
+				} else {
 					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType (path));
+				}
+
+				// Expires setting for specific files
+				if (path.EndsWith (".min.js", StringComparison.Ordinal)
+				    || path.EndsWith (".woff", StringComparison.Ordinal)
+				    || path.EndsWith (".ico", StringComparison.Ordinal))
+					ctx.Response.Headers.SetNormalizedHeader ("Expires", futureFarFarAway);
+
 				ctx.Response.SendFile (path);
 			} else
 				ctx.Response.StatusCode = 404;
