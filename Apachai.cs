@@ -60,7 +60,9 @@ namespace Apachai
 		public void Index (IManosContext ctx)
 		{
 			string id = ctx.Request.Cookies.Get ("apachai:userId");
-			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id))) {
+			string token = ctx.Request.Cookies.Get ("apachai:token");
+
+			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id), token)) {
 				ctx.Response.Redirect ("/Login");
 				ctx.Response.End ();
 			}
@@ -128,6 +130,7 @@ namespace Apachai
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 						
 						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
+						ctx.Response.SetCookie ("apachai:token", tokens.Token);
 						ctx.Response.Redirect ("/Post");
 						ctx.Response.End ();
 					}, TaskContinuationOptions.ExecuteSynchronously);

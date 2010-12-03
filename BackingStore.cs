@@ -88,6 +88,15 @@ namespace Apachai
 			return redis.SetContainsItem (idList, id.ToString ());
 		}
 
+		public bool DoWeKnowUser (long id, string token)
+		{
+			if (!DoWeKnowUser (id))
+				return false;
+
+			var redis = redisManager.GetClient ();
+			return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
+		}
+
 		public void RegisterImageWithTweet (long uid, string picture, string tweet, string shortUrl)
 		{
 			var redis = redisManager.GetClient ();
