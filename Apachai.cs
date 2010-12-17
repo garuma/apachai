@@ -88,10 +88,10 @@ namespace Apachai
 		public void DoLogin (IManosContext ctx)
 		{
 			oauth.AcquireRequestToken ().ContinueWith (req => {
-					Console.WriteLine ("Got back from request token call: " + req.Result);
+					Log.Info ("Got back from request token call: " + req.Result);
 					var url = oauth.GetAuthUrl (req.Result);
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
-					Console.WriteLine ("Redirect URL is: " + url);
+					Log.Info ("Redirect URL is: " + url);
 
 					ctx.Response.WriteLine (url);
 					ctx.Response.End ();
@@ -104,7 +104,7 @@ namespace Apachai
 			string token = ctx.Request.Data["oauth_token"];
 			string tokenVerifier = ctx.Request.Data["oauth_verifier"];
 
-			Console.WriteLine ("Args: {0} and {1}", token, tokenVerifier);
+			Log.Info ("Args: {0} and {1}", token, tokenVerifier);
 
 			oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
 				.ContinueWith (resultTask => {
@@ -112,7 +112,7 @@ namespace Apachai
 						var userInfos = result.Item2;
 						var tokens = result.Item1;
 						
-						Console.WriteLine ("Got back from access token call: {0} and {1}", userInfos.ToString (), tokens.ToString ());
+						Log.Info ("Got back from access token call: {0} and {1}", userInfos.ToString (), tokens.ToString ());
 						
 						if (!store.DoWeKnowUser (userInfos.UserId)) {
 							store.SetUserInfos (userInfos.UserId, userInfos.UserName);
@@ -157,7 +157,7 @@ namespace Apachai
 			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r', ' ');
 
 			if (req.Files.Count == 0)
-				Console.WriteLine ("No file received");
+				Log.Debug ("No file received");
 
 			if (req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
 				ctx.Response.Redirect ("/Post?error=1");
@@ -172,11 +172,11 @@ namespace Apachai
 			var finalUrl = baseServerUrl + "/i/" + filename;
 			var twitter = new Twitter (oauth);
 			twitter.Tokens = store.GetUserAccessTokens (uid);
-			Console.WriteLine ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
+			Log.Info ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
 			twitter.SendApachaiTweet (twittertext, finalUrl)
 				.ContinueWith ((ret) => {
-						Console.WriteLine ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
+						Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
 						store.RegisterImageWithTweet (uid,
 						                              filename,
 						                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
@@ -204,7 +204,7 @@ namespace Apachai
 		[Route ("/i/{id}")]
 		public void ShowPicture (IManosContext ctx, string id)
 		{
-			Console.WriteLine ("ShowPicture: " + id);
+			Log.Info ("ShowPicture: " + id);
 			if (!File.Exists ("Content/img/" + id)) {
 				ctx.Response.StatusCode = 404;
 				ctx.Response.End ();
@@ -219,8 +219,6 @@ namespace Apachai
 		[Route ("/infos/{id}")]
 		public void FetchInformations (IManosContext ctx, string id)
 		{
-			Console.WriteLine ("Fetching infos for: " + id);
-			
 			var json = store.GetOrSetPictureInfos (id, () => {
 					if (!File.Exists ("Content/img/" + id))
 						return string.Empty;
@@ -231,7 +229,7 @@ namespace Apachai
 
 					TagLibMetadata metadata = new TagLibMetadata (id);
 					if (!metadata.IsValid) {
-						Console.WriteLine (id + " is invalid file");
+						Log.Info (id + " is invalid file");
 						return dict.Json;
 					}
 
@@ -240,7 +238,7 @@ namespace Apachai
 					return dict.Json;
 				});
 
-			Console.WriteLine ("Returning: " + json);
+			Log.Info ("Fetching infos for {0} and returning: {2}", id.ToString (), json);
 
 			if (string.IsNullOrEmpty (json)) {
 				ctx.Response.StatusCode = 404;
@@ -255,8 +253,6 @@ namespace Apachai
 		[Route ("/tweet/{id}")]
 		public void FetchTweetInformations (IManosContext ctx, string id)
 		{
-			Console.WriteLine ("Fetching tweet infos for: " + id);
-
 			string avatar, tweet;
 			store.GetTwitterInfosFromImage (id, out avatar, out tweet);
 
@@ -266,7 +262,7 @@ namespace Apachai
 
 			var json = dict.Json;
 
-			Console.WriteLine ("Returning: " + json);
+			Log.Info ("Fetching tweet infos for {0} and returning {1}", id.ToString (), json);
 
 			if (string.IsNullOrEmpty (json)) {
 				ctx.Response.StatusCode = 404;
