@@ -159,14 +159,16 @@ namespace Apachai
 			if (req.Files.Count == 0)
 				Log.Debug ("No file received");
 
-			if (req.Files.Count == 0 || CheckImageType (req.Files.Keys.First ())) {
+			var file = req.Files.Values.First ().Contents;
+
+			if (req.Files.Count == 0 || !CheckImageType (file)) {
 				ctx.Response.Redirect ("/Post?error=1");
 				ctx.Response.End ();
 
 				return;
 			}
 
-			var filename = HandleUploadedFile (req.Files.Values.First ().Contents);
+			var filename = HandleUploadedFile (file);
 
 			// TODO: find that back with ctx
 			var finalUrl = baseServerUrl + "/i/" + filename;
@@ -274,10 +276,10 @@ namespace Apachai
 			ctx.Response.End ();
 		}
 		
-		static bool CheckImageType (string mime)
+		static bool CheckImageType (Stream file)
 		{
-			return false;
-			return string.IsNullOrEmpty (mime) || (!mime.Equals ("image/jpg", StringComparison.Ordinal) && !mime.Equals ("image/png", StringComparison.Ordinal));
+			// For now only check some magic header value (not that we can do much else)
+			return 0xD8FF == new BinaryReader (file).ReadUInt16 ();
 		}
 
 		static string HandleUploadedFile (Stream file)
