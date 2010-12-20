@@ -6,8 +6,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Drawing;
 
-namespace Pinta.Core
+namespace Apachai.Effects.Core
 {
     /// <summary>
     /// Adapted from: 

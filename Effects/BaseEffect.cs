@@ -42,6 +42,11 @@ namespace Apachai.Effects.Core
 				RenderEffect (src, dst, rect);
 		}
 
+		public void RenderEffect (FastBitmap src, FastBitmap dst)
+		{
+			RenderEffect (src, dst, new[] { new Rectangle (0, 0, src.Width, src.Height) });
+		}
+
 		protected unsafe virtual void RenderEffect (FastBitmap src, FastBitmap dst, Rectangle roi)
 		{
 			PixelData* src_data_ptr = (PixelData*)src.DataPtr;

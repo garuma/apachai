@@ -30,11 +30,11 @@ namespace Apachai.Effects
 		{
 			desat = new UnaryPixelOps.Desaturate ();
 			level = new UnaryPixelOps.Level (
-				ColorBgra.Black,
-				ColorBgra.White,
+				PixelData.Black,
+				PixelData.White,
 				new float[] { 1.2f, 1.0f, 0.8f },
-				ColorBgra.Black,
-				ColorBgra.White);
+				PixelData.Black,
+				PixelData.White);
 		}
 
 		public override void RenderEffect (FastBitmap src, FastBitmap dest, Rectangle[] rois)

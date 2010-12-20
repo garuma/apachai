@@ -7,7 +7,7 @@
 
 using System;
 
-namespace Pinta.Core
+namespace Apachai.Effects.Core
 {
     /// <summary>
     /// Adapted from: 
