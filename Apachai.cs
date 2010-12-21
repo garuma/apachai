@@ -196,17 +196,27 @@ namespace Apachai
 			twitter.Tokens = testInstance ? null : store.GetUserAccessTokens (uid);
 			Log.Info ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
-			(testInstance ? Task<string>.Factory.StartNew (() => "foo") : twitter.SendApachaiTweet (twittertext, finalUrl))
-				.ContinueWith ((ret) => {
-						Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
-						store.RegisterImageWithTweet (uid,
-						                              filename,
-						                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
-						                              ret.Result);
+			if (!testInstance) {
+				twitter.SendApachaiTweet (twittertext, finalUrl)
+					.ContinueWith ((ret) => {
+							Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
+							store.RegisterImageWithTweet (uid,
+							                              filename,
+							                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
+							                              ret.Result);
 
-						ctx.Response.Redirect ("/i/" + filename);
-						ctx.Response.End ();
-					});
+							ctx.Response.Redirect ("/i/" + filename);
+							ctx.Response.End ();
+						});
+			} else {
+				store.RegisterImageWithTweet (uid,
+				                              filename,
+				                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
+				                              ret.Result);
+				ctx.Response.Redirect ("/i/" + filename);
+				ctx.Response.End ();
+
+			}
 		}
 
 		[Route ("/s/{id}")]
