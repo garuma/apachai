@@ -41,12 +41,15 @@ namespace Apachai
 		readonly static OAuth oauth;
 		readonly static string baseServerUrl;
 
+		readonly static bool testInstance;
+
 		static Apachai ()
 		{
 			oauthConfig = new OAuthConfig (c.GetOrThrow<string> ("twitterKey"),
 			                               c.GetOrThrow<string> ("twitterSecret"),
 			                               c.GetOrThrow<string> ("twitterCallback"));
 			oauth = new OAuth (oauthConfig);
+			testInstance = c.GetOrDefault<bool> ("testInstance", false);
 			baseServerUrl = c.GetOrThrow<string> ("serverBaseUrl");
 		}
 
@@ -87,6 +90,12 @@ namespace Apachai
 		[Route ("/RequestTokens")]
 		public void DoLogin (IManosContext ctx)
 		{
+			if (testInstance) {
+				ctx.Response.WriteLine ("/AuthCallback");
+				ctx.Response.End ();
+				return;
+			}
+
 			oauth.AcquireRequestToken ().ContinueWith (req => {
 					Log.Info ("Got back from request token call: " + req.Result);
 					var url = oauth.GetAuthUrl (req.Result);
@@ -101,6 +110,17 @@ namespace Apachai
 		[Route ("/AuthCallback")]
 		public void AuthCallback (IManosContext ctx)
 		{
+			if (testInstance) {
+				ctx.Response.SetCookie ("apachai:userId", 1.ToString ());
+				ctx.Response.SetCookie ("apachai:token", "bar");
+				store.SetUserInfos (1, "the_test");
+				store.SetExtraUserInfos (1, "http://neteril.org/twitter.png", "The test");
+				store.SetUserAccessTokens (1, "bar", "bar");
+				ctx.Response.Redirect ("/Post");
+				ctx.Response.End ();
+				return;
+			}
+
 			string token = ctx.Request.Data["oauth_token"];
 			string tokenVerifier = ctx.Request.Data["oauth_verifier"];
 
@@ -173,10 +193,10 @@ namespace Apachai
 			// TODO: find that back with ctx
 			var finalUrl = baseServerUrl + "/i/" + filename;
 			var twitter = new Twitter (oauth);
-			twitter.Tokens = store.GetUserAccessTokens (uid);
+			twitter.Tokens = testInstance ? null : store.GetUserAccessTokens (uid);
 			Log.Info ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
-			twitter.SendApachaiTweet (twittertext, finalUrl)
+			(testInstance ? Task<string>.Factory.StartNew (() => "foo") : twitter.SendApachaiTweet (twittertext, finalUrl))
 				.ContinueWith ((ret) => {
 						Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
 						store.RegisterImageWithTweet (uid,
