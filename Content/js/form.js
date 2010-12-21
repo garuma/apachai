@@ -17,7 +17,7 @@ function onFileChange (value) {
 	}
 }
 
-function onTwitterChange (value) {
+$('twittertext').keyup (function (value) {
 	var left = 100 - value.length;
 	var elem = $("#numCharacters");
 	elem.text (left);
@@ -31,4 +31,15 @@ function onTwitterChange (value) {
 		elem.removeClass ("numWrong");
 		$("#submit").removeAttr ("disabled");
 	}
-}
+});
+
+$('#effect').change (function () {
+	var srcs = { "eff_original" : "cat.jpg",
+				 "eff_sepia" : "cat_sepia.jpg",
+				 "eff_invert" : "cat_invert.jpg",
+				 "eff_blackwhite" : "cat_bw.jpg"};
+	var value = $('#effect').val();
+
+	if (value in srcs)
+		$('#img_preview img').attr('src', "/Content/img/" + srcs[value]);
+});

@@ -39,11 +39,22 @@
 		<form action="DoPost" method="post" enctype="multipart/form-data">
 		  <ul>
 			<li>
-			  <label for="file">Image file (.png, .jpg, .gif): </label>
+			  <label for="imagefile">Image file (.png, .jpg, .gif):</label>
 			  <input type="file" id="imagefile" name="imagefile" accept="image/png,image/jpeg,image/gif" onchange="onFileChange(this.value)" required>
 			  <p id="invalid" class="hidden">You haven't entered a valid image file</p>
 			</li>
-			
+			<li>
+			  <div id="img_preview"><img src="/Content/img/cat.jpg" /></div>
+			  <div id="preview_select">
+				<label for="effect">Choose a fancy effect:</label>
+				<select id="effect">
+				  <option value="eff_original" selected="selected">Original</option>
+				  <option value="eff_sepia">Sepia</option>
+				  <option value="eff_invert">Invert</option>
+				  <option value="eff_blackwhite">Black & White</option>
+				</select>
+			  </div>
+			</li>
 			<li>
 			  <textarea id="twittertext" name="twittertext" placeholder="Insert your twitter message here, image URL will be appended to it. If you don't want to tweet, leave blank." onKeyUp="onTwitterChange(this.value)"></textarea><br />
 			  <div id="numCharacters" class=".numRight">100</div>
