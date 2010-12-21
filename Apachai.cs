@@ -33,6 +33,8 @@ using Manos.Http;
 
 namespace Apachai
 {
+	using Effects;
+
 	public class Apachai : ManosApp 
 	{
 		readonly static ConfigManager c = new ConfigManager ("config.json");
@@ -188,7 +190,7 @@ namespace Apachai
 				return;
 			}
 
-			var filename = HandleUploadedFile (file);
+			var filename = HandleUploadedFile (file, req.PostData.GetString ("effect").TrimEnd ('\n', '\r', ' '));
 
 			// TODO: find that back with ctx
 			var finalUrl = baseServerUrl + "/i/" + filename;
@@ -252,7 +254,7 @@ namespace Apachai
 		public void FetchInformations (IManosContext ctx, string id)
 		{
 			var json = store.GetOrSetPictureInfos (id, () => {
-					if (!File.Exists ("Content/img/" + id))
+					if (!File.Exists (Path.Combine ("Content", Path.Combine ("img", id))))
 						return string.Empty;
 
 					JsonStringDictionary dict = new JsonStringDictionary ();
@@ -270,7 +272,7 @@ namespace Apachai
 					return dict.Json;
 				});
 
-			Log.Info ("Fetching infos for {0} and returning: {2}", id.ToString (), json);
+			Log.Info ("Fetching infos for {0} and returning: {1}", id.ToString (), json);
 
 			if (string.IsNullOrEmpty (json)) {
 				ctx.Response.StatusCode = 404;
@@ -312,11 +314,30 @@ namespace Apachai
 			return 0xD8FF == new BinaryReader (file).ReadUInt16 ();
 		}
 
-		static string HandleUploadedFile (Stream file)
+		string HandleUploadedFile (Stream file, string transformation)
 		{
 			string filename = Hasher.Hash (file);
-			using (FileStream fs = File.OpenWrite ("Content/img/" + filename))
+			string path = Path.Combine ("Content", Path.Combine ("img", filename));
+
+			using (FileStream fs = File.OpenWrite (path))
 				file.CopyTo (fs);
+
+			if (!string.IsNullOrEmpty (transformation)) {
+				Log.Info ("Transforming according to: " + transformation);
+				switch (transformation) {
+				case "eff_original":
+					break;
+				case "eff_sepia":
+					PhotoEffect.ApplySepiaEffect (path, path);
+					break;
+				case "eff_invert":
+					PhotoEffect.ApplyInvertAdjustment (path, path);
+					break;
+				case "eff_blackwhite":
+					PhotoEffect.ApplyBlackAndWhiteEffect (path, path);
+					break;
+				}
+			}
 
 			return filename;
 		}
