@@ -214,7 +214,7 @@ namespace Apachai
 				store.RegisterImageWithTweet (uid,
 				                              filename,
 				                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
-				                              ret.Result);
+				                              "#");
 				ctx.Response.Redirect ("/i/" + filename);
 				ctx.Response.End ();
 
