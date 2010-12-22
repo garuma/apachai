@@ -43,7 +43,6 @@ namespace Apachai
 		readonly static OAuth oauth;
 		readonly static string baseServerUrl;
 		readonly static bool testInstance;
-		readonly static UrlShortener shortener;
 
 		static Apachai ()
 		{
@@ -193,7 +192,7 @@ namespace Apachai
 			Log.Info ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
 			var task = !testInstance ?
-				twitter.SendApachaiTweet (twittertext, finalUrl, filename, shortener) :
+				twitter.SendApachaiTweet (twittertext, finalUrl, filename, baseServerUrl + "/s/") :
 				shortener.GetShortenedId ();
 
 			task.ContinueWith ((ret) => {

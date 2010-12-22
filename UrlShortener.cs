@@ -33,19 +33,9 @@ using System.Threading.Tasks;
 
 namespace Apachai
 {
-	public class UrlShortener
+	public static class UrlShortener
 	{
-		public string BaseUrl {
-			get;
-			set;
-		}
-
-		public BackingStore Store {
-			get;
-			set;
-		}
-
-		public Task<string> GetShortenedId ()
+		public static Task<string> GetShortenedId ()
 		{
 			return Task<string>.Factory.StartNew (() => {
 					var numericId = Store.GetNextShortId ();

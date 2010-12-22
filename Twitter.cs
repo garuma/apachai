@@ -50,7 +50,7 @@ namespace Apachai
 			set;
 		}
 
-		public Task<string> SendApachaiTweet (string tweet, string pictureUrl, string id, UrlShortener shortener)
+		public Task<string> SendApachaiTweet (string tweet, string pictureUrl, string id, string urlPrefix)
 		{
 			return shortener.GetShortenedId ()
 				.ContinueWith ((ret) => {
@@ -60,7 +60,7 @@ namespace Apachai
 						if (string.IsNullOrEmpty (tweet))
 							return ret.Result;
 
-						string status = OAuth.PercentEncode (tweet + " " + ret.Result);
+						string status = OAuth.PercentEncode (tweet + " " + (urlPrefix + ret.Result));
 
 						WebClient wc = new WebClient ();
 						wc.Headers[HttpRequestHeader.Authorization] = oauth.GetAuthorization (Tokens, "POST", twitterPushUrl, "status=" + status);
