@@ -35,6 +35,11 @@ namespace Apachai
 {
 	public static class UrlShortener
 	{
+		public static BackingStore Store {
+			get;
+			set;
+		}
+
 		public static Task<string> GetShortenedId ()
 		{
 			return Task<string>.Factory.StartNew (() => {

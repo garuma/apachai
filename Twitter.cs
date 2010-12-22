@@ -52,7 +52,7 @@ namespace Apachai
 
 		public Task<string> SendApachaiTweet (string tweet, string pictureUrl, string id, string urlPrefix)
 		{
-			return shortener.GetShortenedId ()
+			return UrlShortener.GetShortenedId ()
 				.ContinueWith ((ret) => {
 						Console.WriteLine ("Got url back: " + ret.Result);
 

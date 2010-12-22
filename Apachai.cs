@@ -52,7 +52,7 @@ namespace Apachai
 			oauth = new OAuth (oauthConfig);
 			testInstance = c.GetOrDefault<bool> ("testInstance", false);
 			baseServerUrl = c.GetOrThrow<string> ("serverBaseUrl");
-			shortener = new UrlShortener { Store = store, BaseUrl = baseServerUrl };
+			UrlShortener.Store = store;
 		}
 
 		public Apachai ()
@@ -193,7 +193,7 @@ namespace Apachai
 
 			var task = !testInstance ?
 				twitter.SendApachaiTweet (twittertext, finalUrl, filename, baseServerUrl + "/s/") :
-				shortener.GetShortenedId ();
+				UrlShortener.GetShortenedId ();
 
 			task.ContinueWith ((ret) => {
 					Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
