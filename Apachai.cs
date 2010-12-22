@@ -42,6 +42,7 @@ namespace Apachai
 		readonly static OAuthConfig oauthConfig;
 		readonly static OAuth oauth;
 		readonly static string baseServerUrl;
+		readonly static string imgDirectory;
 		readonly static bool testInstance;
 
 		static Apachai ()
@@ -52,6 +53,7 @@ namespace Apachai
 			oauth = new OAuth (oauthConfig);
 			testInstance = c.GetOrDefault<bool> ("testInstance", false);
 			baseServerUrl = c.GetOrThrow<string> ("serverBaseUrl");
+			imgDirectory = c.GetOrDefault<string> ("imagesDirectory", Path.Combine ("Content", "img"));
 			UrlShortener.Store = store;
 		}
 
@@ -157,7 +159,7 @@ namespace Apachai
 		[Route ("/favicon.ico")]
 		public void Favicon (IManosContext ctx)
 		{
-			ctx.Response.SendFile ("Content/img/favicon.ico");
+			ctx.Response.SendFile (Path.Combine ("Content", "img", "favicon.ico"));
 			ctx.Response.End ();
 		}
 
@@ -225,7 +227,7 @@ namespace Apachai
 		public void ShowPicture (IManosContext ctx, string id)
 		{
 			Log.Info ("ShowPicture: " + id);
-			if (!File.Exists ("Content/img/" + id)) {
+			if (!File.Exists (Path.Combine (imgDirectory, id))) {
 				ctx.Response.StatusCode = 404;
 				ctx.Response.End ();
 				return;
@@ -240,7 +242,7 @@ namespace Apachai
 		public void FetchInformations (IManosContext ctx, string id)
 		{
 			var json = store.GetOrSetPictureInfos (id, () => {
-					if (!File.Exists (Path.Combine ("Content", Path.Combine ("img", id))))
+					if (!File.Exists (Path.Combine (imgDirectory, id)))
 						return string.Empty;
 
 					JsonStringDictionary dict = new JsonStringDictionary ();
@@ -322,7 +324,7 @@ namespace Apachai
 		string HandleUploadedFile (Stream file, string transformation)
 		{
 			string filename = Hasher.Hash (file);
-			string path = Path.Combine ("Content", Path.Combine ("img", filename));
+			string path = Path.Combine (imgDirectory, filename);
 
 			using (FileStream fs = File.OpenWrite (path))
 				file.CopyTo (fs);
