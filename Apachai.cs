@@ -205,7 +205,7 @@ namespace Apachai
 					                              ret.Result);
 					store.MapShortToLongUrl (ret.Result, filename);
 					ctx.Response.Redirect ("/i/" + filename);
-				});
+				}, ExecuteSynchronously);
 		}
 
 		[Route ("/s/{id}")]
