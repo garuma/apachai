@@ -47,9 +47,6 @@ namespace Apachai
 
 		public bool Get<T> (string key, out T value)
 		{
-			if (!store.ContainsKey (key))
-				ConfigException.ThrowKeyNotFound (key);
-
 			value = default (T);
 			var tmp = store[key];
 			if (!(tmp is T))
@@ -64,7 +61,11 @@ namespace Apachai
 		public T GetOrDefault<T> (string key, T defaultValue)
 		{
 			T tmp;
-			return Get (key, out tmp) ? tmp : defaultValue;
+			try {
+				return Get (key, out tmp) ? tmp : defaultValue;
+			} catch {
+				return defaultValue;
+			}
 		}
 
 		public T GetOrThrow<T> (string key)
