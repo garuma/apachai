@@ -17,7 +17,7 @@ function onFileChange (value) {
 	}
 }
 
-$('twittertext').keyup (function (value) {
+function onTwitterChange (value) {
 	var left = 100 - value.length;
 	var elem = $("#numCharacters");
 	elem.text (left);
@@ -31,7 +31,7 @@ $('twittertext').keyup (function (value) {
 		elem.removeClass ("numWrong");
 		$("#submit").removeAttr ("disabled");
 	}
-});
+}
 
 $('#effect').change (function () {
 	var srcs = { "eff_original" : "cat.jpg",
