@@ -9,6 +9,26 @@ namespace Apachai.Effects
 
 	public static class PhotoEffect
 	{
+		public static void ApplyTransformFromString (string transformation, string path)
+		{
+			if (string.IsNullOrEmpty (transformation))
+				return;
+
+			switch (transformation) {
+			case "eff_original":
+				break;
+			case "eff_sepia":
+				PhotoEffect.ApplySepiaEffect (path, path);
+				break;
+			case "eff_invert":
+				PhotoEffect.ApplyInvertAdjustment (path, path);
+				break;
+			case "eff_blackwhite":
+				PhotoEffect.ApplyBlackAndWhiteEffect (path, path);
+				break;
+			}
+		}
+
 		public static void ApplyInvertAdjustment (string origPath, string destPath)
 		{
 			ApplyPhotoEffect<InvertColorsEffect> (origPath, destPath);

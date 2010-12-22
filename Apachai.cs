@@ -327,23 +327,8 @@ namespace Apachai
 			using (FileStream fs = File.OpenWrite (path))
 				file.CopyTo (fs);
 
-			// TODO: enumify this string mess
-			if (!string.IsNullOrEmpty (transformation)) {
-				Log.Info ("Transforming according to: " + transformation);
-				switch (transformation) {
-				case "eff_original":
-					break;
-				case "eff_sepia":
-					PhotoEffect.ApplySepiaEffect (path, path);
-					break;
-				case "eff_invert":
-					PhotoEffect.ApplyInvertAdjustment (path, path);
-					break;
-				case "eff_blackwhite":
-					PhotoEffect.ApplyBlackAndWhiteEffect (path, path);
-					break;
-				}
-			}
+			Log.Info ("Transforming according to: " + transformation);
+			PhotoEffect.ApplyTransformFromString (transformation, path);
 
 			return filename;
 		}
