@@ -172,7 +172,7 @@ namespace Apachai
 			if (!store.DoWeKnowUser (uid))
 				ctx.Response.Redirect ("/Login");
 
-			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r', ' ');
+			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r').Trim ();
 
 			if (req.Files.Count == 0)
 				Log.Debug ("No file received");
@@ -184,7 +184,7 @@ namespace Apachai
 				return;
 			}
 
-			var filename = HandleUploadedFile (file, req.PostData.GetString ("effect").TrimEnd ('\n', '\r', ' '));
+			var filename = HandleUploadedFile (file, req.PostData.GetString ("effect"));
 
 			// TODO: find that back with ctx
 			var finalUrl = baseServerUrl + "/i/" + filename;
