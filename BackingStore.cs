@@ -37,6 +37,7 @@ namespace Apachai
 		const string picInfos = picPrefix + "infos:";
 		const string picTweet = picPrefix + "tweet:";
 		const string picUser = picPrefix + "user:";
+		const string picLongUrl = picPrefix + "longUrl:";
 		const string picShortUrl = picPrefix + "shortUrl:";
 
 		/* Possible keys with that prefix (the twitterId is stored in some cookies) :
@@ -97,7 +98,7 @@ namespace Apachai
 			return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
 		}
 
-		public void RegisterImageWithTweet (long uid, string picture, string tweet, string shortUrl)
+		public void RegisterImageWithTweet (long uid, string picture, string tweet, string longUrl, string shortUrl)
 		{
 			var redis = redisManager.GetClient ();
 
@@ -108,7 +109,15 @@ namespace Apachai
 			redis.AddItemToList (userPictures + id, picture);
 			redis[picTweet + picture] = tweet;
 			redis[picUser + picture] = id;
+			redis[picLongUrl + picture] = longUrl;
 			redis[picShortUrl + picture] = shortUrl;
+		}
+
+		public void MapShortToLongUrl (string shortId, string longId)
+		{
+			var redis = redisManager.GetClient ();
+
+			redis[picShortIdMap + shortId] = longId;
 		}
 
 		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText)
@@ -198,11 +207,11 @@ namespace Apachai
 			return result;
 		}
 
-		public string GetNextShortId ()
+		public long GetNextShortId ()
 		{
 			var redis = redisManager.GetClient ();
 
-			return redis.IncrementValue (picShortId).ToString ();
+			return redis.IncrementValue (picShortId);
 		}
 
 		public bool FindPermaFromShort (string shortId, out string permaId)

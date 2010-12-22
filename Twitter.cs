@@ -50,9 +50,9 @@ namespace Apachai
 			set;
 		}
 
-		public Task<string> SendApachaiTweet (string tweet, string pictureUrl)
+		public Task<string> SendApachaiTweet (string tweet, string pictureUrl, string id, UrlShortener shortener)
 		{
-			return UrlShortener.GetShortenedUrl (pictureUrl)
+			return shortener.GetShortenedId ()
 				.ContinueWith ((ret) => {
 						Console.WriteLine ("Got url back: " + ret.Result);
 

@@ -35,23 +35,36 @@ namespace Apachai
 {
 	public class UrlShortener
 	{
-		const string user = "jeremie_laval";
-		const string key = "SA7EgsngSYQPPqAp0Jp6qxpHK7AzbA";
-		const string serviceUrl = "http://shr.im/api/1.0/post.text?api_user={0}&api_key={1}&url_src={2}&is_private=1";
-
-		public static Task<string> GetShortenedUrl (string origUrl)
-		{
-			return Task<string>.Factory.StartNew (() => origUrl);
+		public string BaseUrl {
+			get;
+			set;
 		}
 
-		/* Shr.im is buggy, to aleviate pain, let's just return origUrl for now */
-		/*public static Task<string> GetShortenedUrl (string origUrl)
-		{
-			var url = OAuth.PercentEncode (origUrl);
-			var reqUrl = string.Format (serviceUrl, user, key, url);
-			WebClient wc = new WebClient ();
+		public BackingStore Store {
+			get;
+			set;
+		}
 
-			return Task<string>.Factory.StartNew (() => wc.DownloadString (reqUrl));
-		}*/
+		public Task<string> GetShortenedUrl (string origUrl, string id)
+		{
+			var src = new TaskCompletionSource<string> ();
+
+			var numericId = Store.GetNextShortId ();
+			var shortId = Hasher.ComputeShortValue (numericId);
+			var finalUrl = BaseUrl + "/s/" + shortId;
+			src.SetResult (finalUrl);
+			return src.Task;
+		}
+
+		public Task<string> GetShortenedId ()
+		{
+			var src = new TaskCompletionSource<string> ();
+
+			var numericId = Store.GetNextShortId ();
+			var shortId = Hasher.ComputeShortValue (numericId);
+
+			src.SetResult (shortId);
+			return src.Task;
+		}
 	}
 }

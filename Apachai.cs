@@ -42,8 +42,8 @@ namespace Apachai
 		readonly static OAuthConfig oauthConfig;
 		readonly static OAuth oauth;
 		readonly static string baseServerUrl;
-
 		readonly static bool testInstance;
+		readonly static UrlShortener shortener;
 
 		static Apachai ()
 		{
@@ -53,6 +53,7 @@ namespace Apachai
 			oauth = new OAuth (oauthConfig);
 			testInstance = c.GetOrDefault<bool> ("testInstance", false);
 			baseServerUrl = c.GetOrThrow<string> ("serverBaseUrl");
+			shortener = new UrlShortener { Store = store, BaseUrl = baseServerUrl };
 		}
 
 		public Apachai ()
@@ -196,35 +197,31 @@ namespace Apachai
 			var finalUrl = baseServerUrl + "/i/" + filename;
 			var twitter = new Twitter (oauth);
 			twitter.Tokens = testInstance ? null : store.GetUserAccessTokens (uid);
+
 			Log.Info ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
 
-			if (!testInstance) {
-				twitter.SendApachaiTweet (twittertext, finalUrl)
-					.ContinueWith ((ret) => {
-							Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
-							store.RegisterImageWithTweet (uid,
-							                              filename,
-							                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
-							                              ret.Result);
+			var task = !testInstance ?
+				twitter.SendApachaiTweet (twittertext, finalUrl, filename, shortener) :
+				shortener.GetShortenedId ();
 
-							ctx.Response.Redirect ("/i/" + filename);
-							ctx.Response.End ();
-						});
-			} else {
-				store.RegisterImageWithTweet (uid,
-				                              filename,
-				                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
-				                              "#");
-				ctx.Response.Redirect ("/i/" + filename);
-				ctx.Response.End ();
-
-			}
+			task.ContinueWith ((ret) => {
+					Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
+					store.RegisterImageWithTweet (uid,
+					                              filename,
+					                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
+					                              finalUrl,
+					                              ret.Result);
+					store.MapShortToLongUrl (ret.Result, filename);
+					ctx.Response.Redirect ("/i/" + filename);
+					ctx.Response.End ();
+				});
 		}
 
 		[Route ("/s/{id}")]
 		public void ShowShortUrlPicture (IManosContext ctx, string id)
 		{
 			string permaId;
+			Log.Info ("Want us to show {0}", id);
 
 			if (string.IsNullOrEmpty (id) || !store.FindPermaFromShort (id, out permaId)) {
 				ctx.Response.StatusCode = 404;
@@ -258,13 +255,11 @@ namespace Apachai
 						return string.Empty;
 
 					JsonStringDictionary dict = new JsonStringDictionary ();
-					var shortUrl = store.GetShortUrlForImg (id);
-					dict[string.Empty] = string.Format ("<a href=\\\"{0}\\\">Link to picture</a>", shortUrl);
 
 					TagLibMetadata metadata = new TagLibMetadata (id);
 					if (!metadata.IsValid) {
 						Log.Info (id + " is invalid file");
-						return dict.Json;
+						return string.Empty;
 					}
 
 					metadata.FillUp (dict);
@@ -307,6 +302,30 @@ namespace Apachai
 			ctx.Response.WriteLine (json);
 			ctx.Response.End ();
 		}
+
+		[Route ("/links/{id}")]
+		public void FetchLinkInformations (IManosContext ctx, string id)
+		{
+			JsonStringDictionary dict = new JsonStringDictionary ();
+
+			var shortUrl = baseServerUrl + "/s/" + store.GetShortUrlForImg (id);
+			var longUrl = baseServerUrl + "/i/" + id;
+
+			dict["short"] = shortUrl;
+			dict["permanent"] = longUrl;
+
+			var json = dict.Json;
+			if (string.IsNullOrEmpty (json)) {
+				ctx.Response.StatusCode = 404;
+				ctx.Response.End ();
+				return;
+			}
+
+			Log.Info ("Sending back links blob: {0}", json);
+
+			ctx.Response.WriteLine (json);
+			ctx.Response.End ();
+		}
 		
 		static bool CheckImageType (Stream file)
 		{
@@ -322,6 +341,7 @@ namespace Apachai
 			using (FileStream fs = File.OpenWrite (path))
 				file.CopyTo (fs);
 
+			// TODO: enumify this string mess
 			if (!string.IsNullOrEmpty (transformation)) {
 				Log.Info ("Transforming according to: " + transformation);
 				switch (transformation) {

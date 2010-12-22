@@ -22,4 +22,12 @@ if (img != "i") {
 		$("#imgAvatar").attr ("src", data["avatar"]);
 		$("#tweetText").html (data["tweet"]);
 	}, "json");
+
+	$.get("/links/" + img, callback = function (data, textStatus, xhr) {
+		if (data.length == 0)
+			return;
+
+		$('#linktable').append("<tr><td class=\"linkentry\"><a href=\"" + data["short"] + "\">Short url</a></td></tr>");
+		$('#linktable').append('<tr><td class="linkentry"><a href="' + data["permanent"] + '">Permalink</a></td></tr>');
+	}, "json");
 }

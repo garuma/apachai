@@ -237,6 +237,15 @@ footer {
 	display: inline;
 }
 
+#linkbox table {
+	margin: auto;
+}
+
+.linkentry {
+	text-align: center;
+	line-height: 2em;
+}
+
 #picinfos {
 	overflow: hidden;
 }
