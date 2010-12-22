@@ -45,26 +45,12 @@ namespace Apachai
 			set;
 		}
 
-		public Task<string> GetShortenedUrl (string origUrl, string id)
-		{
-			var src = new TaskCompletionSource<string> ();
-
-			var numericId = Store.GetNextShortId ();
-			var shortId = Hasher.ComputeShortValue (numericId);
-			var finalUrl = BaseUrl + "/s/" + shortId;
-			src.SetResult (finalUrl);
-			return src.Task;
-		}
-
 		public Task<string> GetShortenedId ()
 		{
-			var src = new TaskCompletionSource<string> ();
-
-			var numericId = Store.GetNextShortId ();
-			var shortId = Hasher.ComputeShortValue (numericId);
-
-			src.SetResult (shortId);
-			return src.Task;
+			return Task<string>.Factory.StartNew (() => {
+					var numericId = Store.GetNextShortId ();
+					return Hasher.ComputeShortValue (numericId);
+				});
 		}
 	}
 }
