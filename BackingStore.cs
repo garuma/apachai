@@ -67,14 +67,30 @@ namespace Apachai
 		// This is the prefix by which we map a short id to its permalink counter part
 		const string picShortIdMap = picPrefix + "shortIdMap:";
 
+		public bool GetPicturesInfos (string filename, out string result)
+		{
+			result = string.Empty;
+			var redis = redisManager.GetClient ();
+
+			string key = picInfos + filename;
+			if (redis.ContainsKey (key)) {
+				result = redis[key];
+				return true;
+			}
+
+			return false;
+		}
+
+		public void SetPictureInfos (string filename, string data)
+		{
+			var redis = redisManager.GetClient ();
+			redis [picInfos + filename] = data;
+		}
+
 		public string GetOrSetPictureInfos (string filename, Func<string> dataCreator)
 		{
 			var redis = redisManager.GetClient ();
-			string key = picInfos + filename;
-			if (redis.ContainsKey (key))
-				return redis[key];
-
-			return redis[key] = dataCreator ();
+			return redis[picInfos + filename] = dataCreator ();
 		}
 
 		public string GetShortUrlForImg (string image)

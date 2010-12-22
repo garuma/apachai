@@ -237,36 +237,37 @@ namespace Apachai
 			ctx.Response.End ();
 		}
 
-		// TODO: also wrap that up in a Task, image processing can be long running
 		[Route ("/infos/{id}")]
 		public void FetchInformations (IManosContext ctx, string id)
 		{
-			var json = store.GetOrSetPictureInfos (id, () => {
-					if (!File.Exists (Path.Combine (imgDirectory, id)))
-						return string.Empty;
+			string json;
 
+			if (store.GetPicturesInfos (id, out json)) {
+				Log.Info ("Fetching infos for {0} and returning: {1}", id.ToString (), json);
+				HandleJson (json, ctx.Response);
+				return;
+			}
+
+			if (!File.Exists (Path.Combine (imgDirectory, id))) {
+				HandleJson (string.Empty, ctx.Response);
+				return;
+			}
+
+			Task.Factory.StartNew (() => {
 					JsonStringDictionary dict = new JsonStringDictionary ();
 
 					TagLibMetadata metadata = new TagLibMetadata (id);
 					if (!metadata.IsValid) {
 						Log.Info (id + " is invalid file");
-						return string.Empty;
+						json = string.Empty;
+					} else {
+						metadata.FillUp (dict);
+						json = dict.Json;
 					}
 
-					metadata.FillUp (dict);
-
-					return dict.Json;
+					store.SetPictureInfos (id, json);
+					HandleJson (json, ctx.Response);
 				});
-
-			Log.Info ("Fetching infos for {0} and returning: {1}", id.ToString (), json);
-
-			if (string.IsNullOrEmpty (json)) {
-				ctx.Response.StatusCode = 404;
-				ctx.Response.End ();
-				return;
-			}
-
-			ctx.Response.End (json);
 		}
 
 		[Route ("/tweet/{id}")]
@@ -282,14 +283,7 @@ namespace Apachai
 			var json = dict.Json;
 
 			Log.Info ("Fetching tweet infos for {0} and returning {1}", id.ToString (), json);
-
-			if (string.IsNullOrEmpty (json)) {
-				ctx.Response.StatusCode = 404;
-				ctx.Response.End ();
-				return;
-			}
-
-			ctx.Response.End (json);
+			HandleJson (json, ctx.Response);
 		}
 
 		[Route ("/links/{id}")]
@@ -304,21 +298,25 @@ namespace Apachai
 			dict["permanent"] = longUrl;
 
 			var json = dict.Json;
-			if (string.IsNullOrEmpty (json)) {
-				ctx.Response.StatusCode = 404;
-				ctx.Response.End ();
-				return;
-			}
-
 			Log.Info ("Sending back links blob: {0}", json);
 
-			ctx.Response.End (json);
+			HandleJson (json, ctx.Response);
 		}
 		
 		static bool CheckImageType (Stream file)
 		{
 			// For now only check some magic header value (not that we can do much else)
 			return 0xD8FF == new BinaryReader (file).ReadUInt16 ();
+		}
+
+		static void HandleJson (string json, IHttpResponse response)
+		{
+			if (string.IsNullOrEmpty (json)) {
+				response.StatusCode = 404;
+				response.End ();
+			} else {
+				response.End (json);
+			}
 		}
 
 		string HandleUploadedFile (Stream file, string transformation)
