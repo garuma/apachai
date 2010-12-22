@@ -68,10 +68,9 @@ namespace Apachai
 			string id = ctx.Request.Cookies.Get ("apachai:userId");
 			string token = ctx.Request.Cookies.Get ("apachai:token");
 
-			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id), token)) {
+			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id), token))
 				ctx.Response.Redirect ("/Login");
-				ctx.Response.End ();
-			}
+
 			ctx.Response.SendFile ("post.html");
 			ctx.Response.End ();
 		}
@@ -94,8 +93,7 @@ namespace Apachai
 		public void DoLogin (IManosContext ctx)
 		{
 			if (testInstance) {
-				ctx.Response.WriteLine ("/AuthCallback");
-				ctx.Response.End ();
+				ctx.Response.End ("/AuthCallback");
 				return;
 			}
 
@@ -105,8 +103,7 @@ namespace Apachai
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
 					Log.Info ("Redirect URL is: " + url);
 
-					ctx.Response.WriteLine (url);
-					ctx.Response.End ();
+					ctx.Response.End (url);
 				}, TaskContinuationOptions.ExecuteSynchronously);
 		}
 
@@ -120,7 +117,7 @@ namespace Apachai
 				store.SetExtraUserInfos (1, "http://neteril.org/twitter.png", "The test");
 				store.SetUserAccessTokens (1, "bar", "bar");
 				ctx.Response.Redirect ("/Post");
-				ctx.Response.End ();
+
 				return;
 			}
 
@@ -155,7 +152,6 @@ namespace Apachai
 						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
 						ctx.Response.SetCookie ("apachai:token", tokens.Token);
 						ctx.Response.Redirect ("/Post");
-						ctx.Response.End ();
 					}, TaskContinuationOptions.ExecuteSynchronously);
 		}
 
@@ -172,10 +168,8 @@ namespace Apachai
 			IHttpRequest req = ctx.Request;
 
 			var uid = long.Parse (req.Cookies.Get ("apachai:userId"));
-			if (!store.DoWeKnowUser (uid)) {
+			if (!store.DoWeKnowUser (uid))
 				ctx.Response.Redirect ("/Login");
-				ctx.Response.End ();
-			}
 
 			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r', ' ');
 
@@ -186,8 +180,6 @@ namespace Apachai
 
 			if (req.Files.Count == 0 || !CheckImageType (file)) {
 				ctx.Response.Redirect ("/Post?error=1");
-				ctx.Response.End ();
-
 				return;
 			}
 
@@ -213,7 +205,6 @@ namespace Apachai
 					                              ret.Result);
 					store.MapShortToLongUrl (ret.Result, filename);
 					ctx.Response.Redirect ("/i/" + filename);
-					ctx.Response.End ();
 				});
 		}
 
@@ -229,7 +220,6 @@ namespace Apachai
 			}
 
 			ctx.Response.Redirect ("/i/" + permaId);
-			ctx.Response.End ();
 		}
 
 		[Route ("/i/{id}")]
@@ -275,8 +265,7 @@ namespace Apachai
 				return;
 			}
 
-			ctx.Response.WriteLine (json);
-			ctx.Response.End ();
+			ctx.Response.End (json);
 		}
 
 		[Route ("/tweet/{id}")]
@@ -299,8 +288,7 @@ namespace Apachai
 				return;
 			}
 
-			ctx.Response.WriteLine (json);
-			ctx.Response.End ();
+			ctx.Response.End (json);
 		}
 
 		[Route ("/links/{id}")]
@@ -323,8 +311,7 @@ namespace Apachai
 
 			Log.Info ("Sending back links blob: {0}", json);
 
-			ctx.Response.WriteLine (json);
-			ctx.Response.End ();
+			ctx.Response.End (json);
 		}
 		
 		static bool CheckImageType (Stream file)
