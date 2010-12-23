@@ -184,7 +184,8 @@ namespace Apachai
 				return;
 			}
 
-			var filename = HandleUploadedFile (file, req.PostData.GetString ("effect"));
+			// HACK: the TrimEnd should be in Manos
+			var filename = HandleUploadedFile (file, req.PostData.GetString ("effect").TrimEnd ('\n', '\r'));
 
 			// TODO: find that back with ctx
 			var finalUrl = baseServerUrl + "/i/" + filename;
