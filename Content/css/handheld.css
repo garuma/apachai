@@ -4,7 +4,6 @@
   font-size: 80%;    /* Slightly reducing font size to reduce need to scroll */ 
   background: #fff;  /*  As much contrast as possible */
   color: #000;
-  width: 100%; /* Reset width to have maximum size usage */
 }
 
 #container {
@@ -80,4 +79,21 @@ footer {
 	padding: 0;
 	float: none;
 	text-align: center;
+}
+
+#maincolumn {
+	width: 90%;
+	margin: auto;
+}
+
+#img_preview {
+	max-width: 240px;
+}
+
+#maincolumn * {
+	margin: auto;
+}
+
+#twittertext {
+	width: 85%;
 }
