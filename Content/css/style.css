@@ -162,6 +162,7 @@ header h1 {
 	font-family: "ChunkFiveRegular", sans-serif;
 	color: #f57900;
 	text-shadow: 1.5px 1.5px 1px #2e3436;
+	font-weight: normal;
 }
 
 a, a:active, a:visited { color:#607890; }
@@ -171,10 +172,6 @@ header h2 {
 	margin-top: 1em;
 	margin-bottom: 3em;
 	text-indent: 1em;
-}
-
-header h1 {
-	font-weight: normal;
 }
 
 header .lastletter {
