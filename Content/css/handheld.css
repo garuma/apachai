@@ -4,4 +4,80 @@
   font-size: 80%;    /* Slightly reducing font size to reduce need to scroll */ 
   background: #fff;  /*  As much contrast as possible */
   color: #000;
+  width: 100%; /* Reset width to have maximum size usage */
+}
+
+#container {
+	width: 100%;
+}
+
+header {
+	background-color: #FCAF3E;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+header h1, header h2 {
+	margin: auto;
+	margin-bottom: 0;
+	margin-top: 0;
+	text-align: center;
+	padding: 0;
+	padding-bottom: 8px;
+}
+
+header .lastletter {
+	color: #f57900;
+}
+
+footer {
+	background-color: #FCAF3E;
+	width: 100%;
+	padding: 0;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+#main {
+	width: 100%;
+	margin: auto;
+	border-radius: 0;
+	padding: 0;
+	padding-top: 6px;
+	padding-bottom: 1px;
+}
+
+#rightcolumn {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	float: none;
+	padding: 0;
+	padding-top: 1em;
+}
+
+#rightcolumn .box {
+	width: 95%;
+	margin: auto;
+	margin-bottom: 6px;
+}
+
+#rightcolumn .box table {
+	width: 0;
+	margin: auto;
+}
+
+#rightcolumn .box table tbody td {
+	width: 0;
+	margin: auto;
+}
+
+#leftcolumn {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	padding: 0;
+	float: none;
+	text-align: center;
 }

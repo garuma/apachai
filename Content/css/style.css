@@ -167,7 +167,6 @@ header h1 {
 a, a:active, a:visited { color:#607890; }
 a:hover { color:#036; }
 
-
 header h2 {
 	margin-top: 1em;
 	margin-bottom: 3em;
@@ -178,7 +177,7 @@ header h1 {
 	font-weight: normal;
 }
 
-.lastletter {
+header .lastletter {
 	padding-bottom: 1px;
 	letter-spacing: 120%;
 	font-size: 140%;
@@ -235,6 +234,7 @@ footer {
 
 #twitbox p {
 	display: inline;
+	text-align: justify;
 }
 
 #linkbox table {
