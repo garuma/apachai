@@ -81,6 +81,10 @@ footer {
 	text-align: center;
 }
 
+#leftcolumn img {
+	max-width: 95%;
+}
+
 #maincolumn {
 	width: 90%;
 	margin: auto;
