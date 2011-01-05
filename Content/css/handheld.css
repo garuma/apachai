@@ -28,6 +28,7 @@ header h1, header h2 {
 
 header .lastletter {
 	color: #f57900;
+	font-family: Sans-Serif;
 }
 
 footer {
@@ -99,5 +100,41 @@ footer {
 }
 
 #twittertext {
-	width: 85%;
+	width: 95%;
+	text-align: center;
+}
+
+#maincolumn li {
+	margin-bottom: 1.5em;
+}
+
+#maincolumn #img_preview {
+	margin-bottom: 0.5em;
+}
+
+label, input, select {
+	display: block;
+	text-align: center;
+	margin: auto;
+	width: 100%;
+}
+
+label {
+	color: #666;
+	line-height: 160%;
+}
+
+#submit {
+	background-color: white;
+	padding: 2px 0 2px 0;
+	border: 1px solid black;
+}
+
+#imagefile {
+	width: 30%;
+	margin: auto;
+}
+
+#spinner {
+	margin-bottom: 1em;
 }
