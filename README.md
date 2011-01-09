@@ -1,7 +1,7 @@
 # Apachaï
 ## Picture uploading for the rest of us
 
-Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework (https://github.com/jacksonh/manos). A running instance is available at [apch.fr](http://apch.fr/).
+Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the [Manos framework](https://github.com/jacksonh/manos). A running instance is available at [apch.fr](http://apch.fr/).
 
 ## Dependencies
 
