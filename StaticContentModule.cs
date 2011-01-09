@@ -49,7 +49,7 @@ namespace Apachai {
 
 		public static void Content (IManosContext ctx)
 		{
-			string path = ctx.Request.LocalPath;
+			string path = ctx.Request.Path;
 
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
