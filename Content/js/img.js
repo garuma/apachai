@@ -5,6 +5,9 @@
 var img = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
 if (img != "i") {
 	$('#mainImage').bind('load', function (e) {
+		if ($(this).attr ('src').length == 0)
+			return;
+
 		$.get("/infos/" + img, callback = function (data, textStatus, xhr) {
 			if (data.length == 0) {
 				$("#pictable").append ("<em>Sorry, nothing to see here</em>");
