@@ -93,39 +93,39 @@ namespace Apachai
 		public bool GetPicturesInfos (string filename, out string result)
 		{
 			result = string.Empty;
-			var redis = redisManager.GetClient ();
+			using (var redis = redisManager.GetClient ()) {
+				string key = picInfos + filename;
+				if (redis.ContainsKey (key)) {
+					result = redis[key];
+					return true;
+				}
 
-			string key = picInfos + filename;
-			if (redis.ContainsKey (key)) {
-				result = redis[key];
-				return true;
+				return false;
 			}
-
-			return false;
 		}
 
 		public void SetPictureInfos (string filename, string data)
 		{
-			var redis = redisManager.GetClient ();
-			redis [picInfos + filename] = data;
+			using (var redis = redisManager.GetClient ())
+				redis [picInfos + filename] = data;
 		}
 
 		public string GetOrSetPictureInfos (string filename, Func<string> dataCreator)
 		{
-			var redis = redisManager.GetClient ();
-			return redis[picInfos + filename] = dataCreator ();
+			using (var redis = redisManager.GetClient ())
+				return redis[picInfos + filename] = dataCreator ();
 		}
 
 		public string GetShortUrlForImg (string image)
 		{
-			var redis = redisManager.GetClient ();
-			return redis[picShortUrl + image];
+			using (var redis = redisManager.GetClient ())
+				return redis[picShortUrl + image];
 		}
 
 		public bool DoWeKnowUser (long id)
 		{
-			var redis = redisManager.GetClient ();
-			return redis.SetContainsItem (idList, id.ToString ());
+			using (var redis = redisManager.GetClient ())
+				return redis.SetContainsItem (idList, id.ToString ());
 		}
 
 		public bool DoWeKnowUser (long id, string token)
@@ -133,137 +133,134 @@ namespace Apachai
 			if (!DoWeKnowUser (id))
 				return false;
 
-			var redis = redisManager.GetClient ();
-			return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
+			using (var redis = redisManager.GetClient ())
+				return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
 		}
 
 		public void RegisterImageWithTweet (long uid, string picture, string tweet, string longUrl, string shortUrl)
 		{
-			var redis = redisManager.GetClient ();
-
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
 
-			string id = uid.ToString ();
-			redis.AddItemToList (userPictures + id, picture);
-			redis[picTweet + picture] = tweet;
-			redis[picUser + picture] = id;
-			redis[picLongUrl + picture] = longUrl;
-			redis[picShortUrl + picture] = shortUrl;
+			using (var redis = redisManager.GetClient ()) {
+				string id = uid.ToString ();
+				redis.AddItemToList (userPictures + id, picture);
+				redis[picTweet + picture] = tweet;
+				redis[picUser + picture] = id;
+				redis[picLongUrl + picture] = longUrl;
+				redis[picShortUrl + picture] = shortUrl;
+			}
 		}
 
 		public void MapShortToLongUrl (string shortId, string longId)
 		{
-			var redis = redisManager.GetClient ();
-
-			redis[picShortIdMap + shortId] = longId;
+			using (var redis = redisManager.GetClient ())
+				redis[picShortIdMap + shortId] = longId;
 		}
 
 		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText)
 		{
-			var redis = redisManager.GetClient ();
-
 			avatarUrl = tweetText = string.Empty;
-			if (!redis.ContainsKey (picUser + pictureId))
-				return;
 
-			avatarUrl = redis[userAvatarUrl + redis[picUser + pictureId]];
-			tweetText = redis[picTweet + pictureId];
+			using (var redis = redisManager.GetClient ()) {
+				if (!redis.ContainsKey (picUser + pictureId))
+					return;
+				avatarUrl = redis[userAvatarUrl + redis[picUser + pictureId]];
+				tweetText = redis[picTweet + pictureId];
+			}
 		}
 
 		public void SetUserInfos (long uid, string screenName)
 		{
-			var redis = redisManager.GetClient ();
-
-			string id = uid.ToString ();
-			redis[userScreenName + id] = screenName;
-			redis.AddItemToSet (idList, id);
+			using (var redis = redisManager.GetClient ()) {
+				string id = uid.ToString ();
+				redis[userScreenName + id] = screenName;
+				redis.AddItemToSet (idList, id);
+			}
 		}
 
 		public void SetExtraUserInfos (long uid, string avatarUrl, string realName)
 		{
-			var redis = redisManager.GetClient ();
-
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
 
-			string id = uid.ToString ();
-			redis[userRealName + id] = realName;
-			redis[userAvatarUrl + id] = avatarUrl;
+			using (var redis = redisManager.GetClient ()) {
+				string id = uid.ToString ();
+				redis[userRealName + id] = realName;
+				redis[userAvatarUrl + id] = avatarUrl;
+			}
 		}
 
 		public bool GetExtraUserInfos (long uid, out string avatarUrl, out string realName)
 		{
-			var redis = redisManager.GetClient ();
-
 			avatarUrl = realName = string.Empty;
 
 			if (!DoWeKnowUser (uid))
 				return false;
 
-			string id = uid.ToString ();
-			avatarUrl = redis[userAvatarUrl + id];
-			realName = redis[userRealName + id];
+			using (var redis = redisManager.GetClient ()) {
+				string id = uid.ToString ();
+				avatarUrl = redis[userAvatarUrl + id];
+				realName = redis[userRealName + id];
+			}
 
 			return true;
 		}
 
 		public void SetUserAccessTokens (long uid, string accessToken, string accessTokenSecret)
 		{
-			var redis = redisManager.GetClient ();
-
-			string id = uid.ToString ();
-			redis[userAccessToken + id] = accessToken;
-			redis[userAccessTokenSecret + id] = accessTokenSecret;
+			using (var redis = redisManager.GetClient ()) {
+				string id = uid.ToString ();
+				redis[userAccessToken + id] = accessToken;
+				redis[userAccessTokenSecret + id] = accessTokenSecret;
+			}
 		}
 
 		public OAuthToken GetUserAccessTokens (long uid)
 		{
-			var redis = redisManager.GetClient ();
-
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
 
-			string id = uid.ToString ();
+			using (var redis = redisManager.GetClient ()) {
+				string id = uid.ToString ();
 
-			return new OAuthToken (redis[userAccessToken + id], redis[userAccessTokenSecret + id]);
+				return new OAuthToken (redis[userAccessToken + id], redis[userAccessTokenSecret + id]);
+			}
 		}
 
 		public void SaveTempTokenSecret (string token, string tokenSecret)
 		{
-			var redis = redisManager.GetClient ();
-
-			redis["apachai:tokenSecrets:" + token] = tokenSecret;
+			using (var redis = redisManager.GetClient ())
+				redis["apachai:tokenSecrets:" + token] = tokenSecret;
 		}
 
 		public string GetTempTokenSecret (string token)
 		{
-			var redis = redisManager.GetClient ();
+			using (var redis = redisManager.GetClient ()) {
+				var result = redis["apachai:tokenSecrets:" + token];
+				redis.Remove ("apachai:tokenSecrets:" + token);
 
-			var result = redis["apachai:tokenSecrets:" + token];
-			redis.Remove ("apachai:tokenSecrets:" + token);
-
-			return result;
+				return result;
+			}
 		}
 
 		public long GetNextShortId ()
 		{
-			var redis = redisManager.GetClient ();
-
-			return redis.IncrementValue (picShortId);
+			using (var redis = redisManager.GetClient ())
+				return redis.IncrementValue (picShortId);
 		}
 
 		public bool FindPermaFromShort (string shortId, out string permaId)
 		{
 			permaId = string.Empty;
 
-			var redis = redisManager.GetClient ();
+			using (var redis = redisManager.GetClient ()) {
+				if (!redis.ContainsKey (picShortIdMap + shortId))
+					return false;
 
-			if (!redis.ContainsKey (picShortIdMap + shortId))
-				return false;
-
-			permaId = redis[picShortIdMap + shortId];
-			return true;
+				permaId = redis[picShortIdMap + shortId];
+				return true;
+			}
 		}
 	}
 }
