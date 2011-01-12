@@ -309,6 +309,59 @@ footer {
 	color: red;
 }
 
+#spinner {
+	position: relative;
+	margin: auto;
+	width: 90px;
+	height: 110px;
+	overflow: hidden;
+	-webkit-animation-name: 'spinnification';
+	-webkit-animation-duration: 450ms;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease-out;
+	z-index: 20;
+}
+
+#spinner img {
+	position: relative;
+	width: 90px;
+	height: 90px;
+}
+
+#shadow {
+	position: relative;
+	-webkit-transform: translate(0, -10px);
+	opacity: .2;
+	height: 28px;
+}
+
+#shadow img {
+	-webkit-animation-name: 'shrinkification';
+	-webkit-animation-duration: 450ms;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease-out;
+}
+
+@-webkit-keyframes 'spinnification' {
+	from {
+		-webkit-transform: translate(0, 30px);
+	}
+	to {
+		-webkit-transform: translate(0, 0);
+	}
+}
+
+@-webkit-keyframes 'shrinkification' {
+	from {
+		width: 70px;
+	}
+	to {
+		width: 100px;
+	}
+}
+
 @media print {
   * { background: transparent !important; color: #444 !important; text-shadow: none; }
 
