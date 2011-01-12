@@ -176,6 +176,11 @@ footer {
 	border-radius: 10px;
 	padding: 1ex;
 	margin-bottom: 4ex;
+	opacity: 0;
+	-webkit-transition: opacity 500ms linear 0;
+	-moz-transition: opacity 500ms linear 0;
+	-o-transition: opacity 500ms linear 0;
+	transition: opacity 500ms linear 0;
 }
 
 #twitbox {
