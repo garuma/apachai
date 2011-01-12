@@ -37,8 +37,8 @@ namespace Apachai
 
 	public class Apachai : ManosApp 
 	{
-		readonly static ConfigManager c = new ConfigManager ("config.json");
-		readonly static BackingStore store = new BackingStore ();
+		readonly static ConfigManager c;
+		readonly static BackingStore store;
 		readonly static OAuthConfig oauthConfig;
 		readonly static OAuth oauth;
 		readonly static string baseServerUrl;
@@ -47,6 +47,8 @@ namespace Apachai
 
 		static Apachai ()
 		{
+			c = new ConfigManager ("config.json");
+			store = new BackingStore (c);
 			oauthConfig = new OAuthConfig (c.GetOrThrow<string> ("twitterKey"),
 			                               c.GetOrThrow<string> ("twitterSecret"),
 			                               c.GetOrThrow<string> ("twitterCallback"));

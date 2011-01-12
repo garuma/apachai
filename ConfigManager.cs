@@ -2,13 +2,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Apachai
 {
 	public class ConfigManager
 	{
-		public class ConfigException : Exception
+		public class ConfigException : ApplicationException
 		{
 			public ConfigException (string message) : base (message)
 			{
@@ -53,7 +54,7 @@ namespace Apachai
 				return false;
 
 			value = (T)tmp;
-			Console.WriteLine ("Config manager: {0} => {1}", key, value.ToString ());
+			Console.WriteLine ("Config manager: {0} => {1}", key, GetString (value));
 
 			return true;
 		}
@@ -64,6 +65,7 @@ namespace Apachai
 			try {
 				return Get (key, out tmp) ? tmp : defaultValue;
 			} catch {
+				Console.WriteLine ("Config manager: {0} => {1} [default]", key, GetString (defaultValue));
 				return defaultValue;
 			}
 		}
@@ -75,6 +77,15 @@ namespace Apachai
 				ConfigException.ThrowKeyMalformed (key);
 
 			return tmp;
+		}
+
+		static string GetString<T> (T value)
+		{
+			IEnumerable<object> enumerable = value as IEnumerable<object>;
+			if (enumerable != null)
+				return "( " + enumerable.Aggregate (string.Empty, (l, o) => l + o.ToString () + " ") + ")";
+
+			return value.ToString ();
 		}
 	}
 }

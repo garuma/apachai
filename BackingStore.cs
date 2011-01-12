@@ -21,7 +21,9 @@
 //
 
 using System;
+using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 
 using ServiceStack.Redis;
 
@@ -29,7 +31,16 @@ namespace Apachai
 {
 	public class BackingStore
 	{
-		static IRedisClientsManager redisManager = new BasicRedisClientManager ();
+		class BackingStoreException : ApplicationException
+		{
+			public BackingStoreException (string message) : base (message)
+			{
+			}
+
+			public BackingStoreException (Exception inner) : base ("Error while initializing backing store", inner)
+			{
+			}
+		}
 
 		/* Possible keys with that prefix
 		 */
@@ -66,6 +77,18 @@ namespace Apachai
 		const string picShortId = picPrefix + "shortIdCounter";
 		// This is the prefix by which we map a short id to its permalink counter part
 		const string picShortIdMap = picPrefix + "shortIdMap:";
+
+		IRedisClientsManager redisManager;
+
+		public BackingStore (ConfigManager cfg)
+		{
+			try {
+				var raw = cfg.GetOrDefault<IList<object>> ("redisServers", new [] { "127.0.0.1" });
+				redisManager = new BasicRedisClientManager (raw.Cast<string> ().ToArray ());
+			} catch (Exception e) {
+				throw new BackingStoreException (e);
+			}
+		}
 
 		public bool GetPicturesInfos (string filename, out string result)
 		{
