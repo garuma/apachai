@@ -305,6 +305,17 @@ namespace Apachai
 
 			HandleJson (json, ctx.Response);
 		}
+
+		[Route ("/recent/{id}")]
+		public void FetchRecentPictures (IManosContext ctx, string id)
+		{
+			if (string.IsNullOrEmpty (id))
+				HandleJson (string.Empty, ctx.Response);
+
+			var list = store.GetImagesOfUserFromPic (id, 10);
+			var json = '[' + list.Select (e => '"' + e + '"').Aggregate ((e1, e2) => e1 + ',' + e2) + ']';
+			HandleJson (json, ctx.Response);
+		}
 		
 		static bool CheckImageType (Stream file)
 		{

@@ -17,6 +17,17 @@
 		  <table id="pictable">
 		  </table>
 		</div>
+
+		<div id="sliderbox" class="box">
+		  <div id="sliderContainer">
+			<div id="slider">
+			</div>
+		  </div>
+		  <div id="sliderctrls">
+			<div id="goLeft" class="sliderCtrl"><a href="#">&lt;</a></div>
+			<div id="goRight" class="sliderCtrl"><a href="#">&gt;</a></div>
+		  </div>
+		</div>
 	  </div>
 {{body}}
 {{extrascript}}

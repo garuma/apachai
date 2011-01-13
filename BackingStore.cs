@@ -144,11 +144,19 @@ namespace Apachai
 
 			using (var redis = redisManager.GetClient ()) {
 				string id = uid.ToString ();
-				redis.AddItemToList (userPictures + id, picture);
+				redis.PrependItemToList (userPictures + id, picture);
 				redis[picTweet + picture] = tweet;
 				redis[picUser + picture] = id;
 				redis[picLongUrl + picture] = longUrl;
 				redis[picShortUrl + picture] = shortUrl;
+			}
+		}
+
+		public List<string> GetImagesOfUserFromPic (string picture, int count)
+		{
+			using (var redis = redisManager.GetClient ()) {
+				string id = redis[picUser + picture];
+				return redis.GetRangeFromList (userPictures + id, 0, count);
 			}
 		}
 

@@ -362,6 +362,44 @@ footer {
 	}
 }
 
+#sliderContainer {
+	overflow: hidden;
+	height: 100px;
+	width: 95%;
+	margin: auto;
+	margin-bottom: 1em;
+}
+
+#sliderContainer * {
+	height: 100px;
+}
+
+#slider {
+	text-align: left;
+	width: 200%;
+	margin-left: 0;
+	-webkit-transition: margin-left 500ms linear 0;
+}
+
+.imgEntry {
+	display: inline;
+	margin-right: 10px;
+}
+
+.sliderCtrl {
+	display: inline;
+	margin: 0 1em 0 1em;
+}
+
+.sliderCtrl a {
+	text-decoration: none;
+	font-size: 150%;
+}
+
+#sliderctrls {
+	text-align: center;
+}
+
 @media print {
   * { background: transparent !important; color: #444 !important; text-shadow: none; }
 
