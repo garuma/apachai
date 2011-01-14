@@ -324,7 +324,7 @@ namespace Apachai
 			js.AppendFormat ("pictureBaseUrl: {0}\n", imgDirectory);
 			js.Append ("};");
 
-			ctx.Response.SetNormalizedHeader ("Cache-Control", "max-age=600");
+			ctx.Response.Headers.SetNormalizedHeader ("Cache-Control", "max-age=600");
 			HandleJson (js.ToString (), ctx.Response);
 		}
 		
