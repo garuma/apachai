@@ -68,12 +68,13 @@ if (img != "i") {
 					return;
 				slider.css('margin-left', '-' + (deviation = tmp) + 'px');
 			};
+			var transitionEvents = 'webkitTransitionEnd transitionend';
 			var mouseBind = function (e) {
-				slider.bind ('webkitTransitionEnd', e.data, sliderMove);
-				slider.trigger ('webkitTransitionEnd');
+				slider.bind (transitionEvents, e.data, sliderMove);
+				slider.trigger (transitionEvents);
 			};
 			var mouseUnbind = function (e) {
-				slider.unbind ('webkitTransitionEnd');
+				slider.unbind (transitionEvents);
 			};
 
 			$('#goRight')
@@ -93,5 +94,4 @@ if (img != "i") {
 
 	var src = baseUrl + img;
 	$("#mainImage").attr("src", src);
-	$("meta[property=\"og:image\"]").attr ("content", src);
 }
