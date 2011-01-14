@@ -316,6 +316,17 @@ namespace Apachai
 			var json = '[' + list.Select (e => '"' + e + '"').Aggregate ((e1, e2) => e1 + ',' + e2) + ']';
 			HandleJson (json, ctx.Response);
 		}
+
+		[Route ("/config")]
+		public void FetchJavascriptConfiguration (IManosContext ctx)
+		{
+			StringBuilder js = new StringBuilder ("apachai = {");
+			js.AppendFormat ("pictureBaseUrl: {0}\n", imgDirectory);
+			js.Append ("};");
+
+			ctx.Response.SetNormalizedHeader ("Cache-Control", "max-age=600");
+			HandleJson (js.ToString (), ctx.Response);
+		}
 		
 		static bool CheckImageType (Stream file)
 		{
