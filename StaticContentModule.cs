@@ -20,59 +20,97 @@
 // THE SOFTWARE.
 //
 
-
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using Manos;
 
+namespace Apachai
+{
+	public class StaticContentModule : ManosModule
+	{
+		readonly IEnumerable<string> cacheExtensions;
+		readonly string expires;
+		readonly Dictionary<string, string> etagCache;
+		readonly FileSystemWatcher fsw;
 
-//
-//  This the default StaticContentModule that comes with all Manos apps
-//  if you do not wish to serve any static content with Manos you can
-//  remove its route handler from <YourApp>.cs's constructor and delete
-//  this file.
-//
-//  All Content placed on the Content/ folder should be handled by this
-//  module.
-//
+		static readonly string[] defaultCachedExts = { ".js", ".css", ".png", ".jpg", ".woff", ".eot", ".ttf", ".ico" };
 
-namespace Apachai {
-
-	public class StaticContentModule : ManosModule {
-		const string futureFarFarAway = "Thu, 15 Apr 2015 20:00:00 GMT";
-
-		public StaticContentModule ()
+		public StaticContentModule () : this (null)
 		{
+		}
+
+		public StaticContentModule (string dir) : this (dir, defaultCachedExts, TimeSpan.FromDays (30))
+		{
+		}
+
+		public StaticContentModule (string dir,
+		                            IEnumerable<string> cacheExtensions,
+		                            TimeSpan expireTime)
+		{
+			if (!string.IsNullOrEmpty (dir)) {
+				this.cacheExtensions = cacheExtensions;
+				this.expires = (DateTime.Now + TimeSpan.FromDays (30)).ToString ("R");
+				this.etagCache = new Dictionary<string, string> ();
+
+				if (dir.StartsWith (Path.PathSeparator.ToString ()))
+					dir = dir.Substring (1);
+
+				fsw = new FileSystemWatcher (dir);
+				fsw.NotifyFilter = NotifyFilters.LastWrite;
+				fsw.IncludeSubdirectories = true;
+				fsw.Changed += (obj, e) => etagCache[Path.Combine (dir, e.Name)] = GetEtagFromFile (e.FullPath);
+				fsw.EnableRaisingEvents = true;
+			}
+
 			Get (".*", Content);
 		}
 
-		public static void Content (IManosContext ctx)
+		public void Content (IManosContext ctx)
 		{
 			string path = ctx.Request.Path;
 
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
 
+			string etag, fileEtag;
+			if (cacheExtensions != null
+			    && ctx.Request.Headers.TryGetNormalizedValue ("If-None-Match", out etag)
+			    && etagCache.TryGetValue (path, out fileEtag)
+			    && fileEtag.Equals (etag, StringComparison.Ordinal)) {
+
+				ctx.Response.StatusCode = 304;
+				ctx.Response.End ();
+				return;
+			}
+
 			if (File.Exists (path)) {
-				// Set correctly content type of the image we are sending
-				if (path.IndexOf ("/img/") != -1) {
-					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "image/jpeg");
-					ctx.Response.Headers.SetNormalizedHeader ("Expires", futureFarFarAway);
-				} else {
-					ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType (path));
-				}
+				ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType (path));
 
 				// Expires setting for specific files
-				if (path.EndsWith (".min.js", StringComparison.Ordinal)
-				    || path.EndsWith (".woff", StringComparison.Ordinal)
-				    || path.EndsWith (".ico", StringComparison.Ordinal))
-					ctx.Response.Headers.SetNormalizedHeader ("Expires", futureFarFarAway);
+				if (cacheExtensions != null) {
+					foreach (var extension in cacheExtensions) {
+						if (path.EndsWith (extension, StringComparison.Ordinal)) {
+							ctx.Response.Headers.SetNormalizedHeader ("Expires", expires);
+							if (!etagCache.ContainsKey (path))
+								etagCache[path] = GetEtagFromFile (path);
+							ctx.Response.Headers.SetNormalizedHeader ("ETag", etagCache[path]);
+							break;
+						}
+					}
+				}
 
 				ctx.Response.SendFile (path);
 			} else
 				ctx.Response.StatusCode = 404;
+
 			ctx.Response.End ();
+		}
+
+		static string GetEtagFromFile (string path)
+		{
+			return File.GetLastWriteTimeUtc (path).ToString ("s");
 		}
 	}
 }
