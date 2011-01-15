@@ -5,7 +5,7 @@
 
 	  <div id="rightcolumn">
 		<div id="twitbox" class="box">
-		  <img src="" id="imgAvatar" /><p id="tweetText"></p>
+		  <img src="/Content/img/transparent.png" id="imgAvatar" /><p id="tweetText"></p>
 		</div>
 
 		<div id="linkbox" class="box">
