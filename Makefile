@@ -11,7 +11,8 @@ FILES = Apachai.cs \
 	Twitter.cs \
 	UrlShortener.cs \
 	AccessLogger.cs \
-	ConfigManager.cs
+	ConfigManager.cs \
+	PictureContentModule.cs
 
 APACHAI_EFFECTS = Effects/Apachai.Effects.dll
 APACHAI_EFFECTS_DIR = Effects/

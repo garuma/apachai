@@ -62,7 +62,7 @@ namespace Apachai
 		public Apachai ()
 		{
 			Route ("/Content/", new StaticContentModule ("Content"));
-			Route ("/Pictures/", new StaticContentModule (imgDirectory));
+			Route ("/Pictures/", new PictureContentModule ());
 			AddPipe (new Manos.Util.AccessLogger ("access.log"));
 		}
 
