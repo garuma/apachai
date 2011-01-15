@@ -55,13 +55,14 @@ namespace Apachai
 			oauth = new OAuth (oauthConfig);
 			testInstance = c.GetOrDefault<bool> ("testInstance", false);
 			baseServerUrl = c.GetOrThrow<string> ("serverBaseUrl");
-			imgDirectory = c.GetOrDefault<string> ("imagesDirectory", Path.Combine ("Content", "img"));
+			imgDirectory = c.GetOrDefault<string> ("imagesDirectory", "Pictures");
 			UrlShortener.Store = store;
 		}
 
 		public Apachai ()
 		{
 			Route ("/Content/", new StaticContentModule ("Content"));
+			Route ("/Pictures/", new StaticContentModule (imgDirectory));
 			AddPipe (new Manos.Util.AccessLogger ("access.log"));
 		}
 
@@ -315,17 +316,6 @@ namespace Apachai
 			var list = store.GetImagesOfUserFromPic (id, 10);
 			var json = '[' + list.Select (e => '"' + e + '"').Aggregate ((e1, e2) => e1 + ',' + e2) + ']';
 			HandleJson (json, ctx.Response);
-		}
-
-		[Route ("/config")]
-		public void FetchJavascriptConfiguration (IManosContext ctx)
-		{
-			StringBuilder js = new StringBuilder ("apachai = {");
-			js.AppendFormat ("pictureBaseUrl: {0}\n", imgDirectory);
-			js.Append ("};");
-
-			ctx.Response.Headers.SetNormalizedHeader ("Cache-Control", "max-age=600");
-			HandleJson (js.ToString (), ctx.Response);
 		}
 		
 		static bool CheckImageType (Stream file)

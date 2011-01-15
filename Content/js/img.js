@@ -4,7 +4,7 @@
 
 var img = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
 if (img != "i") {
-	var baseUrl = "/Content/img/";
+	var baseUrl = "/Pictures/";
 
 	$('#mainImage').bind('load', function (e) {
 		if ($(this).attr ('src').length == 0)
@@ -68,7 +68,11 @@ if (img != "i") {
 					return;
 				slider.css('margin-left', '-' + (deviation = tmp) + 'px');
 			};
-			var transitionEvents = 'webkitTransitionEnd transitionend';
+
+			if ($.browser.webkit)
+				var transitionEvents = 'webkitTransitionEnd';
+			else
+				var transitionEvents = 'transitionend';
 			var mouseBind = function (e) {
 				slider.bind (transitionEvents, e.data, sliderMove);
 				slider.trigger (transitionEvents);

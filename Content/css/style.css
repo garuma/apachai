@@ -175,7 +175,7 @@ footer {
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	padding: 1ex;
-	margin-bottom: 4ex;
+	margin-bottom: 2ex;
 	opacity: 0;
 	-webkit-transition: opacity 500ms linear 0;
 	-moz-transition: opacity 500ms linear 0;
@@ -379,6 +379,9 @@ footer {
 	width: 200%;
 	margin-left: 0;
 	-webkit-transition: margin-left 500ms linear 0;
+	-moz-transition: margin-left 500ms linear 0;
+	-o-transition: margin-left 500ms linear 0;
+	transition: margin-left 500ms linear 0;
 }
 
 .imgEntry {
