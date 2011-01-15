@@ -378,7 +378,7 @@ footer {
 	text-align: left;
 	width: 200%;
 	margin-left: 0;
-	-webkit-transition: margin-left 500ms linear 0;
+	-webkit-transition: margin-left 5s linear 0;
 	-moz-transition: margin-left 500ms linear 0;
 	-o-transition: margin-left 500ms linear 0;
 	transition: margin-left 500ms linear 0;

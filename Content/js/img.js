@@ -52,45 +52,53 @@ if (img != "i") {
 			});
 
 			var deviation = 0;
+			var start;
+			var current = 0;
+			var transitionTime = 5000;
+			var transition = transitionTime;
+			var transitionProperties = ['-webkit-transition-duration', '-moz-transition-duration', '-o-transition-duration', 'transition-duration'];
 
-			var sliderMove = function (e) {
+			var mouseBind = function (data) {
 				if (width == 0) {
 					var items = $('.imgEntry a img');
 					$.each (items, function (i) {
 						width += items[i].width;
 					});
+					width -= 100;
+					transition /= width;
 				}
 
-				var tmp = e.data.update (deviation);
-				if (tmp <= 0)
-					tmp = 0;
-				if (tmp >= width)
-					return;
-				slider.css('margin-left', '-' + (deviation = tmp) + 'px');
+				if (data.direction == "right") {
+					$.each (function (i, j) {
+						slider.css(j, (((width - current) * transition) | 0) + 'ms');
+					});
+					slider.css('margin-left', '-' + width + 'px');
+				} else {
+					$.each (function (i, j) {
+						slider.css(j, ((current * transition) | 0) + 'ms');
+					});
+					slider.css('margin-left',  '0');
+				}
+				start = new Date ().getTime ();
 			};
+			var mouseUnbind = function (data) {
+				var pos = width / transitionTime;
+				var now = new Date ().getTime () - start;
+				if (data.direction == "right")
+					pos = current + pos * now;
+				else
+					pos = current - pos * now;
+				current = pos = Math.max (Math.min (pos | 0, width), 0);
 
-			if ($.browser.webkit)
-				var transitionEvents = 'webkitTransitionEnd';
-			else
-				var transitionEvents = 'transitionend';
-			var mouseBind = function (e) {
-				slider.bind (transitionEvents, e.data, sliderMove);
-				slider.trigger (transitionEvents);
-			};
-			var mouseUnbind = function (e) {
-				slider.unbind (transitionEvents);
+				slider.css ('margin-left', '-' + pos + 'px');
 			};
 
 			$('#goRight')
-				.bind ('mouseover', {
-					update: function (val) { return val + 50; }
-				}, mouseBind)
-				.mouseleave(mouseUnbind);
+				.mouseenter (function () { mouseBind ({ direction: "right"}); })
+				.mouseleave(function () { mouseUnbind ({ direction: "right"}); });
 			$('#goLeft')
-				.bind ('mouseenter', {
-					update: function (val) { return val - 50; }
-				}, mouseBind)
-				.mouseleave(mouseUnbind);
+				.mouseenter (function () { mouseBind ({ direction: "left"}); })
+				.mouseleave(function () { mouseUnbind ({ direction: "left"}); });
 
 			$("#sliderbox").css ('opacity', 1);
 		}, "json");
