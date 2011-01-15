@@ -1,6 +1,6 @@
 {{body}}
 	  <div id="leftcolumn">
-		<img id="mainImage" src="" />
+		<img id="mainImage" src="/Content/img/transparent.png" />
 	  </div>
 
 	  <div id="rightcolumn">

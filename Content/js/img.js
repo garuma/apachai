@@ -7,7 +7,7 @@ if (img != "i") {
 	var baseUrl = "/Pictures/";
 
 	$('#mainImage').bind('load', function (e) {
-		if ($(this).attr ('src').length == 0)
+		if ($(this).attr ('src') == "/Content/img/transparent.png")
 			return;
 
 		$.get("/infos/" + img, callback = function (data, textStatus, xhr) {
