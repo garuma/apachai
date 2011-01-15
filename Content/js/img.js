@@ -60,21 +60,18 @@ if (img != "i") {
 
 			var mouseBind = function (data) {
 				if (width == 0) {
-					var items = $('.imgEntry a img');
-					$.each (items, function (i) {
-						width += items[i].width;
-					});
-					width -= 100;
+					width = slider.width () - $('#sliderContainer').width ();
+					width -= 20;
 					transition /= width;
 				}
 
 				if (data.direction == "right") {
-					$.each (function (i, j) {
+					$.each (transitionProperties, function (i, j) {
 						slider.css(j, (((width - current) * transition) | 0) + 'ms');
 					});
 					slider.css('margin-left', '-' + width + 'px');
 				} else {
-					$.each (function (i, j) {
+					$.each (transitionProperties, function (i, j) {
 						slider.css(j, ((current * transition) | 0) + 'ms');
 					});
 					slider.css('margin-left',  '0');
