@@ -188,7 +188,7 @@ namespace Apachai
 			}
 
 			// HACK: the TrimEnd should be in Manos
-			var filename = HandleUploadedFile (file, req.PostData.GetString ("effect").TrimEnd ('\n', '\r'));
+			var filename = HandleUploadedFile (file, uid.ToString (), req.PostData.GetString ("effect").TrimEnd ('\n', '\r'));
 
 			// TODO: find that back with ctx
 			var finalUrl = baseServerUrl + "/i/" + filename;
@@ -334,9 +334,9 @@ namespace Apachai
 			}
 		}
 
-		string HandleUploadedFile (Stream file, string transformation)
+		string HandleUploadedFile (Stream file, string user, string transformation)
 		{
-			string filename = Hasher.Hash (file);
+			string filename = user + Hasher.Hash (file);
 			string path = Path.Combine (imgDirectory, filename);
 
 			using (FileStream fs = File.OpenWrite (path))
