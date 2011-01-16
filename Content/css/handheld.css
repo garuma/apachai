@@ -6,6 +6,10 @@
   color: #000;
 }
 
+body {
+	background-color: #FCAF3E;
+}
+
 #container {
 	width: 100%;
 }
@@ -40,6 +44,7 @@ footer {
 }
 
 #main {
+	background-color: #fff;
 	width: 100%;
 	margin: auto;
 	border-radius: 0;
@@ -48,13 +53,23 @@ footer {
 	padding-bottom: 1px;
 }
 
+#content {
+	float: none;;
+	width: 100%;
+	position: static;
+	right: 0;
+}
+
 #rightcolumn {
+	position: static;
 	display: block;
 	width: 100%;
 	max-width: 100%;
 	float: none;
 	padding: 0;
 	padding-top: 1em;
+	left: 0;
+	text-align: center;
 }
 
 #rightcolumn .box {
@@ -74,7 +89,9 @@ footer {
 }
 
 #leftcolumn {
+	position: static;
 	display: block;
+	left: 0;
 	width: 100%;
 	max-width: 100%;
 	padding: 0;
@@ -137,4 +154,9 @@ label {
 
 #spinner {
 	margin-bottom: 1em;
+}
+
+/* On mobile we don't want the slider has it's pretty useless with touch */
+#sliderbox {
+	display: none; visibility: hidden;
 }
