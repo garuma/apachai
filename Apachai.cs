@@ -260,7 +260,7 @@ namespace Apachai
 			Task.Factory.StartNew (() => {
 					JsonStringDictionary dict = new JsonStringDictionary ();
 
-					TagLibMetadata metadata = new TagLibMetadata (id);
+					TagLibMetadata metadata = new TagLibMetadata (imgDirectory, id);
 					if (!metadata.IsValid) {
 						Log.Info (id + " is invalid file");
 						json = string.Empty;

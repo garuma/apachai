@@ -28,26 +28,27 @@ namespace Apachai
 {
 	public class TagLibMetadata
 	{
-		const string basePath = "Content/img/";
-
 		TagLib.File file;
 		string id;
+		readonly string basePath;
 
-		public TagLibMetadata (string id)
+		public TagLibMetadata (string basePath, string id)
 		{
 			this.id = id;
+			this.basePath = basePath;
 		}
 
 		public bool IsValid {
 			get {
 				if (file != null)
 					return true;
+				string path = Path.Combine (basePath, id);
 
-				if (!File.Exists (basePath + id))
+				if (!File.Exists (path))
 					return false;
 
 				try {
-					file = TagLib.File.Create("Content/img/" + id, "image/jpeg", TagLib.ReadStyle.Average);
+					file = TagLib.File.Create(path, "image/jpeg", TagLib.ReadStyle.Average);
 				} catch (Exception e) {
 					Console.WriteLine (e.ToString ());
 					return false;
@@ -71,15 +72,14 @@ namespace Apachai
 				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment);
 				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
 				CheckAndAdd (dict, "Date: ", image.ImageTag.DateTime);
-				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
-				CheckAndAdd (dict, "DateTime: ", image.ImageTag.DateTime);
+				//CheckAndAdd (dict, "DateTime: ", image.ImageTag.DateTime);
 				CheckAndAdd (dict, "Orientation: ", image.ImageTag.Orientation);
 				CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
 				CheckAndAdd (dict, "ExposureTime: ", image.ImageTag.ExposureTime);
 				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber);
 				CheckAndAdd (dict, "ISOSpeedRatings: ", image.ImageTag.ISOSpeedRatings);
 				CheckAndAdd (dict, "FocalLength: ", image.ImageTag.FocalLength);
-				CheckAndAdd (dict, "FocalLength35mm: ", image.ImageTag.FocalLengthIn35mmFilm);
+				//CheckAndAdd (dict, "FocalLength35mm: ", image.ImageTag.FocalLengthIn35mmFilm);
 				CheckAndAdd (dict, "Make: ", image.ImageTag.Make);
 				CheckAndAdd (dict, "Model: ", image.ImageTag.Model);
 			}
