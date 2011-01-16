@@ -57,6 +57,7 @@ if (img != "i") {
 			var transitionTime = 5000;
 			var transition = transitionTime;
 			var transitionProperties = ['-webkit-transition-duration', '-moz-transition-duration', '-o-transition-duration', 'transition-duration'];
+			var transformProperties = ['-webkit-transform', '-moz-transform', '-o-transform', 'transform'];
 
 			var mouseBind = function (data) {
 				if (width == 0) {
@@ -69,12 +70,16 @@ if (img != "i") {
 					$.each (transitionProperties, function (i, j) {
 						slider.css(j, (((width - current) * transition) | 0) + 'ms');
 					});
-					slider.css('margin-left', '-' + width + 'px');
+					$.each (transformProperties, function (i, j) {
+						slider.css(j, 'translateX(-' + width + 'px)');
+					});
 				} else {
 					$.each (transitionProperties, function (i, j) {
 						slider.css(j, ((current * transition) | 0) + 'ms');
 					});
-					slider.css('margin-left',  '0');
+					$.each (transformProperties, function (i, j) {
+						slider.css(j, 'translateX(0)');
+					});
 				}
 				start = new Date ().getTime ();
 			};
@@ -87,7 +92,9 @@ if (img != "i") {
 					pos = current - pos * now;
 				current = pos = Math.max (Math.min (pos | 0, width), 0);
 
-				slider.css ('margin-left', '-' + pos + 'px');
+				$.each (transformProperties, function (i, j) {
+					slider.css(j, 'translateX(-' + pos + 'px)');
+				});
 			};
 
 			$('#goRight')
