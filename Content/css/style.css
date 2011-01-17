@@ -206,7 +206,7 @@ footer {
 	overflow: hidden;
 }
 
-#twitbox img {
+#imgAvatar {
 	width: 64px;
 	max-width: 64px;
 	display: inline;
@@ -221,21 +221,28 @@ footer {
 	text-align: justify;
 }
 
-#linkbox table {
+#linkbox {
 	margin: auto;
 }
 
-.linkentry {
+#linkbox ul {
 	text-align: center;
-	padding-bottom: 1ex;
+}
+
+.linkentry {
+	display: inline;
+	text-align: center;
+	padding: 5px;
 }
 
 .linkentry img {
-	padding-bottom: 0;
+	display: inline;
+	vertical-align: middle;
 }
 
 #picinfos {
 	overflow: hidden;
+	font-size: 90%;
 }
 
 #picinfos td {
@@ -253,6 +260,7 @@ footer {
 
 #pictable {
 	margin: auto;
+	font-size: 95%;
 }
 
 #maincolumn {
@@ -394,7 +402,7 @@ footer {
 	height: 100px;
 	width: 95%;
 	margin: auto;
-	margin-bottom: 1em;
+	margin-bottom: 1ex;
 }
 
 #sliderContainer * {
@@ -423,7 +431,7 @@ footer {
 
 .sliderCtrl a {
 	text-decoration: none;
-	font-size: 150%;
+	font-size: 130%;
 }
 
 #sliderctrls {

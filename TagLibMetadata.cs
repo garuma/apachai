@@ -74,11 +74,11 @@ namespace Apachai
 		{
 			var image = file as TagLib.Image.File;
 
-			if (image.Properties != null) {
+			/*if (image.Properties != null) {
 				CheckAndAdd (dict, "Width: ", image.Properties.PhotoWidth);
 				CheckAndAdd (dict, "Height: ", image.Properties.PhotoHeight);
 				CheckAndAdd (dict, "Type: ", image.Properties.Description);
-			}
+			}*/
 			
 			if (image.ImageTag != null) {
 				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment);
@@ -90,9 +90,9 @@ namespace Apachai
 				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber);
 				CheckAndAdd (dict, "ISO speed: ", image.ImageTag.ISOSpeedRatings);
 				CheckAndAdd (dict, "Focal length: ", image.ImageTag.FocalLength);
-				CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
-				CheckAndAdd (dict, "Make: ", image.ImageTag.Make);
-				CheckAndAdd (dict, "Model: ", image.ImageTag.Model);
+				//CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
+				//CheckAndAdd (dict, "Maker: ", image.ImageTag.Make);
+				CheckAndAdd (dict, "Camera: ", image.ImageTag.Model);
 			}
 		}
 

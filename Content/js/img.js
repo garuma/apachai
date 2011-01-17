@@ -26,18 +26,16 @@ if (img != "i") {
 		$.get("/tweet/" + img, callback = function (data, textStatus, xhr) {
 			$("#imgAvatar").attr ("src", data["avatar"]);
 			$("#tweetText").html (data["tweet"]);
+
+			$.get("/links/" + img, callback = function (data, textStatus, xhr) {
+				if (data.length != 0) {
+					$('#linktable').append('<li class="linkentry"><a href="' + data["short"] + '">Short url</a></li>');
+					$('#linktable').append('<li class="linkentry"><a href="' + data["permanent"] + '">Permalink</a></li>');
+					$('#linktable').append('<li class="linkentry"><a href="http://www.facebook.com/sharer.php?u='+encodeURIComponent(data["facebook"])+'&src=sp" target="_blank"><img src="/Content/img/share_fb.png"></a></li>');
+				}
+			}, "json");
+
 			$("#twitbox").css ('opacity', 1);
-		}, "json");
-
-		$.get("/links/" + img, callback = function (data, textStatus, xhr) {
-			if (data.length == 0)
-				return;
-
-			$('#linktable').append("<tr><td class=\"linkentry\"><a href=\"" + data["short"] + "\">Short url</a></td></tr>");
-			$('#linktable').append('<tr><td class="linkentry"><a href="' + data["permanent"] + '">Permalink</a></td></tr>');
-			$('#linktable').append('<tr><td class="linkentry"><a href="http://www.facebook.com/sharer.php?u='+encodeURIComponent(data["facebook"])+'&src=sp" target="_blank"><img src="/Content/img/share_fb.png"></a></td></tr>');
-
-			$("#linkbox").css ('opacity', 1);
 		}, "json");
 
 		$.get("/recent/" + img, callback = function (data, textStatus, xhr) {
