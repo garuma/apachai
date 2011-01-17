@@ -253,9 +253,11 @@ namespace Apachai
 			string pageUrl = baseServerUrl + "/i/" + id;
 			string imageUrl = baseServerUrl + "/Pictures/" + id;
 
+			ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: text/html; charset=utf-8");
 			ctx.Response.End (string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
 <head>
 <title>Picture on Apachaï</title>
+<meta charset=""utf-8"" />
 <meta property=""og:title"" content=""Picture on Apachaï"" />
 <meta property=""og:type"" content=""article"" />
 <meta property=""og:url"" content=""{0}"" />
@@ -263,7 +265,7 @@ namespace Apachai
 <meta property=""og:description"" content=""Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework"" />
 <meta property=""og:site_name"" content=""Apachaï"" />
 </head>
-<script type=""text/javascript"">window.location = {0};</script>
+<script type=""text/javascript"">window.location = '{0}';</script>
 </html>", pageUrl, imageUrl));
 		}
 
