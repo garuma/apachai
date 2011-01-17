@@ -148,7 +148,7 @@ namespace Apachai
 
 							if (retDict != null)
 								store.SetExtraUserInfos (userInfos.UserId,
-								                         (string)retDict["profile_image_url"],
+								                         ((string)retDict["profile_image_url"]).Replace ("normal.", "reasonably_small."),
 								                         (string)retDict["name"]);
 						}
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
