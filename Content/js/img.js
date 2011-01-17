@@ -29,7 +29,7 @@ if (img != "i") {
 
 			$.get("/links/" + img, callback = function (link, textStatus, xhr) {
 				if (link.length != 0) {
-					$('#linktable').append('<li class="linkentry"><a href="' + link["short"] + '">Short url</a></li>');
+					$('#linktable').append('<li class="linkentry"><a href="' + link["short"] + '">Short</a></li>');
 					$('#linktable').append('<li class="linkentry"><a href="' + link["permanent"] + '">Permalink</a></li>');
 					$('#linktable').append('<li class="linkentry"><a href="http://www.facebook.com/sharer.php?u='+encodeURIComponent(link["facebook"])+'&src=sp" target="_blank"><img src="/Content/img/share_fb.png"></a></li>');
 					$('#linktable').append('<li class="linkentry"><a href="http://twitter.com/share?url='+encodeURIComponent(link["short"])+'&counturl='+encodeURIComponent(link["permanent"])+'&via='+data['name']+'" target="_blank"><img src="/Content/img/share_tweet.png"></a></li>');
