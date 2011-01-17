@@ -334,9 +334,11 @@ namespace Apachai
 
 			var shortUrl = baseServerUrl + "/s/" + store.GetShortUrlForImg (id);
 			var longUrl = baseServerUrl + "/i/" + id;
+			var ogUrl = baseServerUrl + "/og/" + id;
 
 			dict["short"] = shortUrl;
 			dict["permanent"] = longUrl;
+			dict["facebook"] = ogUrl;
 
 			var json = dict.Json;
 			Log.Info ("Sending back links blob: {0}", json);

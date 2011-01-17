@@ -35,6 +35,8 @@ if (img != "i") {
 
 			$('#linktable').append("<tr><td class=\"linkentry\"><a href=\"" + data["short"] + "\">Short url</a></td></tr>");
 			$('#linktable').append('<tr><td class="linkentry"><a href="' + data["permanent"] + '">Permalink</a></td></tr>');
+			$('#linktable').append('<tr><td class="linkentry"><a href="http://www.facebook.com/sharer.php?u='+encodeURIComponent(data["facebook"])+'&src=sp" target="_blank"><img src="/Content/img/share_fb.png"></a></td></tr>');
+
 			$("#linkbox").css ('opacity', 1);
 		}, "json");
 

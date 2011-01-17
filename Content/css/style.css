@@ -227,7 +227,11 @@ footer {
 
 .linkentry {
 	text-align: center;
-	line-height: 2em;
+	padding-bottom: 1ex;
+}
+
+.linkentry img {
+	padding-bottom: 0;
 }
 
 #picinfos {
