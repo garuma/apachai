@@ -118,7 +118,7 @@ namespace Apachai
 				ctx.Response.SetCookie ("apachai:userId", 1.ToString ());
 				ctx.Response.SetCookie ("apachai:token", "bar");
 				store.SetUserInfos (1, "the_test");
-				store.SetExtraUserInfos (1, "http://neteril.org/twitter.png", "The test");
+				store.SetExtraUserInfos (1, "http://neteril.org/img/twitter.png", "The test");
 				store.SetUserAccessTokens (1, "bar", "bar");
 				ctx.Response.Redirect ("/Post");
 
