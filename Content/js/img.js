@@ -116,10 +116,10 @@ if (img != "i") {
 			var w = $('#rightcolumn').width () - 20;
 
 			var googleMapUrl = 'http://maps.google.com/maps/api/staticmap?center='+lat+','+lon+'&zoom=7&sensor=false&maptype=roadmap&size='+w+'x'+w+'&markers='+lat+','+lon;
-			$("#mapImage").attr ("src", googleMapUrl);
+			$('#mapImage').attr ('src', googleMapUrl);
+			$('#mapBox').find('a').attr ('href', 'http://maps.google.com/maps?z=10&q='+lat+','+lon);
+			$("#mapBox").css ('opacity', 1);
 		}, "json");
-
-		$("#mapBox").css ('opacity', 1);
 	});
 
 	var src = baseUrl + img;

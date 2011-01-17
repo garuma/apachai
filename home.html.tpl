@@ -31,7 +31,7 @@
 		  </div>
 
 		  <div id="mapBox" class="box">
-			<img id="mapImage" src="/Content/img/transparent.png">
+			<a href=""><img id="mapImage" src="/Content/img/transparent.png"></a>
 		  </div>
 		</div>
 	  </div>
