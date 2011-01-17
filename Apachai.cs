@@ -241,6 +241,32 @@ namespace Apachai
 			ctx.Response.End ();
 		}
 
+		[Route ("/og/{id}")]
+		public void ShowOpenGraphData (IManosContext ctx, string id)
+		{
+			if (string.IsNullOrEmpty (id) || !File.Exists (Path.Combine (imgDirectory, id))) {
+				ctx.Response.StatusCode = 404;
+				ctx.Response.End ();
+				return;
+			}
+
+			string pageUrl = baseServerUrl + "/i/" + id;
+			string imageUrl = baseServerUrl + "/Pictures/" + id;
+
+			ctx.Response.End (string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
+<head>
+<title>Picture on Apachaï</title>
+<meta property=""og:title"" content=""Picture on Apachaï"" />
+<meta property=""og:type"" content=""article"" />
+<meta property=""og:url"" content=""{0}"" />
+<meta property=""og:image"" content=""{1}"" />
+<meta property=""og:description"" content=""Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework"" />
+<meta property=""og:site_name"" content=""Apachaï"" />
+</head>
+<script type=""text/javascript"">window.location = {0};</script>
+</html>", pageUrl, imageUrl));
+		}
+
 		[Route ("/infos/{id}")]
 		public void FetchInformations (IManosContext ctx, string id)
 		{
