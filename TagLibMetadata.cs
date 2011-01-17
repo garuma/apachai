@@ -23,6 +23,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 
 namespace Apachai
 {
@@ -83,14 +84,13 @@ namespace Apachai
 				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment);
 				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
 				CheckAndAdd (dict, "Date: ", image.ImageTag.DateTime);
-				//CheckAndAdd (dict, "DateTime: ", image.ImageTag.DateTime);
+				CheckAndAdd (dict, "Altitude: ", image.ImageTag.Altitude);
 				CheckAndAdd (dict, "Orientation: ", image.ImageTag.Orientation);
-				CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
 				CheckAndAdd (dict, "Exposure time: ", image.ImageTag.ExposureTime);
 				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber);
 				CheckAndAdd (dict, "ISO speed: ", image.ImageTag.ISOSpeedRatings);
 				CheckAndAdd (dict, "Focal length: ", image.ImageTag.FocalLength);
-				//CheckAndAdd (dict, "FocalLength35mm: ", image.ImageTag.FocalLengthIn35mmFilm);
+				CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
 				CheckAndAdd (dict, "Make: ", image.ImageTag.Make);
 				CheckAndAdd (dict, "Model: ", image.ImageTag.Model);
 			}
@@ -101,7 +101,9 @@ namespace Apachai
 			if (value == null || string.IsNullOrEmpty (key))
 				return;
 
-			string sValue = value.ToString ().Trim ();
+			IFormattable f = value as IFormattable;
+			string sValue = (f != null) ? f.ToString (null, CultureInfo.InvariantCulture) : value.ToString ();
+			sValue = sValue.Trim ();
 
 			if (!string.IsNullOrEmpty (sValue) && !IsWhiteSpaces (sValue))
 				dict[key] = sValue;
