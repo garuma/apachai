@@ -6,12 +6,18 @@
 
 		<div id="rightcolumn">
 		  <div id="twitbox" class="box">
-			<img src="/Content/img/transparent.png" id="imgAvatar" /><p id="tweetText"></p>
-		  </div>
-
-		  <div id="linkbox" class="box">
-			<table id="linktable">
-			</table>
+			<div id="tweetpanel">
+			  <div id="avatar">
+				<img src="/Content/img/transparent.png" id="imgAvatar" />
+			  </div>
+			  <div id="tweet">
+				<p id="tweetText"></p>
+			  </div>
+			</div>
+			<div id="linkbox">
+			  <ul id="linktable">
+			  </ul>
+			</div>
 		  </div>
 
 		  <div id="picinfos" class="box">

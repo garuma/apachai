@@ -187,14 +187,15 @@ namespace Apachai
 				redis[picShortIdMap + shortId] = longId;
 		}
 
-		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText)
+		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText, out string name)
 		{
-			avatarUrl = tweetText = string.Empty;
+			avatarUrl = tweetText = name = string.Empty;
 
 			using (var redis = redisManager.GetClient ()) {
 				if (!redis.ContainsKey (picUser + pictureId))
 					return;
 				avatarUrl = redis[userAvatarUrl + redis[picUser + pictureId]];
+				name = redis[userScreenName + redis[picUser + pictureId]];
 				tweetText = redis[picTweet + pictureId];
 			}
 		}

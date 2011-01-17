@@ -311,12 +311,13 @@ namespace Apachai
 			if (string.IsNullOrEmpty (id))
 				HandleJson (string.Empty, ctx.Response);
 
-			string avatar, tweet;
-			store.GetTwitterInfosFromImage (id, out avatar, out tweet);
+			string avatar, tweet, name;
+			store.GetTwitterInfosFromImage (id, out avatar, out tweet, out name);
 
 			JsonStringDictionary dict = new JsonStringDictionary ();
 			dict["avatar"] = avatar;
 			dict["tweet"] = System.Web.HttpUtility.HtmlEncode (tweet);
+			dict["name"] = name;
 
 			var json = dict.Json;
 
