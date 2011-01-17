@@ -58,6 +58,17 @@ namespace Apachai
 			}
 		}
 
+		public Tuple<double, double> GeoCoordinates {
+			get {
+				var image = file as TagLib.Image.File;
+
+				if (image.ImageTag.Longitude == null || image.ImageTag.Latitude == null)
+					return null;
+
+				return Tuple.Create ((double)image.ImageTag.Latitude, (double)image.ImageTag.Longitude);
+			}
+		}
+
 		public void FillUp (JsonStringDictionary dict)
 		{
 			var image = file as TagLib.Image.File;

@@ -106,6 +106,20 @@ if (img != "i") {
 
 			$("#sliderbox").css ('opacity', 1);
 		}, "json");
+
+		$.get("/geo/" + img, callback = function (data, textStatus, xhr) {
+			if (data.length == 0)
+				return;
+
+			var lat = data['latitude'];
+			var lon = data['longitude'];
+			var w = $('#rightcolumn').width () - 20;
+
+			var googleMapUrl = 'http://maps.google.com/maps/api/staticmap?center='+lat+','+lon+'&zoom=7&sensor=false&maptype=roadmap&size='+w+'x'+w+'&markers='+lat+','+lon;
+			$("#mapImage").attr ("src", googleMapUrl);
+		}, "json");
+
+		$("#mapBox").css ('opacity', 1);
 	});
 
 	var src = baseUrl + img;

@@ -231,7 +231,7 @@ namespace Apachai
 		public void ShowPicture (IManosContext ctx, string id)
 		{
 			Log.Info ("ShowPicture: " + id);
-			if (!File.Exists (Path.Combine (imgDirectory, id))) {
+			if (string.IsNullOrEmpty (id) || !File.Exists (Path.Combine (imgDirectory, id))) {
 				ctx.Response.StatusCode = 404;
 				ctx.Response.End ();
 				return;
@@ -244,6 +244,9 @@ namespace Apachai
 		[Route ("/infos/{id}")]
 		public void FetchInformations (IManosContext ctx, string id)
 		{
+			if (string.IsNullOrEmpty (id))
+				HandleJson (string.Empty, ctx.Response);
+
 			string json;
 
 			if (store.GetPicturesInfos (id, out json)) {
@@ -277,6 +280,9 @@ namespace Apachai
 		[Route ("/tweet/{id}")]
 		public void FetchTweetInformations (IManosContext ctx, string id)
 		{
+			if (string.IsNullOrEmpty (id))
+				HandleJson (string.Empty, ctx.Response);
+
 			string avatar, tweet;
 			store.GetTwitterInfosFromImage (id, out avatar, out tweet);
 
@@ -293,6 +299,9 @@ namespace Apachai
 		[Route ("/links/{id}")]
 		public void FetchLinkInformations (IManosContext ctx, string id)
 		{
+			if (string.IsNullOrEmpty (id))
+				HandleJson (string.Empty, ctx.Response);
+
 			JsonStringDictionary dict = new JsonStringDictionary ();
 
 			var shortUrl = baseServerUrl + "/s/" + store.GetShortUrlForImg (id);
@@ -316,6 +325,47 @@ namespace Apachai
 			var list = store.GetImagesOfUserFromPic (id, 10);
 			var json = '[' + list.Select (e => '"' + e + '"').Aggregate ((e1, e2) => e1 + ',' + e2) + ']';
 			HandleJson (json, ctx.Response);
+		}
+
+		[Route ("/geo/{id}")]
+		public void FetchGeoInformations (IManosContext ctx, string id)
+		{
+			if (string.IsNullOrEmpty (id))
+				HandleJson (string.Empty, ctx.Response);
+
+			string json;
+
+			if (store.GetPictureGeo (id, out json)) {
+				Log.Info ("Geolocation for {0}: {1}", id.ToString (), json);
+				HandleJson (json, ctx.Response);
+				return;
+			}
+
+			if (!File.Exists (Path.Combine (imgDirectory, id))) {
+				HandleJson (string.Empty, ctx.Response);
+				return;
+			}
+
+			Task.Factory.StartNew (() => {
+					json = string.Empty;
+					JsonStringDictionary dict = new JsonStringDictionary ();
+					TagLibMetadata metadata = new TagLibMetadata (imgDirectory, id);
+
+					if (!metadata.IsValid) {
+						Log.Info (id + " is invalid file");
+					} else {
+						var coordinates = metadata.GeoCoordinates;
+						if (coordinates != null) {
+							var invCult = System.Globalization.CultureInfo.InvariantCulture;
+							dict["latitude"] = coordinates.Item1.ToString (invCult);
+							dict["longitude"] = coordinates.Item2.ToString (invCult);
+							json = dict.Json;
+						}
+					}
+
+					store.SetPictureGeo (id, json);
+					HandleJson (json, ctx.Response);
+				});
 		}
 		
 		static bool CheckImageType (Stream file)

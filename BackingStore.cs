@@ -50,6 +50,7 @@ namespace Apachai
 		const string picUser = picPrefix + "user:";
 		const string picLongUrl = picPrefix + "longUrl:";
 		const string picShortUrl = picPrefix + "shortUrl:";
+		const string picGeo = picPrefix + "geo:";
 
 		/* Possible keys with that prefix (the twitterId is stored in some cookies) :
 		     userPrefix + "infos:realname:" + {twitterId} -> the user real name
@@ -120,6 +121,26 @@ namespace Apachai
 		{
 			using (var redis = redisManager.GetClient ())
 				return redis[picShortUrl + image];
+		}
+
+		public bool GetPictureGeo (string image, out string geo)
+		{
+			geo = string.Empty;
+
+			using (var redis = redisManager.GetClient ()) {
+				string key = picGeo + image;
+				if (!redis.ContainsKey (key))
+					return false;
+
+				geo = redis[key];
+				return true;
+			}
+		}
+
+		public void SetPictureGeo (string image, string geo)
+		{
+			using (var redis = redisManager.GetClient ())
+				redis[picGeo + image] = geo;
 		}
 
 		public bool DoWeKnowUser (long id)
