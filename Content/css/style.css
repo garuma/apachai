@@ -206,23 +206,27 @@ footer {
 	overflow: hidden;
 }
 
+#avatar, #tweet {
+	display: inline;
+}
+
+
 #imgAvatar {
 	width: 64px;
 	max-width: 64px;
-	display: inline;
-	margin: 2px;
-	margin-right: 10px;
-	vertical-align: text-top;
-	float: left;
+	margin: 2px 8px 10px 0;
+	vertical-align: middle;
 }
 
 #twitbox p {
 	display: inline;
 	text-align: justify;
+	text-shadow: white 1px 1px 2px;
 }
 
 #linkbox {
 	margin: auto;
+	clear: both;
 }
 
 #linkbox ul {
@@ -260,7 +264,7 @@ footer {
 
 #pictable {
 	margin: auto;
-	font-size: 95%;
+	font-size: 100%;
 }
 
 #maincolumn {

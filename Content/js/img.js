@@ -25,7 +25,7 @@ if (img != "i") {
 
 		$.get("/tweet/" + img, callback = function (data, textStatus, xhr) {
 			$("#imgAvatar").attr ("src", data["avatar"]);
-			$("#tweetText").html (data["tweet"]);
+			$("#tweetText").html (data['tweet'].length == 0 ? '<em>(No tweet data to show)</em>' : data['tweet']);
 
 			$.get("/links/" + img, callback = function (data, textStatus, xhr) {
 				if (data.length != 0) {
