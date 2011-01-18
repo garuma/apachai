@@ -414,6 +414,7 @@ namespace Apachai
 				response.StatusCode = 404;
 				response.End ();
 			} else {
+				ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: application/json; charset=utf-8");
 				response.End (json);
 			}
 		}
