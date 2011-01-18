@@ -62,6 +62,8 @@ namespace Apachai
 		const string userScreenName = userPrefix + "infos:screenName:";
 		const string userAvatarUrl = userPrefix + "infos:avatarUrl:";
 		const string userRealName = userPrefix + "infos:realName:";
+		const string userUrl = userPrefix + "infos:url:";
+		const string userDesc = userPrefix + "infos:desc:";
 		const string userAccessToken = userPrefix + "infos:accessToken:";
 		const string userAccessTokenSecret = userPrefix + "infos:accessTokenSecret:";
 		const string userPictures = userPrefix + "pictures:";
@@ -187,16 +189,17 @@ namespace Apachai
 				redis[picShortIdMap + shortId] = longId;
 		}
 
-		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText, out string name)
+		public void GetTwitterInfosFromImage (string pictureId, out string avatarUrl, out string tweetText, out string screenname, out string name, out string url, out string desc)
 		{
-			avatarUrl = tweetText = name = string.Empty;
+			avatarUrl = tweetText = screenname = name = url = desc = string.Empty;
 
 			using (var redis = redisManager.GetClient ()) {
 				if (!redis.ContainsKey (picUser + pictureId))
 					return;
-				avatarUrl = redis[userAvatarUrl + redis[picUser + pictureId]];
-				name = redis[userScreenName + redis[picUser + pictureId]];
+
 				tweetText = redis[picTweet + pictureId];
+				string user = redis[picUser + pictureId];
+				GetExtraUserInfos (user, out screenname, out avatarUrl, out name, out url, out desc);
 			}
 		}
 
@@ -209,7 +212,7 @@ namespace Apachai
 			}
 		}
 
-		public void SetExtraUserInfos (long uid, string avatarUrl, string realName)
+		public void SetExtraUserInfos (long uid, string avatarUrl, string realName, string url, string desc)
 		{
 			if (!DoWeKnowUser (uid))
 				throw new ArgumentException ("User is unknown is the database");
@@ -218,20 +221,24 @@ namespace Apachai
 				string id = uid.ToString ();
 				redis[userRealName + id] = realName;
 				redis[userAvatarUrl + id] = avatarUrl;
+				redis[userUrl + id] = url;
+				redis[userDesc + id] = desc;
 			}
 		}
 
-		public bool GetExtraUserInfos (long uid, out string avatarUrl, out string realName)
+		public bool GetExtraUserInfos (string id, out string screenname, out string avatarUrl, out string realName, out string url, out string desc)
 		{
-			avatarUrl = realName = string.Empty;
+			avatarUrl = screenname = realName = url = desc = string.Empty;
 
-			if (!DoWeKnowUser (uid))
+			if (!DoWeKnowUser (long.Parse (id)))
 				return false;
 
 			using (var redis = redisManager.GetClient ()) {
-				string id = uid.ToString ();
 				avatarUrl = redis[userAvatarUrl + id];
 				realName = redis[userRealName + id];
+				url = redis[userUrl + id];
+				desc = redis[userDesc + id];
+				screenname = redis[userScreenName + id];
 			}
 
 			return true;

@@ -117,7 +117,7 @@ namespace Apachai
 				ctx.Response.SetCookie ("apachai:userId", 1.ToString ());
 				ctx.Response.SetCookie ("apachai:token", "bar");
 				store.SetUserInfos (1, "the_test");
-				store.SetExtraUserInfos (1, "http://neteril.org/img/twitter.png", "The test");
+				store.SetExtraUserInfos (1, "http://neteril.org/img/twitter.png", "The Test", "http://neteril.org", "My Foo Bar Life");
 				store.SetUserAccessTokens (1, "bar", "bar");
 				ctx.Response.Redirect ("/Post");
 
@@ -148,7 +148,9 @@ namespace Apachai
 							if (retDict != null)
 								store.SetExtraUserInfos (userInfos.UserId,
 								                         ((string)retDict["profile_image_url"]).Replace ("normal.", "reasonably_small."),
-								                         (string)retDict["name"]);
+								                         (string)retDict["name"],
+								                         (string)retDict["url"],
+								                         (string)retDict["description"]);
 						}
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 						
@@ -309,13 +311,16 @@ namespace Apachai
 			if (string.IsNullOrEmpty (id))
 				HandleJson (string.Empty, ctx.Response);
 
-			string avatar, tweet, name;
-			store.GetTwitterInfosFromImage (id, out avatar, out tweet, out name);
+			string avatar, tweet, screenname, name, url, desc;
+			store.GetTwitterInfosFromImage (id, out avatar, out tweet, out screenname, out name, out url, out desc);
 
 			JsonStringDictionary dict = new JsonStringDictionary ();
 			dict["avatar"] = avatar;
 			dict["tweet"] = System.Web.HttpUtility.HtmlEncode (tweet);
 			dict["name"] = name;
+			dict["screenname"] = screenname;
+			dict["url"] = url;
+			dict["desc"] = desc;
 
 			var json = dict.Json;
 

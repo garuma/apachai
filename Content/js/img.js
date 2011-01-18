@@ -27,12 +27,10 @@ if (img != "i") {
 			$("#imgAvatar").attr ("src", data["avatar"]);
 			$("#tweetText").html (data['tweet'].length == 0 ? '<em>(No tweet data to show)</em>' : data['tweet']);
 
-			$.getJSON ('http://api.twitter.com/1/users/show.json?screen_name='+data['name'], function (profile) {
-				var thedude = $('#thedude');
-				thedude.find('span').append(profile['name']);
-				thedude.attr('href', profile['url']);
-				thedude.attr('title', profile['description']);
-			});
+			var thedude = $('#thedude');
+			thedude.find('span').append(data['name']);
+			thedude.attr('href', data['url']);
+			thedude.attr('title', data['desc']);
 
 			$.getJSON("/links/" + img, function (link) {
 				if (link.length != 0) {
@@ -40,7 +38,7 @@ if (img != "i") {
 					linktable.append('<li class="linkentry"><a href="' + link["short"] + '">Short</a></li>');
 					linktable.append('<li class="linkentry"><a href="' + link["permanent"] + '">Permalink</a></li>');
 					linktable.append('<li class="linkentry"><a href="http://www.facebook.com/sharer.php?u='+encodeURIComponent(link["facebook"])+'&src=sp" target="_blank"><img src="/Content/img/share_fb.png"></a></li>');
-					linktable.append('<li class="linkentry"><a href="http://twitter.com/share?url='+encodeURIComponent(link["short"])+'&counturl='+encodeURIComponent(link["permanent"])+'&via='+data['name']+'" target="_blank"><img src="/Content/img/share_tweet.png"></a></li>');
+					linktable.append('<li class="linkentry"><a href="http://twitter.com/share?url='+encodeURIComponent(link["short"])+'&counturl='+encodeURIComponent(link["permanent"])+'&via='+data['screenname']+'" target="_blank"><img src="/Content/img/share_tweet.png"></a></li>');
 				}
 			});
 
