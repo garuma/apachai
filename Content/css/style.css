@@ -206,10 +206,14 @@ footer {
 	overflow: hidden;
 }
 
-#avatar, #tweet {
+#avatar {
 	display: inline;
 }
 
+#tweet {
+	display: inline-block;
+	width: 70%;
+}
 
 #imgAvatar {
 	width: 64px;
