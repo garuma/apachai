@@ -212,25 +212,36 @@ footer #html5_logo {
 }
 
 #avatar {
-	display: inline;
+	float: left;
+	padding-left: 1ex;
 }
 
 #tweet {
-	display: inline-block;
-	width: 70%;
+	float: left;
+	max-width: 65%;
+	width: 65%;
+	text-align: center;
 }
 
 #imgAvatar {
 	width: 64px;
 	max-width: 64px;
-	margin: 2px 8px 10px 0;
+	margin: 0 8px 10px 0;
 	vertical-align: middle;
 }
 
-#twitbox p {
+#twitbox #tweetpanel p {
 	display: inline;
-	text-align: justify;
+	text-align: center;
 	text-shadow: white 1px 1px 2px;
+}
+
+#twitbox #tweetauthor {
+	margin-bottom: 1ex;
+}
+
+#twitbox #tweetauthor #thedude {
+	text-decoration: none;
 }
 
 #linkbox {
@@ -270,6 +281,10 @@ footer #html5_logo {
 #picinfos .title {
 	font-weight: bold;
 	text-indent: 0;
+}
+
+#picinfos .title:after {
+	content: ': ';
 }
 
 #pictable {

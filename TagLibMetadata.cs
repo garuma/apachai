@@ -81,18 +81,18 @@ namespace Apachai
 			}*/
 			
 			if (image.ImageTag != null) {
-				CheckAndAdd (dict, "Comment: ", image.ImageTag.Comment);
-				CheckAndAdd (dict, "Rating: ", image.ImageTag.Rating);
-				CheckAndAdd (dict, "Date: ", image.ImageTag.DateTime);
-				CheckAndAdd (dict, "Altitude: ", image.ImageTag.Altitude);
-				CheckAndAdd (dict, "Orientation: ", image.ImageTag.Orientation);
-				CheckAndAdd (dict, "Exposure time: ", image.ImageTag.ExposureTime);
-				CheckAndAdd (dict, "FNumber: ", image.ImageTag.FNumber);
-				CheckAndAdd (dict, "ISO speed: ", image.ImageTag.ISOSpeedRatings);
-				CheckAndAdd (dict, "Focal length: ", image.ImageTag.FocalLength);
-				//CheckAndAdd (dict, "Software: ", image.ImageTag.Software);
-				//CheckAndAdd (dict, "Maker: ", image.ImageTag.Make);
-				CheckAndAdd (dict, "Camera: ", image.ImageTag.Model);
+				CheckAndAdd (dict, "Comment", image.ImageTag.Comment);
+				CheckAndAdd (dict, "Rating", image.ImageTag.Rating);
+				CheckAndAdd (dict, "Date", image.ImageTag.DateTime);
+				CheckAndAdd (dict, "Altitude", image.ImageTag.Altitude);
+				CheckAndAdd (dict, "Orientation", image.ImageTag.Orientation);
+				CheckAndAdd (dict, "Exposure time", image.ImageTag.ExposureTime);
+				CheckAndAdd (dict, "FNumber", image.ImageTag.FNumber);
+				CheckAndAdd (dict, "ISO speed", image.ImageTag.ISOSpeedRatings);
+				CheckAndAdd (dict, "Focal length", image.ImageTag.FocalLength);
+				//CheckAndAdd (dict, "Software", image.ImageTag.Software);
+				//CheckAndAdd (dict, "Maker", image.ImageTag.Make);
+				CheckAndAdd (dict, "Camera", image.ImageTag.Model);
 			}
 		}
 

@@ -5,12 +5,15 @@
 		</div>
 
 		<div id="rightcolumn">
-		  <div id="twitbox" class="box">
+		  <div id="twitbox" class="box" itemscope itemtype="http://data-vocabulary.org/Person">
 			<div id="tweetpanel">
 			  <div id="avatar">
-				<img src="/Content/img/transparent.png" id="imgAvatar" />
+				<img src="/Content/img/transparent.png" id="imgAvatar" itemprop="photo" />
 			  </div>
 			  <div id="tweet">
+				<div id="tweetauthor">
+				  <p><a id="thedude" itemprop="url"><span itemprop="name"></span></a></p>
+				</div>
 				<p id="tweetText"></p>
 			  </div>
 			</div>
