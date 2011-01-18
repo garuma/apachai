@@ -23,6 +23,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using Manos;
 
@@ -33,7 +34,7 @@ namespace Apachai
 		readonly HashSet<string> cacheExtensions;
 		readonly string expires;
 		readonly string cacheControl;
-		readonly Dictionary<string, string> etagCache;
+		readonly ConcurrentDictionary<string, string> etagCache;
 		readonly FileSystemWatcher fsw;
 
 		static readonly string[] defaultCachedExts = { ".js", ".css", ".png", ".jpg", ".woff",
@@ -59,7 +60,7 @@ namespace Apachai
 			this.cacheExtensions = new HashSet<string> (cacheExtensions);
 			this.expires = (DateTime.Now + expireTime).ToString ("R");
 			this.cacheControl = "max-age=" + ((int)expireTime.TotalSeconds).ToString ();
-			this.etagCache = new Dictionary<string, string> ();
+			this.etagCache = new ConcurrentDictionary<string, string> ();
 
 			fsw = new FileSystemWatcher (dir);
 			InitFileSystemWatcher (dir);

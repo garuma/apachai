@@ -23,6 +23,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using Manos;
 
@@ -32,7 +33,7 @@ namespace Apachai
 	{
 		readonly string expires;
 		readonly string cacheControl;
-		readonly Dictionary<string, string> etagCache;
+		readonly ConcurrentDictionary<string, string> etagCache;
 
 		public PictureContentModule () : this (TimeSpan.FromDays (60))
 		{
@@ -42,7 +43,7 @@ namespace Apachai
 		{
 			this.expires = (DateTime.Now + expireTime).ToString ("R");
 			this.cacheControl = "max-age=" + ((int)expireTime.TotalSeconds).ToString ();
-			this.etagCache = new Dictionary<string, string> ();
+			this.etagCache = new ConcurrentDictionary<string, string> ();
 
 			Get (".*", Content);
 		}
