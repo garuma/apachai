@@ -1,14 +1,14 @@
 {{body}}
 	  <div id="content">
 		<div id="leftcolumn">
-		  <img id="mainImage" src="/Content/img/transparent.png" />
+		  <img id="mainImage" src="/Content/img/transparent.png" alt="Main picture displayed">
 		</div>
 
 		<div id="rightcolumn">
 		  <div id="twitbox" class="box" itemscope itemtype="http://data-vocabulary.org/Person">
 			<div id="tweetpanel">
 			  <div id="avatar">
-				<img src="/Content/img/transparent.png" id="imgAvatar" itemprop="photo" />
+				<img src="/Content/img/transparent.png" id="imgAvatar" itemprop="photo" alt="avatar">
 			  </div>
 			  <div id="tweet">
 				<div id="tweetauthor">
@@ -40,7 +40,7 @@
 		  </div>
 
 		  <div id="mapBox" class="box">
-			<a href=""><img id="mapImage" src="/Content/img/transparent.png"></a>
+			<a href=""><img id="mapImage" src="/Content/img/transparent.png" alt="Picture map coordinates"></a>
 		  </div>
 		</div>
 	  </div>
