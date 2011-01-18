@@ -12,7 +12,8 @@ FILES = Apachai.cs \
 	UrlShortener.cs \
 	AccessLogger.cs \
 	ConfigManager.cs \
-	PictureContentModule.cs
+	PictureContentModule.cs \
+	HtmlPaths.cs
 
 APACHAI_EFFECTS = Effects/Apachai.Effects.dll
 APACHAI_EFFECTS_DIR = Effects/

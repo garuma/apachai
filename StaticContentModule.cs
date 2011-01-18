@@ -37,8 +37,8 @@ namespace Apachai
 		readonly ConcurrentDictionary<string, string> etagCache;
 		readonly FileSystemWatcher fsw;
 
-		static readonly string[] defaultCachedExts = { ".js", ".css", ".png", ".jpg", ".woff",
-		                                               ".eot", ".ttf", ".ico" };
+		static readonly string[] defaultCachedExts = { ".html", ".js", ".css", ".png", ".jpg",
+		                                               ".woff", ".eot", ".ttf", ".ico" };
 
 		public StaticContentModule () : this (null)
 		{
@@ -78,8 +78,11 @@ namespace Apachai
 
 		public void Content (IManosContext ctx)
 		{
-			string path = ctx.Request.Path;
+			Content (ctx, ctx.Request.Path);
+		}
 
+		public void Content (IManosContext ctx, string path)
+		{
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
 

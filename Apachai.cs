@@ -45,6 +45,8 @@ namespace Apachai
 		readonly static string imgDirectory;
 		readonly static bool testInstance;
 
+		readonly StaticContentModule staticContent;
+
 		static Apachai ()
 		{
 			c = new ConfigManager ("config.json");
@@ -61,7 +63,7 @@ namespace Apachai
 
 		public Apachai ()
 		{
-			Route ("/Content/", new StaticContentModule ("Content"));
+			Route ("/Content/", (staticContent = new StaticContentModule ("Content")));
 			Route ("/Pictures/", new PictureContentModule ());
 			AddPipe (new Manos.Util.AccessLogger ("access.log"));
 		}
@@ -75,22 +77,19 @@ namespace Apachai
 			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id), token))
 				ctx.Response.Redirect ("/Login");
 
-			ctx.Response.SendFile ("post.html");
-			ctx.Response.End ();
+			HttpServing (ctx, HtmlPaths.PostPage);
 		}
 
 		[Route ("/Login")]
 		public void Login (IManosContext ctx)
 		{
-			ctx.Response.SendFile ("sign.html");
-			ctx.Response.End ();
+			HttpServing (ctx, HtmlPaths.SignPage);
 		}
 
 		[Route ("/DoLogin")]
 		public void Test (IManosContext ctx)
 		{
-			ctx.Response.SendFile ("authenticating.html");
-			ctx.Response.End ();
+			HttpServing (ctx, HtmlPaths.AuthPage);
 		}
 
 		[Route ("/RequestTokens")]
@@ -237,8 +236,7 @@ namespace Apachai
 				return;
 			}
 
-			ctx.Response.SendFile ("home.html");
-			ctx.Response.End ();
+			HttpServing (ctx, HtmlPaths.HomePage);
 		}
 
 		[Route ("/og/{id}")]
@@ -427,6 +425,11 @@ namespace Apachai
 			PhotoEffect.ApplyTransformFromString (transformation, path);
 
 			return filename;
+		}
+
+		void HttpServing (IManosContext ctx, string htmlPath)
+		{
+			staticContent.Content (ctx, htmlPath);
 		}
 	}
 }
