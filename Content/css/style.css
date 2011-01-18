@@ -153,6 +153,11 @@ footer {
 	padding: 1em;
 }
 
+footer #html5_logo {
+	vertical-align: middle;
+	height: 24px;
+}
+
 #main {
 	clear: left;
 	width: 85%;
