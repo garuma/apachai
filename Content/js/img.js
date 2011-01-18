@@ -27,15 +27,12 @@ if (img != "i") {
 			$("#imgAvatar").attr ("src", data["avatar"]);
 			$("#tweetText").html (data['tweet'].length == 0 ? '<em>(No tweet data to show)</em>' : data['tweet']);
 
-			//$.getJSON ('http://api.twitter.com/1/users/show.json?screen_name='+data['name'], 
-			var foo = function (profile) {
+			$.getJSON ('http://api.twitter.com/1/users/show.json?screen_name='+data['name'], function (profile) {
 				var thedude = $('#thedude');
 				thedude.find('span').append(profile['name']);
 				thedude.attr('href', profile['url']);
 				thedude.attr('title', profile['description']);
-			};
-			var testJson = '{"follow_request_sent":false,"profile_background_color":"1A1B1F","states":{"pending_email":false,"suspended":false,"bouncing_email":false,"detached_email":false,"needs_employee_email_update":false},"show_all_inline_media":false,"lang":"en","geo_enabled":false,"profile_background_image_url":"http:\/\/a3.twimg.com\/a\/1294682492\/images\/themes\/theme9\/bg.gif","created_at":"Wed Sep 30 16:06:47 +0000 2009","description":"Mono hacker. UTBM student. FOSS enthusiast. Novell intern. Lolcats loler.","screen_name":"jeremie_laval","status":{"in_reply_to_user_id_str":"6501992","text":"@silverSpoon partial implementation - source http:\/\/ur1.ca\/2wkqu and ccrewrite tool http:\/\/ur1.ca\/2wks8 \/ http:\/\/ur1.ca\/2wkud","coordinates":null,"retweeted":false,"retweet_count":0,"created_at":"Tue Jan 18 14:51:48 +0000 2011","entities":{"hashtags":[],"user_mentions":[{"indices":[0,12],"screen_name":"silverSpoon","name":"roundcrisis","id_str":"6501992","id":6501992}],"urls":[{"expanded_url":null,"indices":[45,64],"url":"http:\/\/ur1.ca\/2wkqu"},{"expanded_url":null,"indices":[84,103],"url":"http:\/\/ur1.ca\/2wks8"},{"expanded_url":null,"indices":[106,125],"url":"http:\/\/ur1.ca\/2wkud"}]},"in_reply_to_user_id":6501992,"place":null,"source":"web","in_reply_to_status_id":27333417410498560,"truncated":false,"favorited":false,"in_reply_to_status_id_str":"27333417410498560","id_str":"27377622015025152","geo":null,"id":27377622015025152,"contributors":null,"in_reply_to_screen_name":"silverSpoon"},"url":"http:\/\/neteril.org","profile_text_color":"666666","followers_count":147,"listed_count":9,"following":false,"favourites_count":1,"profile_sidebar_fill_color":"252429","location":"Dublin","profile_background_tile":false,"time_zone":"Dublin","contributors_enabled":false,"statuses_count":150,"profile_link_color":"2FC2EF","protected":false,"is_translator":false,"profile_sidebar_border_color":"181A1E","name":"J\u00e9r\u00e9mie Laval","id_str":"78638939","id":78638939,"verified":false,"notifications":false,"profile_use_background_image":true,"utc_offset":0,"friends_count":156,"profile_image_url":"http:\/\/a0.twimg.com\/profile_images\/704431243\/twitter_med_normal.png"}';
-			foo ($.parseJSON(testJson));
+			});
 
 			$.getJSON("/links/" + img, function (link) {
 				if (link.length != 0) {
