@@ -64,6 +64,7 @@ namespace Apachai
 		const string userRealName = userPrefix + "infos:realName:";
 		const string userUrl = userPrefix + "infos:url:";
 		const string userDesc = userPrefix + "infos:desc:";
+		const string userStale = userPrefix + "infos:stale";
 		const string userAccessToken = userPrefix + "infos:accessToken:";
 		const string userAccessTokenSecret = userPrefix + "infos:accessTokenSecret:";
 		const string userPictures = userPrefix + "pictures:";
@@ -160,6 +161,15 @@ namespace Apachai
 				return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
 		}
 
+		public bool DoesUserNeedInfoUpdate (long id)
+		{
+			if (!DoWeKnowUser (id))
+				return true;
+
+			using (var redis = redisManager.GetClient ())
+				return redis.GetTimeToLive (userStale + id.ToString ()) < TimeSpan.Zero;
+		}
+
 		public void RegisterImageWithTweet (long uid, string picture, string tweet, string longUrl, string shortUrl)
 		{
 			if (!DoWeKnowUser (uid))
@@ -223,10 +233,16 @@ namespace Apachai
 				redis[userAvatarUrl + id] = avatarUrl;
 				redis[userUrl + id] = url;
 				redis[userDesc + id] = desc;
+				redis.SetEntry (userStale, "foo", TimeSpan.FromDays (7));
 			}
 		}
 
-		public bool GetExtraUserInfos (string id, out string screenname, out string avatarUrl, out string realName, out string url, out string desc)
+		public bool GetExtraUserInfos (string id,
+		                               out string screenname,
+		                               out string avatarUrl,
+		                               out string realName,
+		                               out string url,
+		                               out string desc)
 		{
 			avatarUrl = screenname = realName = url = desc = string.Empty;
 

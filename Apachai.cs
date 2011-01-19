@@ -137,9 +137,11 @@ namespace Apachai
 						
 						Log.Info ("Got back from access token call: {0} and {1}", userInfos.ToString (), tokens.ToString ());
 						
-						if (!store.DoWeKnowUser (userInfos.UserId)) {
-							store.SetUserInfos (userInfos.UserId, userInfos.UserName);
+						bool first = false;
+						if ((first = !store.DoWeKnowUser (userInfos.UserId)))
+								store.SetUserInfos (userInfos.UserId, userInfos.UserName);
 
+						if (first || store.DoesUserNeedInfoUpdate (userInfos.UserId) ) {
 							var twitter = new Twitter (oauth);
 							twitter.Tokens = tokens;
 
@@ -151,6 +153,7 @@ namespace Apachai
 								                         (string)retDict["name"],
 								                         (string)retDict["url"],
 								                         (string)retDict["description"]);
+
 						}
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 						
