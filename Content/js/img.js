@@ -58,11 +58,8 @@ if (img != "i") {
 				slider.append(imgEntry);
 			});
 
-			var deviation = 0;
-			var start;
 			var current = 0;
-			var transitionTime = 5000;
-			var transition = transitionTime;
+			var transition = 5000;
 			var transitionProperties = ['-webkit-transition-duration', '-moz-transition-duration', '-o-transition-duration', 'transition-duration'];
 			var transformProperties = ['-webkit-transform', '-moz-transform', '-o-transform', 'transform'];
 
@@ -75,32 +72,30 @@ if (img != "i") {
 
 				if (data.direction == "right") {
 					$.each (transitionProperties, function (i, j) {
-						slider.css(j, (((width - current) * transition) | 0) + 'ms');
+						slider.css (j, (((width - current) * transition) | 0) + 'ms');
 					});
 					$.each (transformProperties, function (i, j) {
-						slider.css(j, 'translateX(-' + width + 'px)');
+						slider.css (j, 'translateX(-' + width + 'px)');
 					});
 				} else {
 					$.each (transitionProperties, function (i, j) {
-						slider.css(j, ((current * transition) | 0) + 'ms');
+						slider.css (j, ((current * transition) | 0) + 'ms');
 					});
 					$.each (transformProperties, function (i, j) {
-						slider.css(j, 'translateX(0)');
+						slider.css (j, 'translateX(0)');
 					});
 				}
-				start = new Date ().getTime ();
 			};
 			var mouseUnbind = function (data) {
-				var pos = width / transitionTime;
-				var now = new Date ().getTime () - start;
-				if (data.direction == "right")
-					pos = current + pos * now;
-				else
-					pos = current - pos * now;
-				current = pos = Math.max (Math.min (pos | 0, width), 0);
-
+				var elem = document.getElementById ('slider');
+				var pos = null;
 				$.each (transformProperties, function (i, j) {
-					slider.css(j, 'translateX(-' + pos + 'px)');
+					if (pos == null)
+						pos = window.getComputedStyle(elem,null).getPropertyValue(j);
+					if (pos != null) {
+						current = Math.abs(new Number(pos.split(',')[4].trim()));
+						slider.css(j, 'translateX(-' + current + 'px)');
+					}
 				});
 			};
 
