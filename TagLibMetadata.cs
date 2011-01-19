@@ -96,6 +96,14 @@ namespace Apachai
 			}
 		}
 
+		public void Close ()
+		{
+			if (file != null) {
+				file.Dispose ();
+				file = null;
+			}
+		}
+
 		static void CheckAndAdd<TValue> (JsonStringDictionary dict, string key, TValue value)
 		{
 			if (value == null || string.IsNullOrEmpty (key))

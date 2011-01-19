@@ -299,6 +299,7 @@ namespace Apachai
 						metadata.FillUp (dict);
 						json = dict.Json;
 					}
+					metadata.Close ();
 
 					store.SetPictureInfos (id, json);
 					HandleJson (json, ctx.Response);
@@ -396,6 +397,7 @@ namespace Apachai
 							json = dict.Json;
 						}
 					}
+					metadata.Close ();
 
 					store.SetPictureGeo (id, json);
 					HandleJson (json, ctx.Response);
@@ -424,8 +426,10 @@ namespace Apachai
 			string filename = user + Hasher.Hash (file);
 			string path = Path.Combine (imgDirectory, filename);
 
-			using (FileStream fs = File.OpenWrite (path))
+			using (FileStream fs = File.OpenWrite (path)) {
 				file.CopyTo (fs);
+				file.Close ();
+			}
 
 			Log.Info ("Transforming according to: " + transformation);
 			PhotoEffect.ApplyTransformFromString (transformation, path);

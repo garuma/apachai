@@ -54,6 +54,9 @@ namespace Apachai.Effects
 			effect.RenderEffect (src, result);
 
 			result.FinallySave (destPath);
+
+			src.Dispose ();
+			result.Dispose ();
 		}
 	}
 }
