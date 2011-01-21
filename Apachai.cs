@@ -73,8 +73,9 @@ namespace Apachai
 		{
 			string id = ctx.Request.Cookies.Get ("apachai:userId");
 			string token = ctx.Request.Cookies.Get ("apachai:token");
+			long uid;
 
-			if (string.IsNullOrEmpty (id) || !store.DoWeKnowUser (long.Parse (id), token))
+			if (string.IsNullOrEmpty (id) || !long.TryParse (id, out uid) || !store.DoWeKnowUser (uid, token))
 				ctx.Response.Redirect ("/Login");
 
 			HttpServing (ctx, HtmlPaths.PostPage);
@@ -175,8 +176,9 @@ namespace Apachai
 		{
 			IHttpRequest req = ctx.Request;
 
-			var uid = long.Parse (req.Cookies.Get ("apachai:userId"));
-			if (!store.DoWeKnowUser (uid))
+			var cookie = req.Cookies.Get ("apachai:userId");
+			long uid;
+			if (string.IsNullOrEmpty (cookie) || !long.TryParse (cookie, out uid) || !store.DoWeKnowUser (uid))
 				ctx.Response.Redirect ("/Login");
 
 			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r').Trim ();
