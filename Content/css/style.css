@@ -467,6 +467,69 @@ footer #html5_logo {
 	text-align: center;
 }
 
+.numStat {
+	position: relative;
+	float: left;
+	width: 50%;
+}
+
+.numStat .number {
+	font-size: 250%;
+	font-weight: bold;
+}
+
+#userStats {
+	left: 5%;
+}
+
+#numberStats {
+	width: 70%;
+	margin: auto;
+	clear: both;
+}
+
+#numberStats label, #latestSubmissions label {
+	font-size: 150%;
+}
+
+#latestSubmissions {
+	clear: both;
+	padding-top: 2em;
+}
+
+#submissions .pic, #submissions .avatar {
+	height: 5ex;
+	max-width: 200px;
+}
+
+.submission li {
+	display: inline;
+}
+
+.submission a {
+	text-decoration: none;
+	color: #444;
+}
+
+.tweet {
+	display: inline-block;
+	margin: 0 1em 0 1em;
+	width: 10em;
+}
+
+.pic,.avatar {
+	vertical-align: middle;
+}
+
+#latestSubmissions label {
+	margin: auto;
+	margin-bottom: 1ex;
+}
+
+.submission {
+	width: auto;
+}
+
 @media print {
   * { background: transparent !important; color: #444 !important; text-shadow: none; }
 

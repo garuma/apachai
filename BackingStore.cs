@@ -56,7 +56,11 @@ namespace Apachai
 		     userPrefix + "infos:realname:" + {twitterId} -> the user real name
 		     userPrefix + "infos:avatarUrl:" + {twitterId} -> the URL to the avatar pic
 		     userPrefix + "infos:accessToken:" + {twitterId} -> get the OAuth access token
+		     userPrefix + "infos:accessTokenSecret:" + {twitterId} -> get the OAuth access token secret
 		     userPrefix + "pictures:" + {twitterId} -> list of photos id for the user
+		     userPrefix + "infos:screenName" + {twitterId} -> screen name of the user (nickname)
+		     userPrefix + "infos:desc" + {twitterId} -> description of user on his profile
+		     userPrefix + "infos:stale" + {twitterId} -> an expirable key that says if we should refresh infos fields
 		*/
 		const string userPrefix = "apachai:users:";
 		const string userScreenName = userPrefix + "infos:screenName:";
@@ -74,6 +78,14 @@ namespace Apachai
 		   the supplied id is in the set
 		 */
 		const string idList = "apachai:ids";
+
+		/* The total number of picture uploaded (counter)
+		 */
+		const string pictureCount = "apachai:pictureCount";
+
+		/* A buffer holding up to 10 recent elements
+		 */
+		const string pictureRecentBuffer = "apachai:pictureRecentBuffer";
 
 		/* This contain a counter that is incremented at each picture uploaded and allow to point to
 		 * it in a shorter but possibly volatile way
@@ -182,6 +194,9 @@ namespace Apachai
 				redis[picUser + picture] = id;
 				redis[picLongUrl + picture] = longUrl;
 				redis[picShortUrl + picture] = shortUrl;
+				redis.IncrementValue (pictureCount);
+				redis.PrependItemToList (pictureRecentBuffer, picture);
+				redis.TrimList (pictureRecentBuffer, 0, 10);
 			}
 		}
 
