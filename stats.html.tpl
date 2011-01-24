@@ -1,5 +1,6 @@
 {{body}}
 	  <div id="maincolumn">
+		<header><h3>The all-mighty statistics page</h3></header>
 		<div id="numberStats">
 		  <ul>
 			<li>

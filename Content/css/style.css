@@ -468,9 +468,8 @@ footer #html5_logo {
 }
 
 .numStat {
-	position: relative;
-	float: left;
-	width: 50%;
+	display: inline-block;
+	width: 40%;
 }
 
 .numStat .number {
@@ -478,14 +477,17 @@ footer #html5_logo {
 	font-weight: bold;
 }
 
+#picStats {
+}
+
 #userStats {
-	left: 5%;
 }
 
 #numberStats {
 	width: 70%;
 	margin: auto;
-	clear: both;
+	margin-top: 1em;
+	margin-bottom: 2em;
 }
 
 #numberStats label, #latestSubmissions label {
@@ -494,7 +496,6 @@ footer #html5_logo {
 
 #latestSubmissions {
 	clear: both;
-	padding-top: 3em;
 }
 
 #submissions {
