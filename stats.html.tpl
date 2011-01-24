@@ -39,5 +39,5 @@
 	  </div>
 {{body}}
 {{extrascript}}
-
+  <script src="/Content/js/stats.js?v=1"></script>
 {{extrascript}}

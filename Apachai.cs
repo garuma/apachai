@@ -317,6 +317,12 @@ namespace Apachai
 			if (string.IsNullOrEmpty (id))
 				HandleJson (string.Empty, ctx.Response);
 
+			string json;
+			if (store.TryGetCachedTwitterInfos (id, out json)) {
+				HandleJson (json, ctx.Response);
+				return;
+			}
+
 			string avatar, tweet, screenname, name, url, desc;
 			store.GetTwitterInfosFromImage (id, out avatar, out tweet, out screenname, out name, out url, out desc);
 
@@ -328,7 +334,8 @@ namespace Apachai
 			dict["url"] = url;
 			dict["desc"] = desc;
 
-			var json = dict.Json;
+			json = dict.Json;
+			store.SetCachedTwitterInfos (id, json);
 
 			Log.Info ("Fetching tweet infos for {0} and returning {1}", id.ToString (), json);
 			HandleJson (json, ctx.Response);
@@ -408,7 +415,32 @@ namespace Apachai
 					HandleJson (json, ctx.Response);
 				});
 		}
-		
+
+		[Route ("/stats")]
+		public void FetchStatistics (IManosContext ctx, string id)
+		{
+			string json;
+
+			if (store.TryGetCachedStats (out json)) {
+				HandleJson (json, ctx.Response);
+				return;
+			}
+
+			var dict = new Dictionary<object, object> ();
+
+			int picCount, userCount;
+			store.GetCountStats (out picCount, out userCount);
+
+			dict["picNumber"] = picCount;
+			dict["userNumber"] = userCount;
+			dict["latestPics"] = store.GetLastPicturesIds ();
+
+			json = JSON.JsonEncode (dict);
+			store.SetCachedStats (json);
+
+			HandleJson (json, ctx.Response);
+		}
+
 		static bool CheckImageType (Stream file)
 		{
 			// For now only check some magic header value (not that we can do much else)

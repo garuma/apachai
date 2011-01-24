@@ -51,6 +51,7 @@ namespace Apachai
 		const string picLongUrl = picPrefix + "longUrl:";
 		const string picShortUrl = picPrefix + "shortUrl:";
 		const string picGeo = picPrefix + "geo:";
+		const string picInfosCache = picPrefix + "cache:";
 
 		/* Possible keys with that prefix (the twitterId is stored in some cookies) :
 		     userPrefix + "infos:realname:" + {twitterId} -> the user real name
@@ -86,6 +87,8 @@ namespace Apachai
 		/* A buffer holding up to 10 recent elements
 		 */
 		const string pictureRecentBuffer = "apachai:pictureRecentBuffer";
+
+		const string statsCache = "apachai:statsCache";
 
 		/* This contain a counter that is incremented at each picture uploaded and allow to point to
 		 * it in a shorter but possibly volatile way
@@ -228,6 +231,33 @@ namespace Apachai
 			}
 		}
 
+		public void SetCachedTwitterInfos (string picture, string json)
+		{
+			SetCachedInfos (picInfosCache, picture, json, TimeSpan.FromDays (1));
+		}
+
+		void SetCachedInfos (string ns, string id, string json, TimeSpan expire)
+		{
+			using (var redis = redisManager.GetClient ()) {
+				string key = ns + id;
+				redis.SetEntry (key, json, expire);
+			}
+		}
+
+		public bool TryGetCachedTwitterInfos (string picture, out string json)
+		{
+			return TryGetCachedInfos (picInfosCache, picture, out json);
+		}
+
+		bool TryGetCachedInfos (string ns, string id, out string json)
+		{
+			json = string.Empty;
+			using (var redis = redisManager.GetClient ()) {
+				string key = ns + id;
+				return string.IsNullOrEmpty (json = redis.GetValue (key));
+			}
+		}
+
 		public void SetUserInfos (long uid, string screenName)
 		{
 			using (var redis = redisManager.GetClient ()) {
@@ -329,6 +359,33 @@ namespace Apachai
 				permaId = redis[picShortIdMap + shortId];
 				return true;
 			}
+		}
+
+		public void GetCountStats (out int picCount, out int userCount)
+		{
+			picCount = userCount = 0;
+
+			using (var redis = redisManager.GetClient ()) {
+				picCount = int.Parse (redis[pictureCount]);
+				userCount = redis.GetSetCount (idList);
+			}
+		}
+
+		public List<string> GetLastPicturesIds ()
+		{
+			using (var redis = redisManager.GetClient ()) {
+				return redis.GetAllItemsFromList (pictureRecentBuffer);
+			}
+		}
+
+		public void SetCachedStats (string json)
+		{
+			SetCachedInfos (statsCache, string.Empty, json, TimeSpan.FromSeconds (50));
+		}
+
+		public bool TryGetCachedStats (out string json)
+		{
+			return TryGetCachedInfos (statsCache, string.Empty, out json);
 		}
 	}
 }
