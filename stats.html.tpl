@@ -19,21 +19,22 @@
 
 		<div id="latestSubmissions">
 		  <label for="submissions">Latest submissions</label>
-		  <div id="submissions">
-			<ul>
-			  <!--<li class="submission">
-				<a href="#"><ul><li><img src="/Pictures/1e1821827576a216c17fbae1705424e8" class="pic"></li><li><span class="tweet">Foobar prout</span></li><li><img class="avatar" src="http://neteril.org/img/twitter.png"></li></ul></a>
-			  </li>
-			  <li class="submission">
-				<a href="#"><ul><li><img src="/Pictures/1e1821827576a216c17fbae1705424e8" class="pic"></li><li><span class="tweet"><em>(No tweet infos)</em></span></li><li><img class="avatar" src="http://neteril.org/img/twitter.png"></li></ul></a>
-			  </li>
-			  <li class="submission">
-				<a href="#"><ul><li><img src="/Pictures/1e1821827576a216c17fbae1705424e8" class="pic"></li><li><span class="tweet">Foobar prout</span></li><li><img class="avatar" src="http://neteril.org/img/twitter.png"></li></ul></a>
-			  </li>
-			  <li class="submission">
-				<a href="#"><ul><li><img src="/Pictures/1e1821827576a216c17fbae1705424e8" class="pic"></li><li><span class="tweet">Foobar prout</span></li><li><img class="avatar" src="http://neteril.org/img/twitter.png"></li></ul></a>
-			  </li>-->
-			</ul>
+		  <div id="submissions" class="grid">
+			<div class="row">
+			  <div class="cell"></div>
+			  <div class="cell"></div>
+			  <div class="cell"></div>
+			</div>
+			<div class="row">
+			  <div class="cell"></div>
+			  <div class="cell"></div>
+			  <div class="cell"></div>
+			</div>
+			<div class="row">
+			  <div class="cell"></div>
+			  <div class="cell"></div>
+			  <div class="cell"></div>
+			</div>
 		  </div>
 		</div>
 	  </div>
