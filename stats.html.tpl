@@ -21,19 +21,19 @@
 		  <label for="submissions">Latest submissions</label>
 		  <div id="submissions" class="grid">
 			<div class="row">
-			  <div class="cell"></div>
-			  <div class="cell"></div>
-			  <div class="cell"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
 			</div>
 			<div class="row">
-			  <div class="cell"></div>
-			  <div class="cell"></div>
-			  <div class="cell"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
 			</div>
 			<div class="row">
-			  <div class="cell"></div>
-			  <div class="cell"></div>
-			  <div class="cell"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
 			</div>
 		  </div>
 		</div>
