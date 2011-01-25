@@ -145,11 +145,19 @@ namespace Apachai
 			wc.Headers [HttpRequestHeader.Authorization] = HeadersToOAuth (headers);
 
 			return Task<OAuthToken>.Factory.StartNew (() => {
-					System.Net.ServicePointManager.Expect100Continue = false;
-					var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (RequestUrl), string.Empty));
-
-					OAuthToken token = new OAuthToken (result["oauth_token"], result["oauth_token_secret"]);
-					return token;
+					try {
+						System.Net.ServicePointManager.Expect100Continue = false;
+						var result = HttpUtility.ParseQueryString (wc.UploadString (new Uri (RequestUrl), string.Empty));
+						Console.WriteLine ("Twitter call handed out: {0} and {1}", result["oauth_token"], result["oauth_token_secret"]);
+						OAuthToken token = new OAuthToken (result["oauth_token"], result["oauth_token_secret"]);
+						return token;
+					} catch (WebException e) {
+						var x = e.Response.GetResponseStream ();
+						var j = new System.IO.StreamReader (x);
+						Console.WriteLine (j.ReadToEnd ());
+						Console.WriteLine (e);
+						throw e;
+					}
 				});
 		}
 

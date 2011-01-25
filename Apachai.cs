@@ -101,14 +101,19 @@ namespace Apachai
 				return;
 			}
 
-			oauth.AcquireRequestToken ().ContinueWith (req => {
+			var future = oauth.AcquireRequestToken ();
+			future.ContinueWith (req => {
 					Log.Info ("Got back from request token call: " + req.Result);
 					var url = oauth.GetAuthUrl (req.Result);
 					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
 					Log.Info ("Redirect URL is: " + url);
 
 					ctx.Response.End (url);
-				}, TaskContinuationOptions.ExecuteSynchronously);
+				}, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion);
+			future.ContinueWith (req => {
+					Log.Info ("There was an error loading up tokens");
+					ctx.Response.Redirect ("/Login");
+				}, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.NotOnRanToCompletion);
 		}
 
 		[Route ("/AuthCallback")]
