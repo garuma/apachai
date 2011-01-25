@@ -473,6 +473,9 @@ namespace Apachai
 				file.Close ();
 			}
 
+			var rotation = TagLibMetadata.GetNeededRotation (path);
+			Log.Info ("What orientation? " + rotation.ToString ());
+			Rotationner.RotationatePathIfNeeded (path, rotation);
 			Log.Info ("Transforming according to: " + transformation);
 			PhotoEffect.ApplyTransformFromString (transformation, path);
 

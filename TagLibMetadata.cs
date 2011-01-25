@@ -24,6 +24,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Globalization;
+using System.Drawing;
+using TagLib.Image;
 
 namespace Apachai
 {
@@ -45,7 +47,7 @@ namespace Apachai
 					return true;
 				string path = Path.Combine (basePath, id);
 
-				if (!File.Exists (path))
+				if (!System.IO.File.Exists (path))
 					return false;
 
 				try {
@@ -85,7 +87,7 @@ namespace Apachai
 				CheckAndAdd (dict, "Rating", image.ImageTag.Rating);
 				CheckAndAdd (dict, "Date", image.ImageTag.DateTime);
 				CheckAndAdd (dict, "Altitude", image.ImageTag.Altitude);
-				CheckAndAdd (dict, "Orientation", image.ImageTag.Orientation);
+				//CheckAndAdd (dict, "Orientation", image.ImageTag.Orientation);
 				CheckAndAdd (dict, "Exposure time", image.ImageTag.ExposureTime);
 				CheckAndAdd (dict, "FNumber", image.ImageTag.FNumber);
 				CheckAndAdd (dict, "ISO speed", image.ImageTag.ISOSpeedRatings);
@@ -101,6 +103,34 @@ namespace Apachai
 			if (file != null) {
 				file.Dispose ();
 				file = null;
+			}
+		}
+
+		public static RotateFlipType GetNeededRotation (string path)
+		{
+			var taglib = new TagLibMetadata (path, string.Empty);
+			if (!taglib.IsValid)
+				return RotateFlipType.RotateNoneFlipNone;
+
+			var orientation = (taglib.file as TagLib.Image.File).ImageTag.Orientation;
+
+			switch (orientation) {
+			case ImageOrientation.TopRight:
+				return RotateFlipType.RotateNoneFlipY;
+			case ImageOrientation.BottomRight:
+				return RotateFlipType.Rotate180FlipNone;
+			case ImageOrientation.BottomLeft:
+				return RotateFlipType.RotateNoneFlipX;
+			case ImageOrientation.LeftTop:
+				return RotateFlipType.Rotate90FlipY;
+			case ImageOrientation.RightTop:
+				return RotateFlipType.Rotate90FlipNone;
+			case ImageOrientation.RightBottom:
+				return RotateFlipType.Rotate270FlipY;
+			case ImageOrientation.LeftBottom:
+				return RotateFlipType.Rotate270FlipNone;
+			default:
+				return RotateFlipType.RotateNoneFlipNone;
 			}
 		}
 
