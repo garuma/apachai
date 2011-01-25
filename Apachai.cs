@@ -258,8 +258,7 @@ namespace Apachai
 			string pageUrl = baseServerUrl + "/i/" + id;
 			string imageUrl = baseServerUrl + "/Pictures/" + id;
 
-			ctx.Response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: text/html; charset=utf-8");
-			ctx.Response.End (string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
+			RawServing (ctx.Response, "text/html", 600, string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
 <head>
 <title>Picture on Apachaï</title>
 <meta charset=""utf-8"" />
@@ -453,8 +452,7 @@ namespace Apachai
 				response.StatusCode = 404;
 				response.End ();
 			} else {
-				response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: application/json; charset=utf-8");
-				response.End (json);
+				RawServing (response, "application/json", 600, json);
 			}
 		}
 
@@ -477,6 +475,13 @@ namespace Apachai
 		void HttpServing (IManosContext ctx, string htmlPath)
 		{
 			staticContent.Content (ctx, htmlPath);
+		}
+
+		static void RawServing (IHttpResponse response, string mime, int maxAge, string data)
+		{
+			response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: "+mime+"; charset=utf-8");
+			response.Headers.SetNormalizedHeader ("Cache-Control", "max-age=" + maxAge);
+			response.End (data);
 		}
 	}
 }
