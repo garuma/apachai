@@ -2,15 +2,44 @@
    
 */
 
-var img = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
-if (img != "i") {
+(function($){
+	/* MIT License
+	 * Paul Irish     | @paul_irish | www.paulirish.com
+	 * Andree Hansson | @peolanha   | www.andreehansson.se
+	 * 2010.
+	 */
+	$.event.special.load = {
+		add: function (hollaback) {
+			if ( this.nodeType === 1 && this.tagName.toLowerCase() === 'img' && this.src !== '' ) {
+				// Image is already complete, fire the hollaback (fixes browser issues were cached
+				// images isn't triggering the load event)
+				if ( this.complete || this.readyState === 4 ) {
+					hollaback.handler.apply(this);
+				}
+				// Check if data URI images is supported, fire 'error' event if not
+				else if ( this.readyState === 'uninitialized' && this.src.indexOf('data:') === 0 ) {
+					$(this).trigger('error');
+				}
+				else {
+					$(this).bind('load', hollaback.handler);
+				}
+			}
+		}
+	};
+})(window.jQuery);
+
+(function($){
+	var img = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
+	if (img == "i")
+		return;
+
 	var baseUrl = "/Pictures/";
 
 	$('#mainImage').bind('load', function (e) {
 		if ($(this).attr ('src').indexOf ('transparent.png') == -1)
 			return;
 
-		$.get("/infos/" + img, callback = function (data, textStatus, xhr) {
+		$.getJSON("/infos/" + img, function (data) {
 			if (data.length == 0) {
 				$("#pictable").append ("<em>Sorry, nothing to see here</em>");
 				return;
@@ -21,9 +50,9 @@ if (img != "i") {
 			});
 
 			$("#picinfos").css ('opacity', 1);
-		}, "json");
+		});
 
-		$.get("/tweet/" + img, callback = function (data, textStatus, xhr) {
+		$.getJSON("/tweet/" + img, function (data) {
 			$("#imgAvatar").attr ("src", data["avatar"]);
 			$("#tweetText").html (data['tweet'].length == 0 ? '<em>(No tweet data to show)</em>' : data['tweet']);
 
@@ -43,9 +72,9 @@ if (img != "i") {
 			});
 
 			$("#twitbox").css ('opacity', 1);
-		}, "json");
+		});
 
-		$.get("/recent/" + img, callback = function (data, textStatus, xhr) {
+		$.getJSON("/recent/" + img, function (data) {
 			if (data.length == 0)
 				return;
 
@@ -107,9 +136,9 @@ if (img != "i") {
 				.mouseleave(function () { mouseUnbind ({ direction: "left"}); });
 
 			$("#sliderbox").css ('opacity', 1);
-		}, "json");
+		});
 
-		$.get("/geo/" + img, callback = function (data, textStatus, xhr) {
+		$.getJSON("/geo/" + img, function (data) {
 			if (data.length == 0)
 				return;
 
@@ -121,9 +150,9 @@ if (img != "i") {
 			$('#mapImage').attr ('src', googleMapUrl);
 			$('#mapBox').find('a').attr ('href', 'http://maps.google.com/maps?z=10&q='+lat+','+lon);
 			$("#mapBox").css ('opacity', 1);
-		}, "json");
+		});
 	});
 
 	var src = baseUrl + img;
 	$("#mainImage").attr("src", src);
-}
+})(window.jQuery);
