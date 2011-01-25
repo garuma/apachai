@@ -346,6 +346,13 @@ namespace Apachai
 			if (string.IsNullOrEmpty (id))
 				HandleJson (string.Empty, ctx.Response);
 
+			string json;
+			if (store.TryGetPictureLinks (id, out json)) {
+				Log.Info ("Sending back links blob: {0}", json);
+				HandleJson (json, ctx.Response);
+				return;
+			}
+
 			JsonStringDictionary dict = new JsonStringDictionary ();
 
 			var shortUrl = baseServerUrl + "/s/" + store.GetShortUrlForImg (id);
@@ -356,8 +363,8 @@ namespace Apachai
 			dict["permanent"] = longUrl;
 			dict["facebook"] = ogUrl;
 
-			var json = dict.Json;
-			Log.Info ("Sending back links blob: {0}", json);
+			json = dict.Json;
+			store.SetPictureLinks (id, json);
 
 			HandleJson (json, ctx.Response);
 		}

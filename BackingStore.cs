@@ -52,6 +52,7 @@ namespace Apachai
 		const string picShortUrl = picPrefix + "shortUrl:";
 		const string picGeo = picPrefix + "geo:";
 		const string picInfosCache = picPrefix + "cache:";
+		const string picLinksCache = picPrefix + "links:cache";
 
 		/* Possible keys with that prefix (the twitterId is stored in some cookies) :
 		     userPrefix + "infos:realname:" + {twitterId} -> the user real name
@@ -109,30 +110,15 @@ namespace Apachai
 			}
 		}
 
+#region Picture informations
 		public bool GetPicturesInfos (string filename, out string result)
 		{
-			result = string.Empty;
-			using (var redis = redisManager.GetClient ()) {
-				string key = picInfos + filename;
-				if (redis.ContainsKey (key)) {
-					result = redis[key];
-					return true;
-				}
-
-				return false;
-			}
+			return TryGetCachedInfos (picInfos, filename, out result);
 		}
 
 		public void SetPictureInfos (string filename, string data)
 		{
-			using (var redis = redisManager.GetClient ())
-				redis [picInfos + filename] = data;
-		}
-
-		public string GetOrSetPictureInfos (string filename, Func<string> dataCreator)
-		{
-			using (var redis = redisManager.GetClient ())
-				return redis[picInfos + filename] = dataCreator ();
+			SetCachedInfos (picInfos, filename, data, TimeSpan.Zero);
 		}
 
 		public string GetShortUrlForImg (string image)
@@ -143,46 +129,12 @@ namespace Apachai
 
 		public bool GetPictureGeo (string image, out string geo)
 		{
-			geo = string.Empty;
-
-			using (var redis = redisManager.GetClient ()) {
-				string key = picGeo + image;
-				if (!redis.ContainsKey (key))
-					return false;
-
-				geo = redis[key];
-				return true;
-			}
+			return TryGetCachedInfos (picGeo, image, out geo);
 		}
 
 		public void SetPictureGeo (string image, string geo)
 		{
-			using (var redis = redisManager.GetClient ())
-				redis[picGeo + image] = geo;
-		}
-
-		public bool DoWeKnowUser (long id)
-		{
-			using (var redis = redisManager.GetClient ())
-				return redis.SetContainsItem (idList, id.ToString ());
-		}
-
-		public bool DoWeKnowUser (long id, string token)
-		{
-			if (!DoWeKnowUser (id))
-				return false;
-
-			using (var redis = redisManager.GetClient ())
-				return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
-		}
-
-		public bool DoesUserNeedInfoUpdate (long id)
-		{
-			if (!DoWeKnowUser (id))
-				return true;
-
-			using (var redis = redisManager.GetClient ())
-				return redis.GetTimeToLive (userStale + id.ToString ()) < TimeSpan.Zero;
+			SetCachedInfos (picGeo, image, geo, TimeSpan.Zero);
 		}
 
 		public void RegisterImageWithTweet (long uid, string picture, string tweet, string longUrl, string shortUrl)
@@ -236,26 +188,46 @@ namespace Apachai
 			SetCachedInfos (picInfosCache, picture, json, TimeSpan.FromDays (1));
 		}
 
-		void SetCachedInfos (string ns, string id, string json, TimeSpan expire)
-		{
-			using (var redis = redisManager.GetClient ()) {
-				string key = ns + id;
-				redis.SetEntry (key, json, expire);
-			}
-		}
 
 		public bool TryGetCachedTwitterInfos (string picture, out string json)
 		{
 			return TryGetCachedInfos (picInfosCache, picture, out json);
 		}
 
-		bool TryGetCachedInfos (string ns, string id, out string json)
+		public void SetPictureLinks (string picture, string json)
 		{
-			json = string.Empty;
-			using (var redis = redisManager.GetClient ()) {
-				string key = ns + id;
-				return string.IsNullOrEmpty (json = redis.GetValue (key));
-			}
+			SetCachedInfos (picLinksCache, picture, json, TimeSpan.Zero);
+		}
+
+		public bool TryGetPictureLinks (string picture, out string json)
+		{
+			return TryGetCachedInfos (picLinksCache, picture, out json);
+		}
+#endregion
+
+#region User informations
+		public bool DoWeKnowUser (long id)
+		{
+			using (var redis = redisManager.GetClient ())
+				return redis.SetContainsItem (idList, id.ToString ());
+		}
+
+		public bool DoWeKnowUser (long id, string token)
+		{
+			if (!DoWeKnowUser (id))
+				return false;
+
+			using (var redis = redisManager.GetClient ())
+				return redis[userAccessToken + id.ToString ()].Equals (token, StringComparison.Ordinal);
+		}
+
+		public bool DoesUserNeedInfoUpdate (long id)
+		{
+			if (!DoWeKnowUser (id))
+				return true;
+
+			using (var redis = redisManager.GetClient ())
+				return redis.GetTimeToLive (userStale + id.ToString ()) < TimeSpan.Zero;
 		}
 
 		public void SetUserInfos (long uid, string screenName)
@@ -304,7 +276,9 @@ namespace Apachai
 
 			return true;
 		}
+#endregion
 
+#region Twitter OAuth tokens management
 		public void SetUserAccessTokens (long uid, string accessToken, string accessTokenSecret)
 		{
 			using (var redis = redisManager.GetClient ()) {
@@ -341,7 +315,9 @@ namespace Apachai
 				return result;
 			}
 		}
+#endregion
 
+#region /s/
 		public long GetNextShortId ()
 		{
 			using (var redis = redisManager.GetClient ())
@@ -360,7 +336,9 @@ namespace Apachai
 				return true;
 			}
 		}
+#endregion
 
+#region /stats
 		public void GetCountStats (out int picCount, out int userCount)
 		{
 			picCount = userCount = 0;
@@ -387,5 +365,28 @@ namespace Apachai
 		{
 			return TryGetCachedInfos (statsCache, string.Empty, out json);
 		}
+#endregion
+
+#region Helpers
+		void SetCachedInfos (string ns, string id, string json, TimeSpan expire)
+		{
+			using (var redis = redisManager.GetClient ()) {
+				string key = ns + id;
+				if (expire == TimeSpan.Zero)
+					redis.SetEntry (key, json);
+				else
+					redis.SetEntry (key, json, expire);
+			}
+		}
+
+		bool TryGetCachedInfos (string ns, string id, out string json)
+		{
+			json = string.Empty;
+			using (var redis = redisManager.GetClient ()) {
+				string key = ns + id;
+				return !string.IsNullOrEmpty (json = redis.GetValue (key));
+			}
+		}
+#endregion
 	}
 }
