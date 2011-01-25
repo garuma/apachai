@@ -178,26 +178,35 @@ namespace Apachai
 
 			var cookie = req.Cookies.Get ("apachai:userId");
 			long uid;
-			if (string.IsNullOrEmpty (cookie) || !long.TryParse (cookie, out uid) || !store.DoWeKnowUser (uid))
+			if (string.IsNullOrEmpty (cookie) || !long.TryParse (cookie, out uid) || !store.DoWeKnowUser (uid)) {
 				ctx.Response.Redirect ("/Login");
+				return;
+			}
 
-			string twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r').Trim ();
+			var twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r').Trim ();
+			var effect = req.PostData.GetString ("effect").TrimEnd ('\n', '\r').Trim ();
 
-			if (req.Files.Count == 0)
+			if (req.Files.Count == 0) {
 				Log.Debug ("No file received");
-
-			var file = req.Files.Values.First ().Contents;
-
-			if (req.Files.Count == 0 || !CheckImageType (file)) {
 				ctx.Response.Redirect ("/Post?error=1");
 				return;
 			}
 
-			// HACK: the TrimEnd should be in Manos
-			var filename = HandleUploadedFile (file, uid.ToString (), req.PostData.GetString ("effect").TrimEnd ('\n', '\r'));
+			var file = req.Files.Values.First ().Contents;
 
-			// TODO: find that back with ctx
+			if (!CheckImageType (file)) {
+				ctx.Response.Redirect ("/Post?error=1");
+				return;
+			}
+
+			HandleUploadedFile (file, uid.ToString (), effect)
+				.ContinueWith (cont => DoPictureTasks (ctx, cont.Result, uid, twittertext), TaskContinuationOptions.ExecuteSynchronously);
+		}
+
+		void DoPictureTasks (IManosContext ctx, string filename, long uid, string twittertext)
+		{
 			var finalUrl = baseServerUrl + "/i/" + filename;
+
 			var twitter = new Twitter (oauth);
 			twitter.Tokens = testInstance ? null : store.GetUserAccessTokens (uid);
 
@@ -463,23 +472,25 @@ namespace Apachai
 			}
 		}
 
-		string HandleUploadedFile (Stream file, string user, string transformation)
+		Task<string> HandleUploadedFile (Stream file, string user, string transformation)
 		{
-			string filename = user + Hasher.Hash (file);
-			string path = Path.Combine (imgDirectory, filename);
+			return Task<string>.Factory.StartNew (() => {
+					string filename = user + Hasher.Hash (file);
+					string path = Path.Combine (imgDirectory, filename);
 
-			using (FileStream fs = File.OpenWrite (path)) {
-				file.CopyTo (fs);
-				file.Close ();
-			}
+					using (FileStream fs = File.OpenWrite (path)) {
+						file.CopyTo (fs);
+						file.Close ();
+					}
 
-			var rotation = TagLibMetadata.ApplyNeededRotation (path);
-			Log.Info ("What orientation? " + rotation.ToString ());
+					var rotation = TagLibMetadata.ApplyNeededRotation (path);
+					Log.Info ("What orientation? " + rotation.ToString ());
 
-			Log.Info ("Transforming according to: " + transformation);
-			PhotoEffect.ApplyTransformFromString (transformation, path);
+					Log.Info ("Transforming according to: " + transformation);
+					PhotoEffect.ApplyTransformFromString (transformation, path);
 
-			return filename;
+					return filename;
+				});
 		}
 
 		void HttpServing (IManosContext ctx, string htmlPath)
