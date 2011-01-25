@@ -9,14 +9,16 @@ namespace Apachai.Effects
 
 	public static class Rotationner
 	{
-		public static void RotationatePathIfNeeded (string path, RotateFlipType type)
+		public static bool RotationatePathIfNeeded (string path, RotateFlipType type)
 		{
 			if (type == RotateFlipType.RotateNoneFlipNone)
-				return;
+				return false;
 
 			var bmp = Bitmap.FromFile (path);
 			bmp.RotateFlip (type);
 			bmp.Save (path);
+
+			return true;
 		}
 	}
 }

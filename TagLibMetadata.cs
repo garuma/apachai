@@ -75,25 +75,16 @@ namespace Apachai
 		public void FillUp (JsonStringDictionary dict)
 		{
 			var image = file as TagLib.Image.File;
-
-			/*if (image.Properties != null) {
-				CheckAndAdd (dict, "Width: ", image.Properties.PhotoWidth);
-				CheckAndAdd (dict, "Height: ", image.Properties.PhotoHeight);
-				CheckAndAdd (dict, "Type: ", image.Properties.Description);
-			}*/
 			
 			if (image.ImageTag != null) {
 				CheckAndAdd (dict, "Comment", image.ImageTag.Comment);
 				CheckAndAdd (dict, "Rating", image.ImageTag.Rating);
 				CheckAndAdd (dict, "Date", image.ImageTag.DateTime);
 				CheckAndAdd (dict, "Altitude", image.ImageTag.Altitude);
-				//CheckAndAdd (dict, "Orientation", image.ImageTag.Orientation);
 				CheckAndAdd (dict, "Exposure time", image.ImageTag.ExposureTime);
 				CheckAndAdd (dict, "FNumber", image.ImageTag.FNumber);
 				CheckAndAdd (dict, "ISO speed", image.ImageTag.ISOSpeedRatings);
 				CheckAndAdd (dict, "Focal length", image.ImageTag.FocalLength);
-				//CheckAndAdd (dict, "Software", image.ImageTag.Software);
-				//CheckAndAdd (dict, "Maker", image.ImageTag.Make);
 				CheckAndAdd (dict, "Camera", image.ImageTag.Model);
 			}
 		}
@@ -106,13 +97,33 @@ namespace Apachai
 			}
 		}
 
-		public static RotateFlipType GetNeededRotation (string path)
+		public static RotateFlipType ApplyNeededRotation (string path)
 		{
+			TagLib.Image.File file;
+			var rotation = GetNeededRotation (path, out file);
+			file.EnsureAvailableTags ();
+
+			if (!global::Apachai.Effects.Rotationner.RotationatePathIfNeeded (path, rotation))
+				return rotation;
+
+			var newFile = (TagLib.Image.File)TagLib.File.Create (path, "image/jpeg", TagLib.ReadStyle.Average);
+			newFile.CopyFrom (file);
+			newFile.ImageTag.Orientation = ImageOrientation.TopLeft;
+			newFile.Save ();
+
+			return rotation;
+		}
+
+		public static RotateFlipType GetNeededRotation (string path, out TagLib.Image.File file)
+		{
+			file = null;
 			var taglib = new TagLibMetadata (path, string.Empty);
+
 			if (!taglib.IsValid)
 				return RotateFlipType.RotateNoneFlipNone;
 
-			var orientation = (taglib.file as TagLib.Image.File).ImageTag.Orientation;
+			file = taglib.file as TagLib.Image.File;
+			var orientation = file.ImageTag.Orientation;
 
 			switch (orientation) {
 			case ImageOrientation.TopRight:
