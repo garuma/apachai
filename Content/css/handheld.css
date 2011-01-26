@@ -109,6 +109,14 @@ footer {
 	margin: auto;
 }
 
+#maincolumn h3 {
+	background-color: white;
+}
+
+#maincolumn .cell {
+	padding-bottom: 1ex;
+}
+
 #img_preview {
 	max-width: 240px;
 }
