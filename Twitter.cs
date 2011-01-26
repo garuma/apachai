@@ -62,6 +62,9 @@ namespace Apachai
 
 						string status = OAuth.PercentEncode (tweet + " " + (urlPrefix + ret.Result));
 
+						ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
+						ServicePointManager.Expect100Continue = false;
+
 						WebClient wc = new WebClient ();
 						wc.Headers[HttpRequestHeader.Authorization] = oauth.GetAuthorization (Tokens, "POST", twitterPushUrl, "status=" + status);
 						var postData = "status=" + status;
@@ -84,12 +87,14 @@ namespace Apachai
 		public string GetUserInformations ()
 		{
 			try {
+				ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
+				ServicePointManager.Expect100Continue = false;
+
 				WebClient wc = new WebClient ();
 
 				wc.Headers[HttpRequestHeader.Authorization]
 					= oauth.GetAuthorization (Tokens, "GET", twitterVerifyCredentials, string.Empty);
 
-				System.Net.ServicePointManager.Expect100Continue = false;
 				return wc.DownloadString (twitterVerifyCredentials);
 			} catch (WebException e) {
 				var x = e.Response.GetResponseStream ();
