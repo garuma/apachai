@@ -147,7 +147,7 @@ namespace Apachai
 									var twitter = new Twitter (oauth);
 									twitter.Tokens = tokens;
 									var twitterInfos = twitter.GetUserInformations (userInfos.UserId.ToString ());
-									Log.Info ("From Twitter json infos: " + twitterInfos);
+									Log.Info ("Got twitter json infos for " + userInfos.UserId.ToString ());
 
 									var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
 
