@@ -140,23 +140,27 @@ namespace Apachai
 						
 						bool first = false;
 						if ((first = !store.DoWeKnowUser (userInfos.UserId)))
-								store.SetUserInfos (userInfos.UserId, userInfos.UserName);
+							store.SetUserInfos (userInfos.UserId, userInfos.UserName);
 
 						if (first || store.DoesUserNeedInfoUpdate (userInfos.UserId) ) {
-							var twitter = new Twitter (oauth);
-							twitter.Tokens = tokens;
-							var twitterInfos = twitter.GetUserInformations ();
-							Log.Info ("From Twitter json infos: " + twitterInfos);
+							Task.Factory.StartNew (() => {
+									var twitter = new Twitter (oauth);
+									twitter.Tokens = tokens;
+									var twitterInfos = twitter.GetUserInformations ();
+									Log.Info ("From Twitter json infos: " + twitterInfos);
 
-							var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
+									var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
 
-							if (retDict != null)
-								store.SetExtraUserInfos (userInfos.UserId,
-								                         ((string)retDict["profile_image_url"]).Replace ("normal.", "reasonably_small."),
-								                         (string)retDict["name"],
-								                         (string)retDict["url"],
-								                         (string)retDict["description"]);
-
+									if (retDict != null) {
+										var profileUrl = ((string)retDict["profile_image_url"]).Replace ("normal.", "reasonably_small.");
+										
+										store.SetExtraUserInfos (userInfos.UserId,
+										                         profileUrl,
+										                         (string)retDict["name"],
+										                         (string)retDict["url"],
+										                         (string)retDict["description"]);
+									}
+								});
 						}
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 						Log.Info ("Setting up response stream and going back to user");

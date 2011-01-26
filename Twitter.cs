@@ -83,13 +83,21 @@ namespace Apachai
 
 		public string GetUserInformations ()
 		{
-			WebClient wc = new WebClient ();
+			try {
+				WebClient wc = new WebClient ();
 
-			wc.Headers[HttpRequestHeader.Authorization]
-				= oauth.GetAuthorization (Tokens, "GET", twitterVerifyCredentials, string.Empty);
+				wc.Headers[HttpRequestHeader.Authorization]
+					= oauth.GetAuthorization (Tokens, "GET", twitterVerifyCredentials, string.Empty);
 
-			System.Net.ServicePointManager.Expect100Continue = false;
-			return wc.DownloadString (twitterVerifyCredentials);
+				System.Net.ServicePointManager.Expect100Continue = false;
+				return wc.DownloadString (twitterVerifyCredentials);
+			} catch (WebException e) {
+				var x = e.Response.GetResponseStream ();
+				var j = new System.IO.StreamReader (x);
+				Console.WriteLine (j.ReadToEnd ());
+				Console.WriteLine (e);
+				throw e;
+			}
 		}
 	}
 }
