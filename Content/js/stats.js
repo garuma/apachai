@@ -16,9 +16,10 @@
 			if (index >= latestPics.length)
 				return;
 
-			var img = $(this).children ('img');
+			var img = $(this).children('a').children ('img');
 			img.attr ('src', '/Pictures/' + latestPics[index]);
 			img.css ('visibility', 'visible');
+			img.parent().attr ('href', '/i/' + latestPics[index]);
 		});
 	};
 

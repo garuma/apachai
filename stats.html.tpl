@@ -22,19 +22,19 @@
 		  <label for="submissions">Latest submissions</label>
 		  <div id="submissions" class="grid">
 			<div class="row">
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
 			</div>
 			<div class="row">
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
 			</div>
 			<div class="row">
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
-			  <div class="cell"><img src="/Content/img/transparent.png" class="pic"></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
+			  <div class="cell"><a href="#"><img src="/Content/img/transparent.png" class="pic"></a></div>
 			</div>
 		  </div>
 		</div>
