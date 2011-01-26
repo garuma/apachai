@@ -74,16 +74,16 @@
 			$("#twitbox").css ('opacity', 1);
 		});
 
-		$.getJSON("/recent/" + img, function (data) {
-			if (data.length == 0)
+		$.getJSON("/recent/" + img, function (list) {
+			if (list.length == 0)
 				return;
 
 			var slider = $('#slider');
 			var width = 0;
-			var count = data.length;
+			list = list.slice (0, 5);
 
-			$.each (data, function (e) {
-				var imgEntry = $('<div class="imgEntry"><a href="/i/' + data[e] + '"><img src="' + baseUrl + data[e] +  '"></a></div>');
+			$.each (list, function (e) {
+				var imgEntry = $('<div class="imgEntry"><a href="/i/' + list[e] + '"><img src="' + baseUrl + list[e] +  '"></a></div>');
 				slider.append(imgEntry);
 			});
 
@@ -94,8 +94,10 @@
 
 			var mouseBind = function (data) {
 				if (width == 0) {
-					width = slider.width () - $('#sliderContainer').width ();
-					width -= 20;
+					slider.find ('.imgEntry a img').each (function () { width += $(this).width (); });
+					width += 50;
+					slider.width (width);
+					width -= 150;
 					transition /= width;
 				}
 
