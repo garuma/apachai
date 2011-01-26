@@ -37,7 +37,7 @@ namespace Apachai
 	{
 		static readonly Uri twitterPushUrl = new Uri ("http://api.twitter.com/1/statuses/update.json");
 		static readonly Uri twitterVerifyCredentials = new Uri ("http://api.twitter.com/1/account/verify_credentials.json");
-		static readonly Uri twitterUserInfos = new Uri ("http://api.twitter.com/version/users/show.json");
+		static readonly Uri twitterUserInfos = new Uri ("http://api.twitter.com/1/users/show.json");
 
 		OAuth oauth;
 
