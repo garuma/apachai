@@ -38,6 +38,7 @@
 			</div>
 		  </div>
 		</div>
+		<div><p>Last updated: <span id="lastUpdated"></span></p></div>
 	  </div>
 {{body}}
 {{extrascript}}

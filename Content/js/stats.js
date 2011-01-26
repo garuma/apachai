@@ -21,6 +21,8 @@
 			img.css ('visibility', 'visible');
 			img.parent().attr ('href', '/i/' + latestPics[index]);
 		});
+
+		$("#lastUpdated").text (new Date ().toLocaleTimeString ());
 	};
 
 	$.getJSON('/stats', updateFunc);
