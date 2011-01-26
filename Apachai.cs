@@ -146,7 +146,7 @@ namespace Apachai
 							Task.Factory.StartNew (() => {
 									var twitter = new Twitter (oauth);
 									twitter.Tokens = tokens;
-									var twitterInfos = twitter.GetUserInformations ();
+									var twitterInfos = twitter.GetUserInformations (userInfos.UserId.ToString ());
 									Log.Info ("From Twitter json infos: " + twitterInfos);
 
 									var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;

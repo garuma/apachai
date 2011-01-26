@@ -37,6 +37,7 @@ namespace Apachai
 	{
 		static readonly Uri twitterPushUrl = new Uri ("http://api.twitter.com/1/statuses/update.json");
 		static readonly Uri twitterVerifyCredentials = new Uri ("http://api.twitter.com/1/account/verify_credentials.json");
+		static readonly Uri twitterUserInfos = new Uri ("http://api.twitter.com/version/users/show.json");
 
 		OAuth oauth;
 
@@ -84,18 +85,16 @@ namespace Apachai
 					});
 		}
 
-		public string GetUserInformations ()
+		public string GetUserInformations (string userId)
 		{
 			try {
 				ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
 				ServicePointManager.Expect100Continue = false;
 
 				WebClient wc = new WebClient ();
+				wc.QueryString["user_id"] = userId;
 
-				wc.Headers[HttpRequestHeader.Authorization]
-					= oauth.GetAuthorization (Tokens, "GET", twitterVerifyCredentials, string.Empty);
-
-				return wc.DownloadString (twitterVerifyCredentials);
+				return wc.DownloadString (twitterUserInfos);
 			} catch (WebException e) {
 				var x = e.Response.GetResponseStream ();
 				var j = new System.IO.StreamReader (x);
