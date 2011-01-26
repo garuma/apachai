@@ -477,17 +477,11 @@ footer #html5_logo {
 	font-weight: bold;
 }
 
-#picStats {
-}
-
-#userStats {
-}
-
 #numberStats {
 	width: 70%;
 	margin: auto;
-	margin-top: 1em;
-	margin-bottom: 2em;
+	margin-top: 2em;
+	margin-bottom: 3em;
 }
 
 #numberStats label, #latestSubmissions label {
@@ -507,6 +501,7 @@ footer #html5_logo {
 	max-width: 150px;
 	border: 1px solid black;
 	padding: 1px;
+	visibility: hidden;
 }
 
 .cell {

@@ -203,6 +203,12 @@ namespace Apachai
 				.ContinueWith (cont => DoPictureTasks (ctx, cont.Result, uid, twittertext), TaskContinuationOptions.ExecuteSynchronously);
 		}
 
+		[Route ("/Stats")]
+		public void Stats (IManosContext ctx)
+		{
+			HttpServing (ctx, HtmlPaths.StatPage);
+		}
+
 		void DoPictureTasks (IManosContext ctx, string filename, long uid, string twittertext)
 		{
 			var finalUrl = baseServerUrl + "/i/" + filename;
@@ -437,6 +443,7 @@ namespace Apachai
 			string json;
 
 			if (store.TryGetCachedStats (out json)) {
+				Log.Info ("Stats json: " + json);
 				HandleJson (json, ctx.Response);
 				return;
 			}
@@ -448,9 +455,10 @@ namespace Apachai
 
 			dict["picNumber"] = picCount;
 			dict["userNumber"] = userCount;
-			dict["latestPics"] = store.GetLastPicturesIds ();
+			dict["latestPics"] = store.GetLastPicturesIds ().Cast<object> ().ToList ();
 
 			json = JSON.JsonEncode (dict);
+
 			store.SetCachedStats (json);
 
 			HandleJson (json, ctx.Response);

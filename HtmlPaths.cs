@@ -33,5 +33,6 @@ namespace Apachai
 		public static readonly string SignPage = Path.Combine (basePath, "sign.html");
 		public static readonly string AuthPage = Path.Combine (basePath, "authenticating.html");
 		public static readonly string HomePage = Path.Combine (basePath, "home.html");
+		public static readonly string StatPage = Path.Combine (basePath, "stats.html");
 	}
 }
