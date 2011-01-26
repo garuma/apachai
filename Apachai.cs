@@ -152,13 +152,17 @@ namespace Apachai
 									var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
 
 									if (retDict != null) {
-										var profileUrl = ((string)retDict["profile_image_url"]).Replace ("normal.", "reasonably_small.");
-										
+										var pUrl = (string)retDict["profile_image_url"];
+										pUrl = string.IsNullOrEmpty (pUrl) ? string.Empty : pUrl.Replace ("normal.", "reasonably_small.");
+										var pageUrl = (string)retDict["url"] ?? string.Empty;
+										var name = (string)retDict["name"] ?? string.Empty;
+										var desc = (string)retDict["description"] ?? string.Empty;
+
 										store.SetExtraUserInfos (userInfos.UserId,
-										                         profileUrl,
-										                         (string)retDict["name"],
-										                         (string)retDict["url"],
-										                         (string)retDict["description"]);
+										                         pUrl,
+										                         name,
+										                         pageUrl,
+										                         desc);
 									}
 								});
 						}
