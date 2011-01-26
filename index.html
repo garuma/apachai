@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>garuma/apachai @ GitHub</title>
+	
+	<style type="text/css">
+		body {
+  		margin-top: 1.0em;
+  		background-color: #faec78;
+		  font-family: "Helvetica,Arial,FreeSans";
+  		color: #000000;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+		h1 { font-size: 3.8em; color: #051387; margin-bottom: 3px; }
+		h1 .small { font-size: 0.4em; }
+		h1 a { text-decoration: none }
+		h2 { font-size: 1.5em; color: #051387; }
+    h3 { text-align: center; color: #051387; }
+    a { color: #051387; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+		pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+	
+</head>
+
+<body>
+  <a href="http://github.com/garuma/apachai"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/garuma/apachai/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/garuma/apachai/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+
+    <h1><a href="http://github.com/garuma/apachai">apachai</a>
+      <span class="small">by <a href="http://github.com/garuma">garuma</a></span></h1>
+
+    <div class="description">
+      Picture uploading for the rest of us
+    </div>
+
+    <p>Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the [Manos framework](https://github.com/jacksonh/manos). A running instance is available at [apch.fr](http://apch.fr/).</p><h2>Dependencies</h2>
+<p>It depends on a [Redis](http://redis.io/) server available and on [ServiceStack .NET binding](http://code.google.com/p/servicestack/wiki/ServiceStackRedis) to it (included).
+
+Apachaï also leverages code from [TweetStation](https://github.com/migueldeicaza/TweetStation) and [Pinta](https://github.com/jpobst/Pinta) but it's not needed to have any of them installed.
+
+Of course, you need Manos installed if you want to launch the application (no need for another webserver though).</p>
+<h2>Install</h2>
+<p>To run Apachaï you need to adjust a few things. First, rename `config.json.template` to `config.json` and adjust the settings there. Following is a small description for each of them:
+
++ `serverBaseUrl`: that's the URL of the host you deploying unto (example: [http://apch.fr](http://apch.fr/))
++ `twitterKey` and `twitterSecret`: get one over at http://dev.twitter.com
++ `twitterCallback`: theorically it should be set to something like `serverBaseUrl`/AuthCallback but who knows.
++ `testInstance`: a boolean, if `true` the application will work standalone and will never do a single call to Twitter. Useful for debugging purpose.
++ `imagesDirectory`: a path (relative or absolute) to a folder where your want the picture sent to be stored. Defaults to the 'Pictures' value (you have to create the folder in the root directory yourself though).
++ `redisServers`: an IP or host array of string where we can join Redis server instances, by default we simply use 127.0.0.1
+
+Then just in case, walk a bit in the javascript code under Content/js as I may have hardcoded some stuff to http://apch.fr (promise, I try to avoid this but sometimes I'm lazy). A grep should do the trick.
+
+Finally just hit `manos -s` in the root folder and you are all set.</p>
+<h2>License</h2>
+<p>All code, markup and others are released under the permissive [MIT license](http://opensource.org/licenses/mit-license).
+
+Copyright (c) Jérémie "garuma" Laval</p>
+<h2>Authors</h2>
+<p>Jérémie Laval (jeremie.laval@gmail.com)<br/><br/>      </p>
+<h2>Contact</h2>
+<p>Jérémie Laval (jeremie.laval@gmail.com)<br/>      </p>
+
+
+    <h2>Download</h2>
+    <p>
+      You can download this project in either
+      <a href="http://github.com/garuma/apachai/zipball/master">zip</a> or
+      <a href="http://github.com/garuma/apachai/tarball/master">tar</a> formats.
+    </p>
+    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/garuma/apachai</pre>
+    </p>
+
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/garuma/apachai">garuma/apachai</a>
+    </div>
+
+  </div>
+
+  
+</body>
+</html>
