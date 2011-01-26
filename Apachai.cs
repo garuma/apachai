@@ -145,8 +145,10 @@ namespace Apachai
 						if (first || store.DoesUserNeedInfoUpdate (userInfos.UserId) ) {
 							var twitter = new Twitter (oauth);
 							twitter.Tokens = tokens;
+							var twitterInfos = twitter.GetUserInformations ();
+							Log.Info ("From Twitter json infos: " + twitterInfos);
 
-							var retDict = JSON.JsonDecode (twitter.GetUserInformations ()) as Dictionary<object, object>;
+							var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
 
 							if (retDict != null)
 								store.SetExtraUserInfos (userInfos.UserId,
@@ -157,6 +159,7 @@ namespace Apachai
 
 						}
 						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
+						Log.Info ("Setting up response stream and going back to user");
 						
 						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
 						ctx.Response.SetCookie ("apachai:token", tokens.Token);
@@ -485,15 +488,19 @@ namespace Apachai
 			return Task<string>.Factory.StartNew (() => {
 					string filename = user + Hasher.Hash (file);
 					string path = Path.Combine (imgDirectory, filename);
+					long size = 0;
 
 					using (FileStream fs = File.OpenWrite (path)) {
 						file.CopyTo (fs);
+						size = file.Length;
 						file.Close ();
 					}
 
+					// Rotate if EXIF data are there
 					var rotation = TagLibMetadata.ApplyNeededRotation (path);
 					Log.Info ("What orientation? " + rotation.ToString ());
 
+					// Make a fancy transformation
 					Log.Info ("Transforming according to: " + transformation);
 					PhotoEffect.ApplyTransformFromString (transformation, path);
 
