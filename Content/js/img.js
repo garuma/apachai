@@ -1,6 +1,4 @@
-/* Author: Jérémie Laval
-   
-*/
+// Author: Jérémie Laval
 
 (function($){
 	/* MIT License
@@ -11,45 +9,41 @@
 	$.event.special.load = {
 		add: function (hollaback) {
 			if ( this.nodeType === 1 && this.tagName.toLowerCase() === 'img' && this.src !== '' ) {
-				// Image is already complete, fire the hollaback (fixes browser issues were cached
-				// images isn't triggering the load event)
 				if ( this.complete || this.readyState === 4 ) {
 					hollaback.handler.apply(this);
-				}
-				// Check if data URI images is supported, fire 'error' event if not
-				else if ( this.readyState === 'uninitialized' && this.src.indexOf('data:') === 0 ) {
+				} else if ( this.readyState === 'uninitialized' && this.src.indexOf('data:') === 0 ) {
 					$(this).trigger('error');
-				}
-				else {
+				} else {
 					$(this).bind('load', hollaback.handler);
 				}
 			}
-		}
-	};
+		}};
 })(window.jQuery);
 
 (function($){
 	var img = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
-	if (img == "i")
+	if (img == 'i')
 		return;
 
-	var baseUrl = "/Pictures/";
+	var baseUrl = '/Pictures/';
 
 	$('#mainImage').bind('load', function (e) {
 		if ($(this).attr ('src').indexOf ('transparent.png') == -1)
 			return;
 
-		$.getJSON("/infos/" + img, function (data) {
+		$.getJSON('/infos/' + img, function (data) {
+			var ptable = $('#pictable');
+
 			if (data.length == 0) {
-				$("#pictable").append ("<em>Sorry, nothing to see here</em>");
+				ptable.append ('<em>Sorry, nothing to see here</em>');
 				return;
 			}
 
 			$.each (data, function (key, value) {
-				$("#pictable").append ("<tr><td class=\"title\">" + key + "</td><td>" + value + "</td></tr>");
+				ptable.append ("<tr><td class=\"title\">" + key + "</td><td>" + value + "</td></tr>");
 			});
 
-			$("#picinfos").css ('opacity', 1);
+			ptable.parent().css ('opacity', 1);
 		});
 
 		$.getJSON("/tweet/" + img, function (data) {
@@ -147,11 +141,12 @@
 			var lat = data['latitude'];
 			var lon = data['longitude'];
 			var w = $('#rightcolumn').width () - 20;
+			var m = $('#mapBox');
 
 			var googleMapUrl = 'http://maps.google.com/maps/api/staticmap?center='+lat+','+lon+'&zoom=7&sensor=false&maptype=roadmap&size='+w+'x'+w+'&markers='+lat+','+lon;
-			$('#mapImage').attr ('src', googleMapUrl);
-			$('#mapBox').find('a').attr ('href', 'http://maps.google.com/maps?z=10&q='+lat+','+lon);
-			$("#mapBox").css ('opacity', 1);
+			m.find('#mapImage').attr ('src', googleMapUrl);
+			m.children('a').attr ('href', 'http://maps.google.com/maps?z=10&q='+lat+','+lon);
+			m.css ('opacity', 1);
 		});
 	});
 
