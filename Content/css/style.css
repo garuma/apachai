@@ -137,6 +137,7 @@ header h2 {
 }
 
 header .lastletter {
+	font-family: Sans-Serif;
 	padding-bottom: 1px;
 	letter-spacing: 120%;
 	font-size: 140%;
