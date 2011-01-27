@@ -454,7 +454,6 @@ namespace Apachai
 			string json;
 
 			if (store.TryGetCachedStats (out json)) {
-				Log.Info ("Stats json: " + json);
 				HandleJson (json, ctx.Response);
 				return;
 			}
