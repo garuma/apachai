@@ -522,6 +522,10 @@ footer #html5_logo {
 	margin-bottom: 20px;
 }
 
+.emph {
+	color: #111;
+}
+
 @media print {
   * { background: transparent !important; color: #444 !important; text-shadow: none; }
 
