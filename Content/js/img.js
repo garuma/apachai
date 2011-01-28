@@ -29,7 +29,7 @@
 	var mainImage = $('#mainImage');
 
 	mainImage.bind('load', function (e) {
-		if ($(this).attr ('src').indexOf ('transparent.png') == -1)
+		if (mainImage.attr ('src').indexOf ('transparent.png') == -1)
 			return;
 
 		$.getJSON('/infos/' + img, function (data) {
