@@ -26,8 +26,9 @@
 		return;
 
 	var baseUrl = '/Pictures/';
+	var mainImage = $('#mainImage');
 
-	$('#mainImage').bind('load', function (e) {
+	mainImage.bind('load', function (e) {
 		if ($(this).attr ('src').indexOf ('transparent.png') == -1)
 			return;
 
@@ -151,5 +152,14 @@
 	});
 
 	var src = baseUrl + img;
-	$("#mainImage").attr("src", src);
+	mainImage.attr('src', src);
+
+	(function loop(){
+		setTimeout(function(){
+			if (mainImage.attr('src').indexOf ('transparent.png') == -1)
+				return;
+
+			mainImage.attr('src', src);
+		}, 250);
+	})();
 })(window.jQuery);
