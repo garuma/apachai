@@ -292,7 +292,7 @@ namespace Apachai
 			string pageUrl = baseServerUrl + "/i/" + id;
 			string imageUrl = baseServerUrl + "/Pictures/" + id;
 
-			RawServing (ctx.Response, "text/html", 600, string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
+			ctx.Response.RawServing ("text/html", 600, string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
 <head>
 <title>Picture on Apachaï</title>
 <meta charset=""utf-8"" />
@@ -311,18 +311,18 @@ namespace Apachai
 		public void FetchInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
-				HandleJson (string.Empty, ctx.Response);
+				ctx.Response.HandleEmptyJson ();
 
 			string json;
 
 			if (store.GetPicturesInfos (id, out json)) {
 				Log.Info ("Fetching infos for {0} and returning: {1}", id.ToString (), json);
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 				return;
 			}
 
 			if (!File.Exists (Path.Combine (imgDirectory, id))) {
-				HandleJson (string.Empty, ctx.Response);
+				ctx.Response.HandleEmptyJson ();
 				return;
 			}
 
@@ -340,7 +340,7 @@ namespace Apachai
 				metadata.Close ();
 
 				store.SetPictureInfos (id, json);
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 			});
 		}
 
@@ -348,11 +348,11 @@ namespace Apachai
 		public void FetchTweetInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
-				HandleJson (string.Empty, ctx.Response);
+				 ctx.Response.HandleEmptyJson ();
 
 			string json;
 			if (store.TryGetCachedTwitterInfos (id, out json)) {
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 				return;
 			}
 
@@ -370,18 +370,18 @@ namespace Apachai
 			json = dict.Json;
 			store.SetCachedTwitterInfos (id, json);
 
-			HandleJson (json, ctx.Response);
+			ctx.Response.HandleJson (json);
 		}
 
 		[Route ("/links/{id}")]
 		public void FetchLinkInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
-				HandleJson (string.Empty, ctx.Response);
+				 ctx.Response.HandleEmptyJson ();
 
 			string json;
 			if (store.TryGetPictureLinks (id, out json)) {
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 				return;
 			}
 
@@ -398,35 +398,35 @@ namespace Apachai
 			json = dict.Json;
 			store.SetPictureLinks (id, json);
 
-			HandleJson (json, ctx.Response);
+			ctx.Response.HandleJson (json);
 		}
 
 		[Route ("/recent/{id}")]
 		public void FetchRecentPictures (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
-				HandleJson (string.Empty, ctx.Response);
+				ctx.Response.HandleEmptyJson ();
 
 			var list = store.GetImagesOfUserFromPic (id, 10);
 			var json = '[' + list.Select (e => '"' + e + '"').Aggregate ((e1, e2) => e1 + ',' + e2) + ']';
-			HandleJson (json, ctx.Response);
+			ctx.Response.HandleJson (json);
 		}
 
 		[Route ("/geo/{id}")]
 		public void FetchGeoInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
-				HandleJson (string.Empty, ctx.Response);
+				ctx.Response.HandleEmptyJson ();
 
 			string json;
 
 			if (store.GetPictureGeo (id, out json)) {
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 				return;
 			}
 
 			if (!File.Exists (Path.Combine (imgDirectory, id))) {
-				HandleJson (string.Empty, ctx.Response);
+				ctx.Response.HandleEmptyJson ();
 				return;
 			}
 
@@ -449,7 +449,7 @@ namespace Apachai
 				metadata.Close ();
 
 				store.SetPictureGeo (id, json);
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 			});
 		}
 
@@ -459,7 +459,7 @@ namespace Apachai
 			string json;
 
 			if (store.TryGetCachedStats (out json)) {
-				HandleJson (json, ctx.Response);
+				ctx.Response.HandleJson (json);
 				return;
 			}
 
@@ -476,7 +476,7 @@ namespace Apachai
 
 			store.SetCachedStats (json);
 
-			HandleJson (json, ctx.Response);
+			ctx.Response.HandleJson (json);
 		}
 
 #endregion
@@ -485,16 +485,6 @@ namespace Apachai
 		{
 			// For now only check some magic header value (not that we can do much else)
 			return 0xD8FF == new BinaryReader (file).ReadUInt16 ();
-		}
-
-		static void HandleJson (string json, IHttpResponse response)
-		{
-			if (string.IsNullOrEmpty (json)) {
-				response.StatusCode = 404;
-				response.End ();
-			} else {
-				RawServing (response, "application/json", 600, json);
-			}
 		}
 
 		Task<string> HandleUploadedFile (Stream file, string user, string transformation)
@@ -523,13 +513,6 @@ namespace Apachai
 		void HttpServing (IManosContext ctx, string htmlPath)
 		{
 			staticContent.Content (ctx, htmlPath);
-		}
-
-		static void RawServing (IHttpResponse response, string mime, int maxAge, string data)
-		{
-			response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: "+mime+"; charset=utf-8");
-			response.Headers.SetNormalizedHeader ("Cache-Control", "max-age=" + maxAge);
-			response.End (data);
 		}
 	}
 }

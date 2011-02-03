@@ -13,7 +13,8 @@ FILES = Apachai.cs \
 	AccessLogger.cs \
 	ConfigManager.cs \
 	PictureContentModule.cs \
-	HtmlPaths.cs
+	HtmlPaths.cs \
+	ContextExtensions.cs
 
 APACHAI_EFFECTS = Effects/Apachai.Effects.dll
 APACHAI_EFFECTS_DIR = Effects/
