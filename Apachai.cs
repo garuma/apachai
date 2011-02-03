@@ -105,13 +105,13 @@ namespace Apachai
 		}
 
 		[Route ("/DoLogin")]
-		public void Test (IManosContext ctx)
+		public void DoLogin (IManosContext ctx)
 		{
 			HttpServing (ctx, HtmlPaths.AuthPage);
 		}
 
 		[Route ("/RequestTokens")]
-		public void DoLogin (IManosContext ctx)
+		public void RequestTokens (IManosContext ctx)
 		{
 			if (testInstance) {
 				ctx.Response.End ("/AuthCallback");
