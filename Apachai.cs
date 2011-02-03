@@ -47,6 +47,8 @@ namespace Apachai
 
 		readonly StaticContentModule staticContent;
 
+		const TaskContinuationOptions ExecuteSync = TaskContinuationOptions.ExecuteSynchronously;
+
 		static Apachai ()
 		{
 			c = new ConfigManager ("config.json");
@@ -68,6 +70,8 @@ namespace Apachai
 			AddPipe (new Manos.Util.AccessLogger ("access.log"));
 		}
 
+#region Browser serving endpoints
+
 		[Route ("/", "/Home", "/Index", "/Post")]
 		public void Index (IManosContext ctx)
 		{
@@ -79,6 +83,19 @@ namespace Apachai
 				ctx.Response.Redirect ("/Login");
 
 			HttpServing (ctx, HtmlPaths.PostPage);
+		}
+
+		[Route ("/favicon.ico")]
+		public void Favicon (IManosContext ctx)
+		{
+			ctx.Response.SendFile (Path.Combine ("Content", "img", "favicon.ico"));
+			ctx.Response.End ();
+		}
+
+		[Route ("/Stats")]
+		public void Stats (IManosContext ctx)
+		{
+			HttpServing (ctx, HtmlPaths.StatPage);
 		}
 
 		[Route ("/Login")]
@@ -102,13 +119,12 @@ namespace Apachai
 			}
 
 			oauth.AcquireRequestToken ().ContinueWith (req => {
-					Log.Info ("Got back from request token call: " + req.Result);
-					var url = oauth.GetAuthUrl (req.Result);
-					store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
-					Log.Info ("Redirect URL is: " + url);
+				Log.Info ("Got back from request token call: " + req.Result);
+				var url = oauth.GetAuthUrl (req.Result);
+				store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
 
-					ctx.Response.End (url);
-				}, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion);
+				ctx.Response.End (url);
+			}, ExecuteSync | TaskContinuationOptions.OnlyOnRanToCompletion);
 		}
 
 		[Route ("/AuthCallback")]
@@ -128,58 +144,55 @@ namespace Apachai
 			string token = ctx.Request.Data["oauth_token"];
 			string tokenVerifier = ctx.Request.Data["oauth_verifier"];
 
-			Log.Info ("Args: {0} and {1}", token, tokenVerifier);
+			Log.Info ("Tokens and verifier: {0} and {1}", token, tokenVerifier);
 
 			oauth.AcquireAccessToken (new OAuthToken (token, store.GetTempTokenSecret (token)), tokenVerifier)
 				.ContinueWith (resultTask => {
-						var result = resultTask.Result;
-						var userInfos = result.Item2;
-						var tokens = result.Item1;
+					var result = resultTask.Result;
+					var userInfos = result.Item2;
+					var tokens = result.Item1;
 						
-						Log.Info ("Got back from access token call: {0} and {1}", userInfos.ToString (), tokens.ToString ());
+					Log.Info ("Access token call return: {0} and {1}", userInfos.ToString (), tokens.ToString ());
 						
-						bool first = false;
-						if ((first = !store.DoWeKnowUser (userInfos.UserId)))
-							store.SetUserInfos (userInfos.UserId, userInfos.UserName);
+					bool first = false;
+					if ((first = !store.DoWeKnowUser (userInfos.UserId)))
+						store.SetUserInfos (userInfos.UserId, userInfos.UserName);
 
-						if (first || store.DoesUserNeedInfoUpdate (userInfos.UserId) ) {
-							Task.Factory.StartNew (() => {
-									var twitter = new Twitter (oauth);
-									twitter.Tokens = tokens;
-									var twitterInfos = twitter.GetUserInformations (userInfos.UserId.ToString ());
-									Log.Info ("Got twitter json infos for " + userInfos.UserId.ToString ());
+					if (first || store.DoesUserNeedInfoUpdate (userInfos.UserId) ) {
+						Task.Factory.StartNew (() => {
+								var twitter = new Twitter (oauth);
+								twitter.Tokens = tokens;
 
-									var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
+								var twitterInfos = twitter.GetUserInformations (userInfos.UserId.ToString ());
 
-									if (retDict != null) {
-										var pUrl = (string)retDict["profile_image_url"];
-										pUrl = string.IsNullOrEmpty (pUrl) ? string.Empty : pUrl.Replace ("normal.", "reasonably_small.");
-										var pageUrl = (string)retDict["url"] ?? string.Empty;
-										var name = (string)retDict["name"] ?? string.Empty;
-										var desc = (string)retDict["description"] ?? string.Empty;
+								Log.Info ("Got twitter json infos for {0}", userInfos.UserId.ToString ());
 
-										store.SetExtraUserInfos (userInfos.UserId,
-										                         pUrl,
-										                         name,
-										                         pageUrl,
-										                         desc);
-									}
-								});
-						}
-						store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
-						Log.Info ("Setting up response stream and going back to user");
-						
-						ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
-						ctx.Response.SetCookie ("apachai:token", tokens.Token);
-						ctx.Response.Redirect ("/Post");
-					}, TaskContinuationOptions.ExecuteSynchronously);
-		}
+								var retDict = JSON.JsonDecode (twitterInfos) as Dictionary<object, object>;
 
-		[Route ("/favicon.ico")]
-		public void Favicon (IManosContext ctx)
-		{
-			ctx.Response.SendFile (Path.Combine ("Content", "img", "favicon.ico"));
-			ctx.Response.End ();
+								if (retDict == null)
+									return;
+
+								var pUrl = retDict["profile_image_url"] as string;
+								pUrl = string.IsNullOrEmpty (pUrl) ? string.Empty : pUrl.Replace ("normal.", "reasonably_small.");
+								var pageUrl = retDict["url"] as string ?? string.Empty;
+								var name = retDict["name"] as string ?? string.Empty;
+								var desc = retDict["description"] as string ?? string.Empty;
+
+								store.SetExtraUserInfos (userInfos.UserId,
+								                         pUrl,
+								                         name,
+								                         pageUrl,
+								                         desc);
+						});
+					}
+
+					store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
+
+					ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString ());
+					ctx.Response.SetCookie ("apachai:token", tokens.Token);
+
+					ctx.Response.Redirect ("/Post");
+			  }, ExecuteSync);
 		}
 
 		[Post ("/DoPost")]
@@ -189,13 +202,14 @@ namespace Apachai
 
 			var cookie = req.Cookies.Get ("apachai:userId");
 			long uid;
+
 			if (string.IsNullOrEmpty (cookie) || !long.TryParse (cookie, out uid) || !store.DoWeKnowUser (uid)) {
 				ctx.Response.Redirect ("/Login");
 				return;
 			}
 
-			var twittertext = req.PostData.GetString ("twittertext").TrimEnd ('\n', '\r').Trim ();
-			var effect = req.PostData.GetString ("effect").TrimEnd ('\n', '\r').Trim ();
+			var twittertext = req.PostData.GetString ("twittertext");
+			var effect = req.PostData.GetString ("effect");
 
 			if (req.Files.Count == 0) {
 				Log.Debug ("No file received");
@@ -211,13 +225,7 @@ namespace Apachai
 			}
 
 			HandleUploadedFile (file, uid.ToString (), effect)
-				.ContinueWith (cont => DoPictureTasks (ctx, cont.Result, uid, twittertext), TaskContinuationOptions.ExecuteSynchronously);
-		}
-
-		[Route ("/Stats")]
-		public void Stats (IManosContext ctx)
-		{
-			HttpServing (ctx, HtmlPaths.StatPage);
+				.ContinueWith (cont => DoPictureTasks (ctx, cont.Result, uid, twittertext), ExecuteSync);
 		}
 
 		void DoPictureTasks (IManosContext ctx, string filename, long uid, string twittertext)
@@ -227,29 +235,26 @@ namespace Apachai
 			var twitter = new Twitter (oauth);
 			twitter.Tokens = testInstance ? null : store.GetUserAccessTokens (uid);
 
-			Log.Info ("Going to send tweet with (text = {0}) and (url = {1})", twittertext, finalUrl);
-
 			var task = !testInstance ?
 				twitter.SendApachaiTweet (twittertext, finalUrl, filename, baseServerUrl + "/s/") :
 				UrlShortener.GetShortenedId ();
 
 			task.ContinueWith ((ret) => {
-					Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
-					store.RegisterImageWithTweet (uid,
-					                              filename,
-					                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
-					                              finalUrl,
-					                              ret.Result);
-					store.MapShortToLongUrl (ret.Result, filename);
-					ctx.Response.Redirect ("/i/" + filename);
-				}, TaskContinuationOptions.ExecuteSynchronously);
+				Log.Info ("Registered final tweet, {0} | {1} | {2} | {3}", uid, filename, twittertext, ret.Result);
+				store.RegisterImageWithTweet (uid,
+				                              filename,
+				                              string.IsNullOrEmpty (twittertext) ? string.Empty : twittertext,
+				                              finalUrl,
+				                              ret.Result);
+				store.MapShortToLongUrl (ret.Result, filename);
+				ctx.Response.Redirect ("/i/" + filename);
+			}, ExecuteSync);
 		}
 
 		[Route ("/s/{id}")]
 		public void ShowShortUrlPicture (IManosContext ctx, string id)
 		{
 			string permaId;
-			Log.Info ("Want us to show {0}", id);
 
 			if (string.IsNullOrEmpty (id) || !store.FindPermaFromShort (id, out permaId)) {
 				ctx.Response.StatusCode = 404;
@@ -262,7 +267,6 @@ namespace Apachai
 		[Route ("/i/{id}")]
 		public void ShowPicture (IManosContext ctx, string id)
 		{
-			Log.Info ("ShowPicture: " + id);
 			if (string.IsNullOrEmpty (id) || !File.Exists (Path.Combine (imgDirectory, id))) {
 				ctx.Response.StatusCode = 404;
 				ctx.Response.End ();
@@ -271,6 +275,10 @@ namespace Apachai
 
 			HttpServing (ctx, HtmlPaths.HomePage);
 		}
+
+#endregion
+
+#region Service methods
 
 		[Route ("/og/{id}")]
 		public void ShowOpenGraphData (IManosContext ctx, string id)
@@ -319,21 +327,21 @@ namespace Apachai
 			}
 
 			Task.Factory.StartNew (() => {
-					JsonStringDictionary dict = new JsonStringDictionary ();
+				JsonStringDictionary dict = new JsonStringDictionary ();
 
-					TagLibMetadata metadata = new TagLibMetadata (imgDirectory, id);
-					if (!metadata.IsValid) {
-						Log.Info (id + " is invalid file");
-						json = string.Empty;
-					} else {
-						metadata.FillUp (dict);
-						json = dict.Json;
-					}
-					metadata.Close ();
+				TagLibMetadata metadata = new TagLibMetadata (imgDirectory, id);
+				if (!metadata.IsValid) {
+					Log.Info (id + " is invalid file");
+					json = string.Empty;
+				} else {
+					metadata.FillUp (dict);
+					json = dict.Json;
+				}
+				metadata.Close ();
 
-					store.SetPictureInfos (id, json);
-					HandleJson (json, ctx.Response);
-				});
+				store.SetPictureInfos (id, json);
+				HandleJson (json, ctx.Response);
+			});
 		}
 
 		[Route ("/tweet/{id}")]
@@ -362,7 +370,6 @@ namespace Apachai
 			json = dict.Json;
 			store.SetCachedTwitterInfos (id, json);
 
-			Log.Info ("Fetching tweet infos for {0} and returning {1}", id.ToString (), json);
 			HandleJson (json, ctx.Response);
 		}
 
@@ -374,7 +381,6 @@ namespace Apachai
 
 			string json;
 			if (store.TryGetPictureLinks (id, out json)) {
-				Log.Info ("Sending back links blob: {0}", json);
 				HandleJson (json, ctx.Response);
 				return;
 			}
@@ -415,7 +421,6 @@ namespace Apachai
 			string json;
 
 			if (store.GetPictureGeo (id, out json)) {
-				Log.Info ("Geolocation for {0}: {1}", id.ToString (), json);
 				HandleJson (json, ctx.Response);
 				return;
 			}
@@ -426,26 +431,26 @@ namespace Apachai
 			}
 
 			Task.Factory.StartNew (() => {
-					json = string.Empty;
-					JsonStringDictionary dict = new JsonStringDictionary ();
-					TagLibMetadata metadata = new TagLibMetadata (imgDirectory, id);
+				json = string.Empty;
+				JsonStringDictionary dict = new JsonStringDictionary ();
+				TagLibMetadata metadata = new TagLibMetadata (imgDirectory, id);
 
-					if (!metadata.IsValid) {
-						Log.Info (id + " is invalid file");
-					} else {
-						var coordinates = metadata.GeoCoordinates;
-						if (coordinates != null) {
-							var invCult = System.Globalization.CultureInfo.InvariantCulture;
-							dict["latitude"] = coordinates.Item1.ToString (invCult);
-							dict["longitude"] = coordinates.Item2.ToString (invCult);
-							json = dict.Json;
-						}
+				if (!metadata.IsValid) {
+					Log.Info (id + " is invalid file");
+				} else {
+					var coordinates = metadata.GeoCoordinates;
+					if (coordinates != null) {
+						var invCult = System.Globalization.CultureInfo.InvariantCulture;
+						dict["latitude"] = coordinates.Item1.ToString (invCult);
+						dict["longitude"] = coordinates.Item2.ToString (invCult);
+						json = dict.Json;
 					}
-					metadata.Close ();
+				}
+				metadata.Close ();
 
-					store.SetPictureGeo (id, json);
-					HandleJson (json, ctx.Response);
-				});
+				store.SetPictureGeo (id, json);
+				HandleJson (json, ctx.Response);
+			});
 		}
 
 		[Route ("/stats")]
@@ -474,6 +479,8 @@ namespace Apachai
 			HandleJson (json, ctx.Response);
 		}
 
+#endregion
+
 		static bool CheckImageType (Stream file)
 		{
 			// For now only check some magic header value (not that we can do much else)
@@ -493,26 +500,24 @@ namespace Apachai
 		Task<string> HandleUploadedFile (Stream file, string user, string transformation)
 		{
 			return Task<string>.Factory.StartNew (() => {
-					string filename = user + Hasher.Hash (file);
-					string path = Path.Combine (imgDirectory, filename);
-					long size = 0;
+				string filename = user + Hasher.Hash (file);
+				string path = Path.Combine (imgDirectory, filename);
 
-					using (FileStream fs = File.OpenWrite (path)) {
-						file.CopyTo (fs);
-						size = file.Length;
-						file.Close ();
-					}
+				using (FileStream fs = File.OpenWrite (path)) {
+					file.CopyTo (fs);
+					file.Close ();
+				}
 
-					// Rotate if EXIF data are there
-					var rotation = TagLibMetadata.ApplyNeededRotation (path);
-					Log.Info ("What orientation? " + rotation.ToString ());
+				// Rotate if EXIF data are there
+				var rotation = TagLibMetadata.ApplyNeededRotation (path);
+				Log.Info ("What orientation? " + rotation.ToString ());
 
-					// Make a fancy transformation
-					Log.Info ("Transforming according to: " + transformation);
-					PhotoEffect.ApplyTransformFromString (transformation, path);
+				// Make a fancy transformation
+				Log.Info ("Transforming according to: " + transformation);
+				PhotoEffect.ApplyTransformFromString (transformation, path);
 
-					return filename;
-				});
+				return filename;
+			});
 		}
 
 		void HttpServing (IManosContext ctx, string htmlPath)
