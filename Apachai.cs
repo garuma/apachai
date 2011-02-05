@@ -499,12 +499,12 @@ namespace Apachai
 				}
 
 				// Rotate if EXIF data are there
-				var rotation = TagLibMetadata.ApplyNeededRotation (path);
-				Log.Info ("What orientation? " + rotation.ToString ());
+				var metadataSave = TagLibMetadata.ApplyNeededRotation (path);
 
 				// Make a fancy transformation
 				Log.Info ("Transforming according to: " + transformation);
-				PhotoEffect.ApplyTransformFromString (transformation, path);
+				if (PhotoEffect.ApplyTransformFromString (transformation, path))
+					TagLibMetadata.RestoreMetadata (path, metadataSave);
 
 				return filename;
 			});

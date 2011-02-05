@@ -97,21 +97,26 @@ namespace Apachai
 			}
 		}
 
-		public static RotateFlipType ApplyNeededRotation (string path)
+		public static TagLib.Image.File ApplyNeededRotation (string path)
 		{
 			TagLib.Image.File file;
 			var rotation = GetNeededRotation (path, out file);
 			file.EnsureAvailableTags ();
 
 			if (!global::Apachai.Effects.Rotationner.RotationatePathIfNeeded (path, rotation))
-				return rotation;
+				return file;
 
+			RestoreMetadata (path, file);
+
+			return file;
+		}
+
+		public static void RestoreMetadata (string path, TagLib.Image.File metadataSave)
+		{
 			var newFile = (TagLib.Image.File)TagLib.File.Create (path, "image/jpeg", TagLib.ReadStyle.Average);
-			newFile.CopyFrom (file);
+			newFile.CopyFrom (metadataSave);
 			newFile.ImageTag.Orientation = ImageOrientation.TopLeft;
 			newFile.Save ();
-
-			return rotation;
 		}
 
 		public static RotateFlipType GetNeededRotation (string path, out TagLib.Image.File file)

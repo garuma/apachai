@@ -9,14 +9,14 @@ namespace Apachai.Effects
 
 	public static class PhotoEffect
 	{
-		public static void ApplyTransformFromString (string transformation, string path)
+		public static bool ApplyTransformFromString (string transformation, string path)
 		{
 			if (string.IsNullOrEmpty (transformation))
-				return;
+				return false;
 
 			switch (transformation) {
 			case "eff_original":
-				break;
+				return false;
 			case "eff_sepia":
 				PhotoEffect.ApplySepiaEffect (path, path);
 				break;
@@ -27,6 +27,8 @@ namespace Apachai.Effects
 				PhotoEffect.ApplyBlackAndWhiteEffect (path, path);
 				break;
 			}
+
+			return true;
 		}
 
 		public static void ApplyInvertAdjustment (string origPath, string destPath)
