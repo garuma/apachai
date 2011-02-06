@@ -78,7 +78,7 @@
 			list = list.slice (0, 5);
 
 			$.each (list, function (e) {
-				var imgEntry = $('<div class="imgEntry"><a href="/i/' + list[e] + '"><img src="' + baseUrl + list[e] +  '"></a></div>');
+				var imgEntry = $('<div class="imgEntry"><a href="/i/' + list[e] + '"><img src="' + baseUrl + list[e] + '?v=small' + '"></a></div>');
 				slider.append(imgEntry);
 			});
 

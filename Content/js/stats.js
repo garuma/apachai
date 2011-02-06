@@ -17,7 +17,7 @@
 				return;
 
 			var img = $(this).children('a').children ('img');
-			img.attr ('src', '/Pictures/' + latestPics[index]);
+			img.attr ('src', '/Pictures/' + latestPics[index] + '?v=small');
 			img.css ('visibility', 'visible');
 			img.parent().attr ('href', '/i/' + latestPics[index]);
 		});

@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 
@@ -34,6 +35,9 @@ namespace Apachai
 		readonly string expires;
 		readonly string cacheControl;
 		readonly ConcurrentDictionary<string, string> etagCache;
+
+		const string smallCache = "Small";
+		const int smallMax = 600;
 
 		public PictureContentModule () : this (TimeSpan.FromDays (60))
 		{
@@ -54,6 +58,9 @@ namespace Apachai
 
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
+
+			if (string.Equals (ctx.Request.QueryData.Get ("v"), "small", StringComparison.Ordinal))
+				path = EnsureSmallAvailable (path);
 
 			string etag, fileEtag;
 			if (ctx.Request.Headers.TryGetNormalizedValue ("If-None-Match", out etag)
@@ -83,6 +90,31 @@ namespace Apachai
 		static string GetEtagFromFile (string path)
 		{
 			return File.GetLastWriteTimeUtc (path).ToString ("s");
+		}
+
+		static string EnsureSmallAvailable (string path)
+		{
+			if (!Directory.Exists (smallCache))
+				Directory.CreateDirectory (smallCache);
+
+			var newPath = Path.Combine (smallCache, Path.GetFileName (path));
+			if (File.Exists (newPath))
+				return newPath;
+
+			var original = Bitmap.FromFile (path);
+			int width = 0, height = 0;
+			if (original.Width >= original.Height) {
+				width = smallMax;
+				height = original.Height * smallMax / original.Width;
+			} else {
+				height = smallMax;
+				width = original.Width * smallMax / original.Height;
+			}
+
+			var newPic = new Bitmap (original, width, height);
+			newPic.Save (newPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+			return newPath;
 		}
 	}
 }
