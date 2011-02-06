@@ -208,7 +208,7 @@ namespace Apachai
 				return;
 			}
 
-			var twittertext = req.PostData.GetString ("twittertext");
+			var twittertext = System.Web.HttpUtility.HtmlDecode (req.PostData.GetString ("twittertext"));
 			var effect = req.PostData.GetString ("effect");
 
 			if (req.Files.Count == 0) {
