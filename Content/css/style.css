@@ -508,7 +508,9 @@ footer #html5_logo {
 
 .cell img {
 	opacity: 0.85;
-	-webkit-transition: all 300ms ease;
+	-webkit-transition: -webkit-transform 300ms ease;
+	-moz-transition: -webkit-transform 300ms ease;
+	-o-transition: -webkit-transform 300ms ease;
 }
 
 .cell img:hover {

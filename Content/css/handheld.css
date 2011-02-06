@@ -117,6 +117,13 @@ footer {
 	padding-bottom: 1ex;
 }
 
+#maincolumn .cell img {
+	opacity: 1;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+}
+
 #img_preview {
 	max-width: 240px;
 }
