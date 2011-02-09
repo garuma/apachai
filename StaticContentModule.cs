@@ -98,7 +98,11 @@ namespace Apachai
 			}
 
 			if (File.Exists (path)) {
-				ctx.Response.Headers.SetNormalizedHeader ("Content-Type", ManosMimeTypes.GetMimeType (path));
+				var mime = ManosMimeTypes.GetMimeType (path);
+				if (mime.StartsWith ("text/", StringComparison.Ordinal) || mime.EndsWith ("javascript", StringComparison.Ordinal))
+					mime += "; charset=utf-8";
+
+				ctx.Response.Headers.SetNormalizedHeader ("Content-Type", mime);
 
 				// Expires setting for specific files
 				string extension = Path.GetExtension (path);
