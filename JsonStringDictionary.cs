@@ -56,10 +56,15 @@ namespace Apachai
 				sb.Append ('"');
 				sb.Append (':');
 				sb.Append ('"');
-				sb.Append (value);
+				sb.Append (Escape (value));
 				sb.Append ('"');
 				sb.Append (',');
 			}
+		}
+
+		static string Escape (string foo)
+		{
+			return foo.Replace ("\"", "\\\"").Replace ("\n", "\\n").Replace ("\r", "\\r").Trim ();
 		}
 	}
 }
