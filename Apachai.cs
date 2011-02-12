@@ -188,8 +188,8 @@ namespace Apachai
 
 					store.SetUserAccessTokens (userInfos.UserId, tokens.Token, tokens.TokenSecret);
 
-					ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString (), Timespan.FromDays (30));
-					ctx.Response.SetCookie ("apachai:token", tokens.Token, Timespan.FromDays (30));
+					ctx.Response.SetCookie ("apachai:userId", userInfos.UserId.ToString (), TimeSpan.FromDays (30));
+					ctx.Response.SetCookie ("apachai:token", tokens.Token, TimeSpan.FromDays (30));
 
 					ctx.Response.Redirect ("/Post");
 			  }, ExecuteSync);
