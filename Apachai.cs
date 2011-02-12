@@ -119,12 +119,16 @@ namespace Apachai
 			}
 
 			oauth.AcquireRequestToken ().ContinueWith (req => {
+				if (req.Exception != null) {
+					ctx.Response.End ("/Login?error=1");
+					return;
+				}
 				Log.Info ("Got back from request token call: " + req.Result);
 				var url = oauth.GetAuthUrl (req.Result);
 				store.SaveTempTokenSecret (req.Result.Token, req.Result.TokenSecret);
 
 				ctx.Response.End (url);
-			}, ExecuteSync | TaskContinuationOptions.OnlyOnRanToCompletion);
+			}, ExecuteSync);
 		}
 
 		[Route ("/AuthCallback")]
