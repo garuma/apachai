@@ -25,6 +25,7 @@ using System.IO;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 using Manos;
 
@@ -59,9 +60,17 @@ namespace Apachai
 			if (path.StartsWith ("/"))
 				path = path.Substring (1);
 
-			if (string.Equals (ctx.Request.QueryData.Get ("v"), "small", StringComparison.Ordinal))
-				path = EnsureSmallAvailable (path);
+			if (string.Equals (ctx.Request.QueryData.Get ("v"), "small", StringComparison.Ordinal)) {
+				path = EnsureSmallAvailable (ctx, path);
+				if (path == null)
+					return;
+			}
 
+			ServeImage (ctx, path);
+		}
+
+		void ServeImage (IManosContext ctx, string path)
+		{
 			string etag, fileEtag;
 			if (ctx.Request.Headers.TryGetNormalizedValue ("If-None-Match", out etag)
 			    && etagCache.TryGetValue (path, out fileEtag)
@@ -92,7 +101,7 @@ namespace Apachai
 			return File.GetLastWriteTimeUtc (path).ToString ("s");
 		}
 
-		static string EnsureSmallAvailable (string path)
+		string EnsureSmallAvailable (IManosContext ctx, string path)
 		{
 			if (!Directory.Exists (smallCache))
 				Directory.CreateDirectory (smallCache);
@@ -101,20 +110,24 @@ namespace Apachai
 			if (File.Exists (newPath))
 				return newPath;
 
-			var original = Bitmap.FromFile (path);
-			int width = 0, height = 0;
-			if (original.Width >= original.Height) {
-				width = smallMax;
-				height = original.Height * smallMax / original.Width;
-			} else {
-				height = smallMax;
-				width = original.Width * smallMax / original.Height;
-			}
+			Task.Factory.StartNew (() => {
+				var original = Bitmap.FromFile (path);
+				int width = 0, height = 0;
+				if (original.Width >= original.Height) {
+					width = smallMax;
+					height = original.Height * smallMax / original.Width;
+				} else {
+					height = smallMax;
+					width = original.Width * smallMax / original.Height;
+				}
 
-			var newPic = new Bitmap (original, width, height);
-			newPic.Save (newPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+				var newPic = new Bitmap (original, width, height);
+				newPic.Save (newPath, System.Drawing.Imaging.ImageFormat.Jpeg);
 
-			return newPath;
+				ServeImage (ctx, newPath);
+			});
+
+			return null;
 		}
 	}
 }
