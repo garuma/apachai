@@ -36,6 +36,7 @@ namespace Apachai
 		readonly string cacheControl;
 		readonly ConcurrentDictionary<string, string> etagCache;
 		readonly FileSystemWatcher fsw;
+		readonly string rootedPath;
 
 		static readonly string[] defaultCachedExts = { ".html", ".js", ".css", ".png", ".jpg",
 		                                               ".woff", ".eot", ".ttf", ".ico" };
@@ -64,6 +65,7 @@ namespace Apachai
 
 			fsw = new FileSystemWatcher (dir);
 			InitFileSystemWatcher (dir);
+			rootedPath = Path.Combine (Environment.CurrentDirectory, dir);
 
 			Get (".*", Content);
 		}
@@ -97,7 +99,7 @@ namespace Apachai
 				return;
 			}
 
-			if (File.Exists (path)) {
+			if (ValidFile (path)) {
 				var mime = ManosMimeTypes.GetMimeType (path);
 				if (mime.StartsWith ("text/", StringComparison.Ordinal) || mime.EndsWith ("javascript", StringComparison.Ordinal))
 					mime += "; charset=utf-8";
@@ -119,6 +121,16 @@ namespace Apachai
 				ctx.Response.StatusCode = 404;
 
 			ctx.Response.End ();
+		}
+
+		bool ValidFile (string path)
+		{
+			try {
+				string fullPath = Path.GetFullPath (path);
+				return fullPath.StartsWith (rootedPath);
+			} catch {
+				return false;
+			}
 		}
 
 		static string GetEtagFromFile (string path)
