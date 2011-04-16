@@ -24,7 +24,7 @@ all: apachai.dll
 apachai.dll: $(FILES) Apachai.Effects.dll
 	dmcs /pkg:taglib-sharp /r:System.Web.dll /r:ServiceStack.Redis.dll /pkg:manos /r:$(APACHAI_EFFECTS) /r:System.Drawing.dll /debug /out:apachai.dll /t:library $(FILES)
 
-Apachai.Effects.dll: $(APACHAI_EFFECTS)
+Apachai.Effects.dll:
 	make -C $(APACHAI_EFFECTS_DIR) && ln -s $(APACHAI_EFFECTS) .
 
 clean:
