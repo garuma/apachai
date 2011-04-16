@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 
 using Manos;
+using Manos.Routing;
 
 namespace Apachai
 {
@@ -67,7 +68,7 @@ namespace Apachai
 			InitFileSystemWatcher (dir);
 			rootedPath = Path.Combine (Environment.CurrentDirectory, dir);
 
-			Get (".*", Content);
+			Get (".*", MatchType.Regex, Content);
 		}
 
 		void InitFileSystemWatcher (string dir)
