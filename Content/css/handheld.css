@@ -12,6 +12,7 @@ body {
 
 #container {
 	width: 100%;
+	margin-bottom: 2em; /* so that android zoom button don't interfere */
 }
 
 header {
