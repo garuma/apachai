@@ -30,6 +30,7 @@ using System.Text;
 
 using Manos;
 using Manos.Http;
+using Manos.Routing;
 
 namespace Apachai
 {
@@ -255,7 +256,7 @@ namespace Apachai
 			}, ExecuteSync);
 		}
 
-		[Route ("/s/{id}")]
+		[Route ("/s/{id}", MatchType = MatchType.Simple)]
 		public void ShowShortUrlPicture (IManosContext ctx, string id)
 		{
 			string permaId;
@@ -268,7 +269,7 @@ namespace Apachai
 			ctx.Response.Redirect ("/i/" + permaId);
 		}
 
-		[Route ("/i/{id}")]
+		[Route ("/i/{id}", MatchType = MatchType.Simple)]
 		public void ShowPicture (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id) || !File.Exists (Path.Combine (imgDirectory, id))) {
@@ -284,7 +285,7 @@ namespace Apachai
 
 #region Service methods
 
-		[Route ("/og/{id}")]
+		[Route ("/og/{id}", MatchType = MatchType.Simple)]
 		public void ShowOpenGraphData (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id) || !File.Exists (Path.Combine (imgDirectory, id))) {
@@ -311,7 +312,7 @@ namespace Apachai
 </html>", pageUrl, imageUrl));
 		}
 
-		[Route ("/infos/{id}")]
+		[Route ("/infos/{id}", MatchType = MatchType.Simple)]
 		public void FetchInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
@@ -348,7 +349,7 @@ namespace Apachai
 			});
 		}
 
-		[Route ("/tweet/{id}")]
+		[Route ("/tweet/{id}", MatchType = MatchType.Simple)]
 		public void FetchTweetInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
@@ -377,7 +378,7 @@ namespace Apachai
 			ctx.Response.HandleJson (json);
 		}
 
-		[Route ("/links/{id}")]
+		[Route ("/links/{id}", MatchType = MatchType.Simple)]
 		public void FetchLinkInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
@@ -405,7 +406,7 @@ namespace Apachai
 			ctx.Response.HandleJson (json);
 		}
 
-		[Route ("/recent/{id}")]
+		[Route ("/recent/{id}", MatchType = MatchType.Simple)]
 		public void FetchRecentPictures (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))
@@ -416,7 +417,7 @@ namespace Apachai
 			ctx.Response.HandleJson (json);
 		}
 
-		[Route ("/geo/{id}")]
+		[Route ("/geo/{id}", MatchType = MatchType.Simple)]
 		public void FetchGeoInformations (IManosContext ctx, string id)
 		{
 			if (string.IsNullOrEmpty (id))

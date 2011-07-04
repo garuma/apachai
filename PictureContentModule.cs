@@ -28,6 +28,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 using Manos;
+using Manos.Routing;
 
 namespace Apachai
 {
@@ -50,7 +51,7 @@ namespace Apachai
 			this.cacheControl = "max-age=" + ((int)expireTime.TotalSeconds).ToString ();
 			this.etagCache = new ConcurrentDictionary<string, string> ();
 
-			Get (".*", Content);
+			Get (".*", MatchType.Regex, Content);
 		}
 
 		public void Content (IManosContext ctx)
