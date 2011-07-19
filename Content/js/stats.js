@@ -25,11 +25,11 @@
 		$("#lastUpdated").text (new Date ().toLocaleTimeString ());
 	};
 
-	$.getJSON('/stats', updateFunc);
+	$.getJSON('/statistics', updateFunc);
 
 	(function loop(){
 		setTimeout(function(){
-		  $.getJSON('/stats', updateFunc);
+		  $.getJSON('/statistics', updateFunc);
 		  loop();
 	  }, 10000);
 	})();

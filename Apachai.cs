@@ -458,7 +458,7 @@ namespace Apachai
 			});
 		}
 
-		[Route ("/stats")]
+		[Route ("/statistics")]
 		public void FetchStatistics (IManosContext ctx, string id)
 		{
 			string json;
