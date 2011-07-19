@@ -250,7 +250,7 @@ namespace Apachai
 				redis[userAvatarUrl + id] = avatarUrl;
 				redis[userUrl + id] = url;
 				redis[userDesc + id] = desc;
-				redis.SetEntry (userStale, "foo", TimeSpan.FromDays (7));
+				redis.SetEntry (userStale + id.ToString (), "foo", TimeSpan.FromDays (7));
 			}
 		}
 
