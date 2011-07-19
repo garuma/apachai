@@ -164,4 +164,4 @@ setTimeout (function () {
 			}, 250);
 		})();
 	})(window.jQuery);
-}, 10);
+}, 100);
