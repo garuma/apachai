@@ -153,6 +153,7 @@ namespace Apachai
 						OAuthToken token = new OAuthToken (result["oauth_token"], result["oauth_token_secret"]);
 						return token;
 					} catch (WebException e) {
+						Console.WriteLine ("Request token error");
 						Console.WriteLine (e.ToString ());
 						var x = e.Response.GetResponseStream ();
 						var j = new System.IO.StreamReader (x);
@@ -196,6 +197,7 @@ namespace Apachai
 
 						return Tuple.Create (token, infos);
 					} catch (WebException e) {
+						Console.WriteLine ("Access token error");
 						var x = e.Response.GetResponseStream ();
 						var j = new System.IO.StreamReader (x);
 						Console.WriteLine (j.ReadToEnd ());
