@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Text;
 
 using Manos;
 using Manos.Http;
@@ -48,7 +49,7 @@ namespace Apachai
 		{
 			response.Headers.SetNormalizedHeader ("Content-Type", "Content-Type: "+mime+"; charset=utf-8");
 			response.Headers.SetNormalizedHeader ("Cache-Control", "max-age=" + maxAge);
-			response.End (data);
+			response.End (Encoding.UTF8.GetBytes (data));
 		}
 	}
 }
