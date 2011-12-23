@@ -298,13 +298,13 @@ namespace Apachai
 
 			ctx.Response.RawServing ("text/html", 600, string.Format (@"<html xmlns:og=""http://ogp.me/ns#"">
 <head>
-<title>Picture on Apachaï</title>
+<title>Picture on Apacha\u00ef</title>
 <meta charset=""utf-8"" />
-<meta property=""og:title"" content=""Picture on Apachaï"" />
+<meta property=""og:title"" content=""Picture on Apacha\u00ef"" />
 <meta property=""og:type"" content=""article"" />
 <meta property=""og:image"" content=""{0}"" />
-<meta property=""og:description"" content=""Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework"" />
-<meta property=""og:site_name"" content=""Apachaï"" />
+<meta property=""og:description"" content=""Apacha\u00ef is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework"" />
+<meta property=""og:site_name"" content=""Apacha\u00ef"" />
 </head>
 <script type=""text/javascript"">window.location = '{0}';</script>
 </html>", imageUrl));
