@@ -68,7 +68,6 @@ namespace Apachai
 		{
 			Route ("/Content/", (staticContent = new StaticContentModule ("Content")));
 			Route ("/Pictures/", new PictureContentModule ());
-			AddPipe (new Manos.Util.AccessLogger ("access.log"));
 		}
 
 #region Browser serving endpoints
