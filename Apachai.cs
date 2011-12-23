@@ -307,7 +307,7 @@ namespace Apachai
 <meta property=""og:description"" content=""Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework"" />
 <meta property=""og:site_name"" content=""Apachaï"" />
 </head>
-<script type=""text/javascript"">window.location = '{0}';</script>
+<script type=""text/javascript"">if (navigator.userAgent.indexOf('facebook') == -1) window.location = '{0}';</script>
 </html>", pageUrl, imageUrl));
 		}
 
