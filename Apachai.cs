@@ -302,13 +302,12 @@ namespace Apachai
 <meta charset=""utf-8"" />
 <meta property=""og:title"" content=""Picture on Apachaï"" />
 <meta property=""og:type"" content=""article"" />
-<meta property=""og:url"" content=""{0}"" />
-<meta property=""og:image"" content=""{1}"" />
+<meta property=""og:image"" content=""{0}"" />
 <meta property=""og:description"" content=""Apachaï is designed to be a small and lightweight photo and picture sharing application (for services like Twitter) built on the Manos framework"" />
 <meta property=""og:site_name"" content=""Apachaï"" />
 </head>
-<script type=""text/javascript"">if (navigator.userAgent.indexOf('facebook') == -1) window.location = '{0}';</script>
-</html>", pageUrl, imageUrl));
+<script type=""text/javascript"">window.location = '{0}';</script>
+</html>", imageUrl));
 		}
 
 		[Route ("/infos/{id}", MatchType = MatchType.Simple)]
